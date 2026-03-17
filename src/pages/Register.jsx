@@ -8,11 +8,14 @@ const navigate = useNavigate();
 const [name,setName] = useState("");
 const [email,setEmail] = useState("");
 const [password,setPassword] = useState("");
-const [collegeId,setCollegeId] = useState("");
+const [college,setCollege] = useState("");
+const [gameUID,setGameUID] = useState("");
 
-const handleRegister = () => {
+const handleRegister = (e)=>{
 
-fetch("http://127.0.0.1:5000/register",{
+e.preventDefault()
+
+fetch("http://127.0.0.1:5000/auth/register",{
 
 method:"POST",
 
@@ -21,24 +24,21 @@ headers:{
 },
 
 body:JSON.stringify({
-
 name:name,
 email:email,
 password:password,
-college_id:collegeId
-
+college:college,
+game_uid:gameUID
 })
 
 })
 .then(res=>res.json())
 .then(data=>{
 
-alert(data.message)
+alert(data.message || data.error)
 
-if(data.message==="Registration Successful"){
-
+if(data.message){
 navigate("/")
-
 }
 
 })
@@ -47,9 +47,11 @@ navigate("/")
 
 return(
 
-<div>
+<div style={{textAlign:"center",marginTop:"100px"}}>
 
-<h1>Register - Campus Clash</h1>
+<h1>Register</h1>
+
+<form onSubmit={handleRegister}>
 
 <input
 placeholder="Name"
@@ -74,21 +76,30 @@ onChange={(e)=>setPassword(e.target.value)}
 <br/><br/>
 
 <input
-placeholder="College ID"
-onChange={(e)=>setCollegeId(e.target.value)}
+placeholder="College"
+onChange={(e)=>setCollege(e.target.value)}
 />
 
 <br/><br/>
 
-<button onClick={handleRegister}>
+<input
+placeholder="Game UID"
+onChange={(e)=>setGameUID(e.target.value)}
+/>
+
+<br/><br/>
+
+<button type="submit">
 Register
 </button>
 
 <br/><br/>
 
-<button onClick={()=>navigate("/")}>
-Already have account? Login
+<button type="button" onClick={()=>navigate("/")}>
+Already registered? Login
 </button>
+
+</form>
 
 </div>
 
@@ -96,4 +107,4 @@ Already have account? Login
 
 }
 
-export default Register;
+export default Register

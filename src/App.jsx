@@ -1,17 +1,45 @@
 import { Routes, Route } from "react-router-dom";
+
+import Login from "./pages/login";
 import Register from "./pages/Register";
-import Login from "./pages/Login";
 import Tournament from "./pages/Tournament";
+import ProtectedRoute from "./components/ProtectedRoute";
+import TournamentDetails from "./pages/TournamentDetails";
+import AdminPanel from "./pages/AdminPanel"
+import MyTournaments from "./pages/MyTournaments"
 
 function App() {
+
   return (
-    
+
     <Routes>
+
       <Route path="/" element={<Login />} />
-      <Route path="/register" element={<Register/>}/>
-      <Route path="/tournaments" element={<Tournament/>} />
+
+      <Route path="/register" element={<Register />} />
+
+      <Route
+        path="/tournaments"
+        element={
+          <ProtectedRoute>
+            <Tournament />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/tournament/:id"
+        element={
+          <ProtectedRoute>
+            <TournamentDetails/>
+          </ProtectedRoute>
+        }
+      />
+      <Route path="/admin" element={<AdminPanel/>} />
+      <Route path="/my-tournaments" element={<MyTournaments/>} />
+
     </Routes>
-    
+
   );
 }
 
