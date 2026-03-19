@@ -7,6 +7,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import TournamentDetails from "./pages/TournamentDetails";
 import AdminPanel from "./pages/AdminPanel"
 import MyTournaments from "./pages/MyTournaments"
+import TournamentRoom from "./pages/TournamentRoom";
 
 function App() {
 
@@ -37,6 +38,7 @@ function App() {
       />
       <Route path="/admin" element={<AdminPanel/>} />
       <Route path="/my-tournaments" element={<MyTournaments/>} />
+      <Route path="/room/:id" element={<TournamentRoom/>}/>
 
     </Routes>
 

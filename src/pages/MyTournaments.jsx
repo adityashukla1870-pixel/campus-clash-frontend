@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react"
+import { useNavigate } from "react-router-dom"
 
 function MyTournaments(){
+
+const navigate = useNavigate()
 
 const [tournaments,setTournaments] = useState([])
 
@@ -50,7 +53,18 @@ padding:"20px"
 
 <p>Prize Pool: ₹{t.prize_pool}</p>
 
-<p>Status: {t.status}</p>
+<p>Status: {t.status === "approved" ? "Approved ✅" : "Pending ⏳"}</p>
+
+
+<button
+onClick={()=>{
+console.log("BUTTON CLICKED", t.id)
+navigate(`/room/${t.id}`)
+}}
+>
+Open Room
+</button>
+
 
 </div>
 

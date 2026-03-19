@@ -29,17 +29,7 @@ setTournament(data)
 
 
 // generate payment code when page loads
-fetch(`http://127.0.0.1:5000/tournament/register/${id}`,{
-method:"POST",
-headers:{
-Authorization:`Bearer ${token}`
-}
-})
-.then(res=>res.json())
-.then(data=>{
-console.log("REGISTER RESPONSE:",data)
-setPaymentCode(data.payment_code)
-})
+
 
 fetch(`http://127.0.0.1:5000/tournament/register/${id}`,{
 method:"POST",
