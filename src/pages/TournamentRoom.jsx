@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom"
 function TournamentRoom(){
 
 const {id} = useParams()
-
+const [timeLeft, setTimeLeft] = useState("");
 const [room,setRoom] = useState(null)
 
 useEffect(()=>{
@@ -23,6 +23,31 @@ setRoom(data)
 
 },[])
 
+
+useEffect(() => {
+  if (!roomData || !roomData.room_id) return;
+
+  const interval = setInterval(() => {
+    const now = new Date().getTime();
+    const matchTime = new Date(roomData.match_start_time).getTime();
+
+    const diff = matchTime - now;
+
+    if (diff <= 0) {
+      setTimeLeft("Match Started 🚀");
+      clearInterval(interval);
+      return;
+    }
+
+    const minutes = Math.floor((diff / (1000 * 60)) % 60);
+    const seconds = Math.floor((diff / 1000) % 60);
+
+    setTimeLeft(`${minutes}m ${seconds}s`);
+  }, 1000);
+
+  return () => clearInterval(interval);
+}, [roomData]);
+
 if(!room){
 return <h2>Loading...</h2>
 }
@@ -33,20 +58,18 @@ return(
 
 <h1>Match Room</h1>
 
-{room.room_id ? (
+{!roomData?.room_id ? (
+  <p className="text-yellow-400">
+    ⏳ Waiting for admin to release room...
+  </p>
+) : (
+  <div className="bg-black p-4 rounded-xl text-center">
+    <h3>Room ID: {roomData.room_id}</h3>
+    <h3>Password: {roomData.room_password}</h3>
 
-<div>
-
-<h2>Room ID: {room.room_id}</h2>
-
-<h2>Password: {room.room_password}</h2>
-
-</div>
-
-):(
-
-<h3>Room not released yet</h3>
-
+    <h2 className="mt-3">⏳ Match starts in:</h2>
+    <p className="text-xl">{timeLeft}</p>
+  </div>
 )}
 
 </div>
