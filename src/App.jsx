@@ -5,9 +5,14 @@ import Register from "./pages/Register";
 import Tournament from "./pages/Tournament";
 import ProtectedRoute from "./components/ProtectedRoute";
 import TournamentDetails from "./pages/TournamentDetails";
-import AdminPanel from "./pages/AdminPanel"
+
 import MyTournaments from "./pages/MyTournaments"
 import TournamentRoom from "./pages/TournamentRoom";
+import AdminDashboard from "./pages/AdminDashboard"
+import AdminPayments from "./pages/AdminPayments"
+import AdminReleaseRoom from "./pages/AdminReleaseRoom"
+import AdminCreateTournament from "./pages/AdminCreateTournament"
+
 
 function App() {
 
@@ -36,9 +41,14 @@ function App() {
           </ProtectedRoute>
         }
       />
-      <Route path="/admin" element={<AdminPanel/>} />
+      
       <Route path="/my-tournaments" element={<MyTournaments/>} />
       <Route path="/room/:id" element={<TournamentRoom/>}/>
+      <Route path="/admin" element={<AdminDashboard />} />
+      <Route path="/admin/payments" element={<AdminPayments />} />
+      <Route path="/admin/release-room" element={<AdminReleaseRoom />} />
+      <Route path="/admin/create-tournament" element={<AdminCreateTournament />} />
+      
 
     </Routes>
 

@@ -21,15 +21,15 @@ Authorization:`Bearer ${token}`
 setRoom(data)
 })
 
-},[])
+},[id])
 
 
 useEffect(() => {
-  if (!roomData || !roomData.room_id) return;
+  if (!room || !room.room_id) return;
 
   const interval = setInterval(() => {
     const now = new Date().getTime();
-    const matchTime = new Date(roomData.match_start_time).getTime();
+    const matchTime = new Date(room.match_start_time).getTime();
 
     const diff = matchTime - now;
 
@@ -46,7 +46,8 @@ useEffect(() => {
   }, 1000);
 
   return () => clearInterval(interval);
-}, [roomData]);
+}, [room]);
+
 
 if(!room){
 return <h2>Loading...</h2>
@@ -58,17 +59,17 @@ return(
 
 <h1>Match Room</h1>
 
-{!roomData?.room_id ? (
-  <p className="text-yellow-400">
+{!room?.room_id ? (
+  <p style={{color:"yellow"}}>
     ⏳ Waiting for admin to release room...
   </p>
 ) : (
-  <div className="bg-black p-4 rounded-xl text-center">
-    <h3>Room ID: {roomData.room_id}</h3>
-    <h3>Password: {roomData.room_password}</h3>
+  <div style={{background:"black", color:"white", padding:"20px", borderRadius:"10px"}}>
+    <h3>Room ID: {room.room_id}</h3>
+    <h3>Password: {room.room_password}</h3>
 
-    <h2 className="mt-3">⏳ Match starts in:</h2>
-    <p className="text-xl">{timeLeft}</p>
+    <h2>⏳ Match starts in:</h2>
+    <p>{timeLeft}</p>
   </div>
 )}
 

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 
-function AdminPanel(){
+function AdminPayments(){
 
 const [payments,setPayments] = useState([])
 
@@ -87,10 +87,14 @@ padding:"20px"
 
 <p>UTR: {p.utr}</p>
 
-<img
-src={`http://127.0.0.1:5000/${p.screenshot.replace("\\","/")}`}
-width="200"
-/>
+{p.screenshot ? (
+  <img
+    src={`http://127.0.0.1:5000/${p.screenshot.replace("\\", "/")}`}
+    width="200"
+  />
+) : (
+  <p>No Screenshot</p>
+)}
 
 <br/><br/>
 
@@ -114,4 +118,4 @@ Reject
 
 }
 
-export default AdminPanel
+export default AdminPayments
