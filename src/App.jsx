@@ -5,9 +5,9 @@ import Register from "./pages/Register";
 import Tournament from "./pages/Tournament";
 import ProtectedRoute from "./components/ProtectedRoute";
 import TournamentDetails from "./pages/TournamentDetails";
-
 import MyTournaments from "./pages/MyTournaments"
 import TournamentRoom from "./pages/TournamentRoom";
+
 import AdminDashboard from "./pages/AdminDashboard"
 import AdminPayments from "./pages/AdminPayments"
 import AdminReleaseRoom from "./pages/AdminReleaseRoom"
