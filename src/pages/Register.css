@@ -1,0 +1,52 @@
+.register-page {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* CARD */
+.register-card {
+  background: #1a1a1a;
+  padding: 30px;
+  border-radius: 12px;
+  width: 320px;
+  text-align: center;
+  box-shadow: 0 0 25px rgba(0,0,0,0.6);
+}
+
+/* TITLE */
+.register-card h1 {
+  margin-bottom: 5px;
+}
+
+.register-sub {
+  color: #aaa;
+  margin-bottom: 20px;
+}
+
+/* INPUTS */
+.register-card input {
+  margin-top: 10px;
+}
+
+/* BUTTON */
+.register-card button {
+  margin-top: 20px;
+  width: 100%;
+  background: #00c6ff;
+  color: black;
+  border: none;
+}
+
+/* LOGIN TEXT */
+.login-text {
+  margin-top: 15px;
+  font-size: 14px;
+}
+
+.login-text span {
+  color: #00c6ff;
+  cursor: pointer;
+  margin-left: 5px;
+}

@@ -85,67 +85,72 @@ return <h2 style={{textAlign:"center"}}>Loading...</h2>
 
 return(
 
-<div style={{textAlign:"center"}}>
+<div className="details-page">
 
-<h1>{tournament.name}</h1>
+  {/* TITLE */}
+  <h1 className="title">🎮 {tournament.name}</h1>
 
-<p>Game: {tournament.game}</p>
+  {/* INFO CARD */}
+  <div className="info-card">
 
-<p>Entry Fee: ₹{tournament.entry_fee}</p>
+    <p>🎮 Game: {tournament.game}</p>
+    <p>💰 Entry Fee: ₹{tournament.entry_fee}</p>
+    <p>🏆 Prize Pool: ₹{tournament.prize_pool}</p>
+    <p>👥 Players: {tournament.players.length} / {tournament.max_players}</p>
 
-<p>Prize Pool: ₹{tournament.prize_pool}</p>
+  </div>
 
-<p>Players: {tournament.players.length} / {tournament.max_players}</p>
+  {/* PAYMENT SECTION */}
+  <div className="payment-card">
 
-<hr/>
+    <h2>💳 Payment Details</h2>
 
-<h2>Payment Details</h2>
+    <p>Send payment using UPI</p>
 
-<p>UPI ID: campus@upi</p>
+    <p><strong>UPI ID:</strong> campus@upi</p>
+    <p><strong>Amount:</strong> ₹{tournament.entry_fee}</p>
 
-<p>Amount: ₹{tournament.entry_fee}</p>
+    <div className="code-box">
+      <p>🔑 Payment Code</p>
 
-<h3>Payment Code</h3>
+      <h3>{paymentCode}</h3>
 
-<p style={{
-fontSize:"22px",
-fontWeight:"bold",
-color:"red"
-}}>
-{paymentCode}
-</p>
+      <p className="note">
+        ⚠️ Copy this code and paste it in UPI payment note
+      </p>
 
-<p>⚠️ Copy this code and add it in the UPI payment note</p>
+      <button onClick={()=>{
+        navigator.clipboard.writeText(paymentCode)
+        alert("Payment code copied")
+      }}>
+        Copy Code
+      </button>
+    </div>
 
-<button onClick={()=>{
-navigator.clipboard.writeText(paymentCode)
-alert("Payment code copied")
-}}>
-Copy Code
-</button>
-<hr/>
+  </div>
 
-<h3>Upload Payment Screenshot</h3>
+  {/* UPLOAD SECTION */}
+  <div className="upload-card">
 
-<input
-type="file"
-onChange={(e)=>setFile(e.target.files[0])}
-/>
+    <h3>📤 Submit Payment Proof</h3>
 
-<br/><br/>
+    <input
+      type="file"
+      onChange={(e)=>setFile(e.target.files[0])}
+    />
 
-<input
-type="text"
-placeholder="Enter UTR Number"
-value={utr}
-onChange={(e)=>setUtr(e.target.value)}
-/>
+    <input
+      type="text"
+      placeholder="Enter UTR Number"
+      value={utr}
+      onChange={(e)=>setUtr(e.target.value)}
+    />
 
-<br/><br/>
+    <button onClick={handleUpload}>
+      Submit Payment
+    </button>
 
-<button onClick={handleUpload}>
-Submit Payment
-</button>
+  </div>
 
 </div>
 

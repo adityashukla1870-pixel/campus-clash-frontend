@@ -25,52 +25,51 @@ setTournaments(data)
 
 return(
 
-<div style={{textAlign:"center"}}>
+<div className="mytournaments-page">
 
-<h1>My Tournaments</h1>
+  <h1>🎯 My Tournaments</h1>
 
-{tournaments.length === 0 && (
-<p>No tournaments joined yet</p>
-)}
+  {tournaments.length === 0 && (
+    <p className="empty-text">
+      🚫 No tournaments joined yet
+    </p>
+  )}
 
-{tournaments.map((t)=>{
+  <div className="mytournament-list">
 
-return(
+  {tournaments.map((t)=>{
 
-<div key={t.id}
-style={{
-border:"1px solid black",
-margin:"20px",
-padding:"20px"
-}}
->
+  return(
 
-<h3>{t.name}</h3>
+  <div className="mytournament-card" key={t.id}>
 
-<p>Game: {t.game}</p>
+    <h2>🔥 {t.name}</h2>
 
-<p>Entry Fee: ₹{t.entry_fee}</p>
+    <p>🎮 Game: {t.game}</p>
+    <p>💰 Entry Fee: ₹{t.entry_fee}</p>
+    <p>🏆 Prize Pool: ₹{t.prize_pool}</p>
 
-<p>Prize Pool: ₹{t.prize_pool}</p>
+    <p className={`status ${t.status === "approved" ? "approved" : "pending"}`}>
+      {t.status === "approved" ? "Approved ✅" : "Pending ⏳"}
+    </p>
 
-<p>Status: {t.status === "approved" ? "Approved ✅" : "Pending ⏳"}</p>
+    <button
+      onClick={()=>{
+        console.log("BUTTON CLICKED", t.id)
+        navigate(`/room/${t.id}`)
+      }}
+      disabled={t.status !== "approved"}
+    >
+      Open Room
+    </button>
 
+  </div>
 
-<button
-onClick={()=>{
-console.log("BUTTON CLICKED", t.id)
-navigate(`/room/${t.id}`)
-}}
->
-Open Room
-</button>
+  )
 
+  })}
 
-</div>
-
-)
-
-})}
+  </div>
 
 </div>
 

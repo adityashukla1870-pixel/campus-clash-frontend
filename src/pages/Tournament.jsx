@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
+import bgImage from "../assets/gaming.jpg"
 
 function Tournament(){
 
@@ -79,59 +80,83 @@ navigate("/")
 
 return(
 
-<div style={{textAlign:"center"}}>
-
-<h1>Tournaments</h1>
-
-<button onClick={handleLogout}>
-Logout
-</button>
-
-<button onClick={()=>navigate("/my-tournaments")}>
-My Tournaments
-</button>
-
-{Array.isArray(tournaments) && tournaments.map((t)=>{
-
-const alreadyJoined = t.players?.includes(userId)
-const isFull = t.players.length >= t.max_players
-
-return(
-
-<div key={t.id}
-style={{
-border:"1px solid black",
-margin:"20px",
-padding:"20px"
-}}
+<div
+  className="tournaments-page"
+  style={{
+    backgroundImage: `url(${bgImage})`,
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    backgroundRepeat: "no-repeat"
+  }}
 >
 
-<h3>{t.name}</h3>
+  {/* TOP BAR */}
+  <div className="top-bar">
+    <h1>🎮 Tournaments</h1>
 
-<p>Game: {t.game}</p>
+    <div className="top-buttons">
+      <button onClick={handleLogout}>Logout</button>
+      <button onClick={()=>navigate("/my-tournaments")}>
+        My Tournaments
+      </button>
+    </div>
+  </div>
 
-<p>
-Players: {t.players.length} / {t.max_players}
-</p>
+  {/* HERO SECTION */}
+  <div className="tournament-hero">
+    <h1>Compete. Conquer. Win.</h1>
+    <p>
+      Join exciting esports tournaments, battle top players,
+      and prove your skills on the leaderboard.
+    </p>
+  </div>
 
-<button
-onClick={()=>navigate(`/tournament/${t.id}`)}
-disabled={alreadyJoined || isFull}
->
+  {/* IMAGE */}
+  
 
-{alreadyJoined
-? "Already Joined"
-: isFull
-? "Tournament Full"
-: "Join Tournament"}
+  {/* TOURNAMENT LIST */}
+  <div className="tournament-list">
 
-</button>
+    {Array.isArray(tournaments) && tournaments.map((t)=>{
 
-</div>
+      const alreadyJoined = t.players?.includes(userId)
+      const isFull = t.players.length >= t.max_players
 
-)
+      return(
 
-})}
+      <div className="tournament-card" key={t.id}>
+
+        <h2>🔥 {t.name}</h2>
+
+        <p>🎮 Game: {t.game}</p>
+        <p className="highlight">🏆 Prize Pool: ₹{t.prize_pool}</p>
+        <p>👥 Players: {t.players.length} / {t.max_players}</p>
+
+        <button
+          onClick={()=>navigate(`/tournament/${t.id}`)}
+          disabled={alreadyJoined || isFull}
+        >
+          {alreadyJoined
+            ? "Already Joined"
+            : isFull
+            ? "Tournament Full"
+            : "Join Tournament"}
+        </button>
+
+      </div>
+
+      )
+
+    })}
+
+  </div>
+
+  {/* EMPTY STATE */}
+  {tournaments.length === 0 && (
+    <p className="empty-text">
+      🚫 No tournaments available right now. Stay tuned!
+    </p>
+  )}
 
 </div>
 

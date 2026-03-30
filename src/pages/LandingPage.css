@@ -1,0 +1,74 @@
+.landing {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  
+  color: white;
+  text-align: center;
+  padding: 20px;
+}
+
+.hero {
+  max-width: 700px;
+  animation: fadeIn 1s ease-in-out;
+}
+
+.hero h1 {
+  font-size: 52px;
+  margin-bottom: 10px;
+}
+
+.tagline {
+  font-size: 22px;
+  color: #00c6ff;
+  margin-bottom: 10px;
+}
+
+.desc {
+  color: #ccc;
+  margin-bottom: 30px;
+  line-height: 1.5;
+}
+
+.buttons {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+button {
+  padding: 12px 30px;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.primary {
+  background: #00c6ff;
+  color: black;
+  border: none;
+}
+
+.secondary {
+  background: transparent;
+  color: white;
+  border: 1px solid white;
+}
+
+button:hover {
+  transform: scale(1.08);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

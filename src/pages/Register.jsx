@@ -47,59 +47,43 @@ navigate("/")
 
 return(
 
-<div style={{textAlign:"center",marginTop:"100px"}}>
+<div className="register-page">
 
-<h1>Register</h1>
+  <div className="register-card">
 
-<form onSubmit={handleRegister}>
+    <h1>Campus Clash</h1>
+    <p className="register-sub">Create your account</p>
 
-<input
-placeholder="Name"
-onChange={(e)=>setName(e.target.value)}
-/>
+    <input
+      type="text"
+      placeholder="Enter Username"
+      onChange={(e)=>setUsername(e.target.value)}
+    />
 
-<br/><br/>
+    <input
+      type="email"
+      placeholder="Enter Email"
+      onChange={(e)=>setEmail(e.target.value)}
+    />
 
-<input
-placeholder="Email"
-onChange={(e)=>setEmail(e.target.value)}
-/>
+    <input
+      type="password"
+      placeholder="Enter Password"
+      onChange={(e)=>setPassword(e.target.value)}
+    />
 
-<br/><br/>
+    <button onClick={handleRegister}>
+      Register
+    </button>
 
-<input
-type="password"
-placeholder="Password"
-onChange={(e)=>setPassword(e.target.value)}
-/>
+    <p className="login-text">
+      Already have an account?
+      <span onClick={()=>navigate("/login")}>
+        Login
+      </span>
+    </p>
 
-<br/><br/>
-
-<input
-placeholder="College"
-onChange={(e)=>setCollege(e.target.value)}
-/>
-
-<br/><br/>
-
-<input
-placeholder="Game UID"
-onChange={(e)=>setGameUID(e.target.value)}
-/>
-
-<br/><br/>
-
-<button type="submit">
-Register
-</button>
-
-<br/><br/>
-
-<button type="button" onClick={()=>navigate("/")}>
-Already registered? Login
-</button>
-
-</form>
+  </div>
 
 </div>
 

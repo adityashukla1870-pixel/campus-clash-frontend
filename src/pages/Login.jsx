@@ -52,39 +52,41 @@ navigate("/tournaments")
 
 return(
 
-<div style={{textAlign:"center",marginTop:"100px"}}>
+<div className="login-page">
 
-<h1>Campus Clash Login</h1>
+  <div className="login-card">
 
-<form onSubmit={handleLogin}>
+    <h1>Campus Clash</h1>
+    <p className="login-sub">Login to continue</p>
 
-<input
-type="email"
-placeholder="Email"
-onChange={(e)=>setEmail(e.target.value)}
-/>
+    <form onSubmit={handleLogin}>
 
-<br/><br/>
+      <input
+        type="email"
+        placeholder="Enter Email"
+        onChange={(e)=>setEmail(e.target.value)}
+      />
 
-<input
-type="password"
-placeholder="Password"
-onChange={(e)=>setPassword(e.target.value)}
-/>
+      <input
+        type="password"
+        placeholder="Enter Password"
+        onChange={(e)=>setPassword(e.target.value)}
+      />
 
-<br/><br/>
+      <button type="submit">
+        Login
+      </button>
 
-<button type="submit">
-Login
-</button>
+    </form>
 
-<br/><br/>
+    <p className="register-text">
+      New user? 
+      <span onClick={()=>navigate("/register")}>
+        Register
+      </span>
+    </p>
 
-<button type="button" onClick={()=>navigate("/register")}>
-New user? Register
-</button>
-
-</form>
+  </div>
 
 </div>
 
