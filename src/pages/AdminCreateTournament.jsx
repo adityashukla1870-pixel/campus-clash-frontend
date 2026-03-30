@@ -7,28 +7,42 @@ const [entryFee,setEntryFee] = useState("")
 const [date,setDate] = useState("")
 const [maxPlayers,setMaxPlayers] = useState("")
 const [game,setGame] = useState("")
+const [prizePool, setPrizePool] = useState("")
 
-const handleSubmit = async ()=>{
+const handleSubmit = async () => {
 
-const token = localStorage.getItem("token")
+  console.log("CLICKED")
 
-await fetch("http://127.0.0.1:5000/tournament/create",{
-method:"POST",
-headers:{
-"Content-Type":"application/json",
-Authorization:`Bearer ${token}`
-},
-body: JSON.stringify({
-name,
-entry_fee: entryFee,
-date,
-max_players: maxPlayers,
-game
-})
-})
+  const token = localStorage.getItem("token")
+  console.log("TOKEN:", token)
 
-alert("Tournament Created ✅")
+  try {
 
+    const res = await fetch("http://127.0.0.1:5000/tournament/create",{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        Authorization:`Bearer ${token}`
+      },
+      body: JSON.stringify({
+        name,
+        game,
+        entry_fee: entryFee,
+        prize_pool: prizePool,
+        max_players: maxPlayers
+      })
+    })
+
+    console.log("STATUS:", res.status)
+
+    const data = await res.json()
+    console.log("RESPONSE:", data)
+
+    alert(data.message || data.error)
+
+  } catch (err) {
+    console.error("ERROR:", err)
+  }
 }
 
 
@@ -53,6 +67,11 @@ onChange={(e)=>setEntryFee(e.target.value)}
 
 <br/><br/>
 
+<input
+placeholder="Prize Pool"
+onChange={(e)=>setPrizePool(e.target.value)}
+/>
+<br/><br/>
 <input
 type="datetime-local"
 onChange={(e)=>setDate(e.target.value)}

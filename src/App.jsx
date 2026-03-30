@@ -12,6 +12,7 @@ import AdminDashboard from "./pages/AdminDashboard"
 import AdminPayments from "./pages/AdminPayments"
 import AdminReleaseRoom from "./pages/AdminReleaseRoom"
 import AdminCreateTournament from "./pages/AdminCreateTournament"
+import AdminWinner from "./pages/AdminWinner"
 
 
 function App() {
@@ -48,6 +49,7 @@ function App() {
       <Route path="/admin/payments" element={<AdminPayments />} />
       <Route path="/admin/release-room" element={<AdminReleaseRoom />} />
       <Route path="/admin/create-tournament" element={<AdminCreateTournament />} />
+      <Route path="/admin/winner" element={<AdminWinner />} />
       
 
     </Routes>
