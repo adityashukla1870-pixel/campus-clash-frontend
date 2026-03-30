@@ -1,5 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 
+import LandingPage from "./pages/LandingPage"
 import Login from "./pages/login";
 import Register from "./pages/Register";
 import Tournament from "./pages/Tournament";
@@ -21,8 +22,9 @@ function App() {
 
     <Routes>
 
-      <Route path="/" element={<Login />} />
+      <Route path="/" element={<LandingPage />} />
 
+      <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
 
       <Route
