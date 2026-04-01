@@ -85,6 +85,9 @@ return <h2 style={{textAlign:"center"}}>Loading...</h2>
 
 return(
 
+<>
+<Navbar/>
+
 <div className="details-page">
 
   {/* TITLE */}
@@ -153,7 +156,7 @@ return(
   </div>
 
 </div>
-
+</>
 )
 
 }

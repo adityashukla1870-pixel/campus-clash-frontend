@@ -11,6 +11,7 @@ import "./pages/MyTournament.css"
 import "./pages/TournamentDetails.css"
 
 
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <BrowserRouter>
     <App />

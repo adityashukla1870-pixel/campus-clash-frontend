@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import bgImage from "../assets/gaming.jpg"
+import Navbar from "../components/Navbar"
 
 function Tournament(){
 
@@ -80,6 +81,9 @@ navigate("/")
 
 return(
 
+<>
+<Navbar/>
+
 <div
   className="tournaments-page"
   style={{
@@ -94,12 +98,7 @@ return(
   <div className="top-bar">
     <h1>🎮 Tournaments</h1>
 
-    <div className="top-buttons">
-      <button onClick={handleLogout}>Logout</button>
-      <button onClick={()=>navigate("/my-tournaments")}>
-        My Tournaments
-      </button>
-    </div>
+    
   </div>
 
   {/* HERO SECTION */}
@@ -159,6 +158,7 @@ return(
   )}
 
 </div>
+</>
 
 )
 

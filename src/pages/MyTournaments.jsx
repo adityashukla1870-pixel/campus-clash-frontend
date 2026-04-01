@@ -25,6 +25,9 @@ setTournaments(data)
 
 return(
 
+<>
+<Navbar/>
+
 <div className="mytournaments-page">
 
   <h1>🎯 My Tournaments</h1>
@@ -72,6 +75,8 @@ return(
   </div>
 
 </div>
+
+</>
 
 )
 
