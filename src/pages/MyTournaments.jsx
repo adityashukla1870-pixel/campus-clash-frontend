@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { useLocation } from "react-router-dom"
+import Navbar from "../components/Navbar"
 
 function MyTournaments(){
 
@@ -18,14 +19,7 @@ useEffect(()=>{
     return
   }
 
-  try {
-    const decoded = jwtDecode(token)
-    setUserId(decoded.sub)
-  } catch(err){
-    console.log("Invalid token")
-    navigate("/")
-    return
-  }
+  
 
   fetch("http://127.0.0.1:5000/tournament/all",{
     headers:{
