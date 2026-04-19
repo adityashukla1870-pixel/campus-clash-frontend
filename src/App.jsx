@@ -45,7 +45,14 @@ function App() {
         }
       />
       
-      <Route path="/my-tournaments" element={<MyTournaments/>} />
+      <Route
+  path="/my-tournaments"
+  element={
+    <ProtectedRoute>
+      <MyTournaments key="mytournaments" />
+    </ProtectedRoute>
+  }
+/>
       <Route path="/room/:id" element={<TournamentRoom/>}/>
       <Route path="/admin" element={<AdminDashboard />} />
       <Route path="/admin/payments" element={<AdminPayments />} />

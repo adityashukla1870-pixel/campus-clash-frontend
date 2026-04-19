@@ -1,27 +1,48 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
+import { useLocation } from "react-router-dom"
 
 function MyTournaments(){
 
 const navigate = useNavigate()
+const location = useLocation()
 
 const [tournaments,setTournaments] = useState([])
 
 useEffect(()=>{
 
-const token = localStorage.getItem("token")
+  const token = localStorage.getItem("token")
 
-fetch("http://127.0.0.1:5000/tournament/my-tournaments",{
-headers:{
-Authorization:`Bearer ${token}`
-}
-})
-.then(res=>res.json())
-.then(data=>{
-setTournaments(data)
-})
+  if(!token){
+    navigate("/")
+    return
+  }
 
-},[])
+  try {
+    const decoded = jwtDecode(token)
+    setUserId(decoded.sub)
+  } catch(err){
+    console.log("Invalid token")
+    navigate("/")
+    return
+  }
+
+  fetch("http://127.0.0.1:5000/tournament/all",{
+    headers:{
+      Authorization:`Bearer ${token}`
+    }
+  })
+  .then(res=>res.json())
+  .then(data=>{
+    if(Array.isArray(data)){
+      setTournaments(data)
+    }else{
+      console.log("API ERROR:",data)
+      setTournaments([])
+    }
+  })
+
+},[location.pathname])
 
 return(
 

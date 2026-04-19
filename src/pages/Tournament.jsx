@@ -3,42 +3,49 @@ import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import bgImage from "../assets/gaming.jpg"
 import Navbar from "../components/Navbar"
+import { useLocation } from "react-router-dom"
 
 function Tournament(){
 
 const navigate = useNavigate();
 const [tournaments,setTournaments] = useState([]);
 const [userId,setUserId] = useState("");
+const location = useLocation()
 
 useEffect(()=>{
 
-const token = localStorage.getItem("token")
+  const token = localStorage.getItem("token")
 
-if(!token){
-navigate("/")
-return
-}
+  if(!token){
+    navigate("/")
+    return
+  }
 
-const decoded = jwtDecode(token)
+  try {
+    const decoded = jwtDecode(token)
+    setUserId(decoded.sub)
+  } catch(err){
+    console.log("Invalid token")
+    navigate("/")
+    return
+  }
 
-setUserId(decoded.sub)
+  fetch("http://127.0.0.1:5000/tournament/all",{
+    headers:{
+      Authorization:`Bearer ${token}`
+    }
+  })
+  .then(res=>res.json())
+  .then(data=>{
+    if(Array.isArray(data)){
+      setTournaments(data)
+    }else{
+      console.log("API ERROR:",data)
+      setTournaments([])
+    }
+  })
 
-fetch("http://127.0.0.1:5000/tournament/all",{
-headers:{
-Authorization:`Bearer ${token}`
-}
-})
-.then(res=>res.json())
-.then(data=>{
-if(Array.isArray(data)){
-setTournaments(data)
-}else{
-console.log("API ERROR:",data)
-setTournaments([])
-}
-})
-
-},[])
+},[location.pathname])
 
 const handleJoin = async (id)=>{
 
