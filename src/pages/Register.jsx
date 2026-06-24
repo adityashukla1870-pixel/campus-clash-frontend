@@ -1,94 +1,134 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import API from "../api/axios";
 
-function Register(){
+function Register() {
 
-const navigate = useNavigate();
+  const navigate = useNavigate();
 
-const [name,setName] = useState("");
-const [email,setEmail] = useState("");
-const [password,setPassword] = useState("");
-const [college,setCollege] = useState("");
-const [gameUID,setGameUID] = useState("");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [college, setCollege] = useState("");
 
-const handleRegister = (e)=>{
 
-e.preventDefault()
+  const handleRegister = async (e) => {
 
-fetch("http://127.0.0.1:5000/auth/register",{
+    e.preventDefault();
 
-method:"POST",
+    if (
+      !name ||
+      !email ||
+      !password ||
+      !college 
+    ) {
+      alert("Please fill all fields");
+      return;
+    }
 
-headers:{
-"Content-Type":"application/json"
-},
+    try {
 
-body:JSON.stringify({
-name:name,
-email:email,
-password:password,
-college:college,
-game_uid:gameUID
-})
+      const res = await API.post("/auth/register", {
+        name,
+        email,
+        password,
+        college,
+        
+      });
 
-})
-.then(res=>res.json())
-.then(data=>{
+      const data = res.data;
 
-alert(data.message || data.error)
+      alert(data.message || "Registration Successful");
 
-if(data.message){
-navigate("/")
+      navigate("/");
+
+    } catch (err) {
+
+      console.error(err);
+
+      alert(
+        err.response?.data?.error ||
+        err.response?.data?.msg ||
+        "Registration Failed"
+      );
+
+    }
+
+  };
+
+  return (
+
+    <div className="register-page">
+
+      <div className="register-card">
+
+        <h1>Campus Clash</h1>
+
+        <p className="register-sub">
+          Create your account
+        </p>
+
+        <form onSubmit={handleRegister}>
+
+          <input
+            type="text"
+            placeholder="Enter Full Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+
+          <input
+            type="email"
+            placeholder="Enter Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+
+          <input
+            type="password"
+            placeholder="Enter Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+
+          <input
+            type="text"
+            placeholder="Enter College Name"
+            value={college}
+            onChange={(e) => setCollege(e.target.value)}
+          />
+
+          
+
+          <button
+            type="submit"
+            disabled={
+              !name ||
+              !email ||
+              !password ||
+              !college 
+            }
+          >
+            Register
+          </button>
+
+        </form>
+
+        <p className="login-text">
+          Already have an account?
+
+          <span onClick={() => navigate("/login")}>
+            Login
+          </span>
+
+        </p>
+
+      </div>
+
+    </div>
+
+  );
+
 }
 
-})
-
-}
-
-return(
-
-<div className="register-page">
-
-  <div className="register-card">
-
-    <h1>Campus Clash</h1>
-    <p className="register-sub">Create your account</p>
-
-    <input
-      type="text"
-      placeholder="Enter Username"
-      onChange={(e)=>setUsername(e.target.value)}
-    />
-
-    <input
-      type="email"
-      placeholder="Enter Email"
-      onChange={(e)=>setEmail(e.target.value)}
-    />
-
-    <input
-      type="password"
-      placeholder="Enter Password"
-      onChange={(e)=>setPassword(e.target.value)}
-    />
-
-    <button onClick={handleRegister}>
-      Register
-    </button>
-
-    <p className="login-text">
-      Already have an account?
-      <span onClick={()=>navigate("/login")}>
-        Login
-      </span>
-    </p>
-
-  </div>
-
-</div>
-
-)
-
-}
-
-export default Register
+export default Register;
