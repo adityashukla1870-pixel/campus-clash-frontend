@@ -49,33 +49,64 @@ setRegistrationId(data.registration_id)
 
 const handleUpload = async ()=>{
 
-const token = localStorage.getItem("token")
+  const token = localStorage.getItem("token")
 
-if(!file || !utr){
-alert("Upload screenshot and enter UTR")
-return
-}
+  if(!file || !utr){
+    alert("Upload screenshot and enter UTR")
+    return
+  }
 
-const formData = new FormData()
+  try {
 
-formData.append("file",file)
-formData.append("utr",utr)
+    // 🔥 STEP 1: REGISTER
+    const res1 = await fetch(
+      `http://127.0.0.1:5000/tournament/register/${id}`,
+      {
+        method:"POST",
+        headers:{
+          Authorization:`Bearer ${token}`
+        }
+      }
+    )
 
-const res = await fetch(
-`http://127.0.0.1:5000/tournament/upload-payment/${registrationId}`,
-{
-method:"POST",
-headers:{
-Authorization:`Bearer ${token}`
-},
-body:formData
-})
+    const data1 = await res1.json()
 
-const data = await res.json()
+    console.log("REGISTER RESPONSE:", data1)
 
-alert(data.message || "Payment Submitted")
+    const registrationId = data1.registration_id
 
-navigate("/my-tournaments")
+    if(!registrationId){
+      alert("Registration failed")
+      return
+    }
+
+    // 🔥 STEP 2: UPLOAD PAYMENT
+    const formData = new FormData()
+    formData.append("file", file)
+    formData.append("utr", utr)
+
+    const res2 = await fetch(
+      `http://127.0.0.1:5000/tournament/upload-payment/${registrationId}`,
+      {
+        method:"POST",
+        headers:{
+          Authorization:`Bearer ${token}`
+        },
+        body: formData
+      }
+    )
+
+    const data2 = await res2.json()
+
+    console.log("UPLOAD RESPONSE:", data2)
+
+    alert("Payment Submitted Successfully 🚀")
+
+    navigate("/my-tournaments")
+
+  } catch(err){
+    console.log("ERROR:", err)
+  }
 
 }
 

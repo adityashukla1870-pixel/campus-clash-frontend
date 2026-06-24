@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import API from "../api/axios";
 
 function Login(){
 
@@ -8,47 +9,53 @@ const navigate = useNavigate();
 const [email,setEmail] = useState("");
 const [password,setPassword] = useState("");
 
-const handleLogin = (e)=>{
+const handleLogin = async (e) => {
 
-e.preventDefault()
+  e.preventDefault();
 
-fetch("http://127.0.0.1:5000/auth/login",{
+  try {
 
-method:"POST",
+    const res = await API.post("/auth/login", {
+      email,
+      password,
+    });
 
-headers:{
-"Content-Type":"application/json"
-},
+    const data = res.data;
 
-body:JSON.stringify({
-email:email,
-password:password
-})
+    console.log("LOGIN RESPONSE:", data);
 
-})
-.then(res=>res.json())
-.then(data => {
+    if (data.token) {
 
-console.log("LOGIN RESPONSE:", data)
+      localStorage.setItem("token", data.token);
 
-if(data.token){
+      const decoded = JSON.parse(
+        atob(data.token.split(".")[1])
+      );
 
-localStorage.setItem("token", data.token)
+      console.log("DECODED TOKEN:", decoded);
 
-const decoded = JSON.parse(atob(data.token.split(".")[1]))
-console.log("DECODED TOKEN:", decoded)
+      if (decoded.role === "admin") {
+        navigate("/admin");
+      } else {
+        navigate("/tournaments");
+      }
 
-if(decoded.role === "admin"){
-navigate("/admin")
-}else{
-navigate("/tournaments")
-}
+    }
 
-}
+  } catch (err) {
 
-})
+    console.error(err);
 
-}
+    alert(
+      err.response?.data?.msg ||
+      "Login Failed"
+    );
+
+  }
+
+};
+
+
 
 return(
 
