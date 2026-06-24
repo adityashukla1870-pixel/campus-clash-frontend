@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import API from "../api/axios";
 
 function AdminPayments(){
 
@@ -6,60 +7,42 @@ const [payments,setPayments] = useState([])
 
 useEffect(()=>{
 
-const token = localStorage.getItem("token")
-
-fetch("http://127.0.0.1:5000/tournament/admin/pending-payments",{
-headers:{
-Authorization:`Bearer ${token}`
-}
+API.get("/tournament/admin/pending-payments")
+.then(res=>{
+  console.log("ADMIN PAYMENTS:", res.data)
+  setPayments(res.data)
 })
-.then(res=>res.json())
-.then(data=>{
-console.log("ADMIN PAYMENTS:",data)
-setPayments(data)
+.catch(err=>{
+  console.error(err)
 })
 
 },[])
 
 
 const approve = async(id)=>{
-
-const token = localStorage.getItem("token")
-
-await fetch(
-`http://127.0.0.1:5000/tournament/admin/approve/${id}`,
-{
-method:"POST",
-headers:{
-Authorization:`Bearer ${token}`
-}
-}
+await API.post(
+  `/tournament/admin/approve/${id}`
 )
-
 alert("Payment Approved")
 
-window.location.reload()
+setPayments(prev =>
+  prev.filter(payment => payment._id !== id)
+)
 
 }
 
 
 const reject = async(id)=>{
 
-const token = localStorage.getItem("token")
-
-await fetch(
-`http://127.0.0.1:5000/tournament/admin/reject/${id}`,
-{
-method:"POST",
-headers:{
-Authorization:`Bearer ${token}`
-}
-}
+await API.post(
+  `/tournament/admin/reject/${id}`
 )
 
 alert("Payment Rejected")
 
-window.location.reload()
+setPayments(prev =>
+  prev.filter(payment => payment._id !== id)
+)
 
 }
 
@@ -89,9 +72,9 @@ padding:"20px"
 
 {p.screenshot ? (
   <img
-    src={`http://127.0.0.1:5000/${p.screenshot.replace("\\", "/")}`}
-    width="200"
-  />
+  src={`${import.meta.env.VITE_API_URL}/${p.screenshot.replace("\\", "/")}`}
+  width="200"
+/>
 ) : (
   <p>No Screenshot</p>
 )}

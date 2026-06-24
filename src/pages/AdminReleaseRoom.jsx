@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import API from "../api/axios";
 
 function AdminReleaseRoom(){
 
@@ -11,40 +12,39 @@ const [matchTime,setMatchTime] = useState("")
 // fetch tournaments
 useEffect(()=>{
 
-const token = localStorage.getItem("token")
-
-fetch("http://127.0.0.1:5000/tournament/all",{
-headers:{
-Authorization:`Bearer ${token}`
-}
+API.get("/tournament/all")
+.then(res=>{
+  setTournaments(res.data)
 })
-.then(res=>res.json())
-.then(data=>{
-setTournaments(data)
+.catch(err=>{
+  console.error(err)
 })
 
 },[])
 
 
 // submit
+if(
+  !selectedId ||
+  !roomId ||
+  !password ||
+  !matchTime
+){
+  alert("Fill all fields");
+  return;
+}
 const handleSubmit = async ()=>{
 
-const token = localStorage.getItem("token")
+const formattedTime = new Date(matchTime).toISOString();
 
-const formattedTime = new Date(matchTime).toISOString()
-
-await fetch(`http://127.0.0.1:5000/tournament/create`,{
-method:"POST",
-headers:{
-"Content-Type":"application/json",
-Authorization:`Bearer ${token}`
-},
-body: JSON.stringify({
-room_id: roomId,
-room_password: password,
-match_start_time: formattedTime
-})
-})
+await API.post(
+  `/tournament/admin/release-room/${selectedId}`,
+  {
+    room_id: roomId,
+    password: password,
+    start_time: formattedTime
+  }
+);
 
 alert("Room Released ✅")
 

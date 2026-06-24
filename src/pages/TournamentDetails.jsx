@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar"
+import API from "../api/axios";
 
 function TournamentDetails(){
 
@@ -18,28 +19,22 @@ useEffect(()=>{
 const token = localStorage.getItem("token")
 
 // tournament details
-fetch(`http://127.0.0.1:5000/tournament/${id}`,{
-headers:{
-Authorization:`Bearer ${token}`
-}
+API.get(`/tournament/${id}`)
+.then(res=>{
+  setTournament(res.data)
 })
-.then(res=>res.json())
-.then(data=>{
-setTournament(data)
+.catch(err=>{
+  console.error(err)
 })
 
 
 // generate payment code when page loads
 
 
-fetch(`http://127.0.0.1:5000/tournament/register/${id}`,{
-method:"POST",
-headers:{
-Authorization:`Bearer ${token}`
-}
-})
-.then(res=>res.json())
-.then(data=>{
+API.post(`/tournament/register/${id}`)
+.then(res=>{
+
+const data = res.data;
 setPaymentCode(data.payment_code)
 setRegistrationId(data.registration_id)
 })
@@ -59,17 +54,11 @@ const handleUpload = async ()=>{
   try {
 
     // 🔥 STEP 1: REGISTER
-    const res1 = await fetch(
-      `http://127.0.0.1:5000/tournament/register/${id}`,
-      {
-        method:"POST",
-        headers:{
-          Authorization:`Bearer ${token}`
-        }
-      }
-    )
+    const res1 = await API.post(
+  `/tournament/register/${id}`
+);
 
-    const data1 = await res1.json()
+const data1 = res1.data;
 
     console.log("REGISTER RESPONSE:", data1)
 
@@ -81,33 +70,40 @@ const handleUpload = async ()=>{
     }
 
     // 🔥 STEP 2: UPLOAD PAYMENT
-    const formData = new FormData()
-    formData.append("file", file)
-    formData.append("utr", utr)
+    const formData = new FormData();
 
-    const res2 = await fetch(
-      `http://127.0.0.1:5000/tournament/upload-payment/${registrationId}`,
-      {
-        method:"POST",
-        headers:{
-          Authorization:`Bearer ${token}`
-        },
-        body: formData
-      }
-    )
+formData.append("file", file);
+formData.append("utr", utr);
 
-    const data2 = await res2.json()
-
-    console.log("UPLOAD RESPONSE:", data2)
-
-    alert("Payment Submitted Successfully 🚀")
-
-    navigate("/my-tournaments")
-
-  } catch(err){
-    console.log("ERROR:", err)
+const res2 = await API.post(
+  `/tournament/upload-payment/${registrationId}`,
+  formData,
+  {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
   }
+);
 
+const data2 = res2.data;
+
+console.log("UPLOAD RESPONSE:", data2);
+
+alert("Payment Submitted Successfully 🚀");
+
+navigate("/my-tournaments");
+
+} catch(err){
+
+  console.log("ERROR:", err);
+
+  alert(
+    err.response?.data?.error ||
+    err.response?.data?.msg ||
+    "Upload Failed"
+  );
+
+}
 }
 
 

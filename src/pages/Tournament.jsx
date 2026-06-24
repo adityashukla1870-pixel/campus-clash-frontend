@@ -4,6 +4,7 @@ import { jwtDecode } from "jwt-decode";
 import bgImage from "../assets/gaming.jpg"
 import Navbar from "../components/Navbar"
 import { useLocation } from "react-router-dom"
+import API from "../api/axios";
 
 function Tournament(){
 
@@ -30,13 +31,14 @@ useEffect(()=>{
     return
   }
 
-  fetch("http://127.0.0.1:5000/tournament/all",{
-    headers:{
-      Authorization:`Bearer ${token}`
-    }
-  })
-  .then(res=>res.json())
-  .then(data=>{
+  API.get("/tournament/all",{
+  headers:{
+    Authorization:`Bearer ${token}`
+  }
+})
+.then(res=>{
+
+  const data = res.data;
     if(Array.isArray(data)){
       setTournaments(data)
     }else{
@@ -51,17 +53,17 @@ const handleJoin = async (id)=>{
 
 const token = localStorage.getItem("token")
 
-const res = await fetch(`http://127.0.0.1:5000/tournament/join/${id}`,{
+const res = await API.post(
+  `/tournament/join/${id}`,
+  {},
+  {
+    headers:{
+      Authorization:`Bearer ${token}`
+    }
+  }
+)
 
-method:"POST",
-
-headers:{
-Authorization:`Bearer ${token}`
-}
-
-})
-
-const data = await res.json()
+const data = res.data
 
 alert(data.message || data.error)
 

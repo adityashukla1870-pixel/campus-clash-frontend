@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import API from "../api/axios";
 
 function AdminWinner(){
 
@@ -9,13 +10,13 @@ const [selectedWinner,setSelectedWinner] = useState("")
 
 // fetch tournaments
 useEffect(()=>{
-const token = localStorage.getItem("token")
-
-fetch("http://127.0.0.1:5000/tournament/all",{
-headers:{ Authorization:`Bearer ${token}` }
+API.get("/tournament/all")
+.then(res=>{
+  setTournaments(res.data)
 })
-.then(res=>res.json())
-.then(data=>setTournaments(data))
+.catch(err=>{
+  console.error(err)
+})
 
 },[])
 
@@ -25,13 +26,13 @@ useEffect(()=>{
 
 if(!selectedTournament) return
 
-const token = localStorage.getItem("token")
-
-fetch(`http://127.0.0.1:5000/tournament/participants/${selectedTournament}`,{
-headers:{ Authorization:`Bearer ${token}` }
+API.get(`/tournament/participants/${selectedTournament}`)
+.then(res=>{
+  setParticipants(res.data)
 })
-.then(res=>res.json())
-.then(data=>setParticipants(data))
+.catch(err=>{
+  console.error(err)
+})
 
 },[selectedTournament])
 
@@ -39,21 +40,15 @@ headers:{ Authorization:`Bearer ${token}` }
 // submit winner
 const handleSubmit = async ()=>{
 
-const token = localStorage.getItem("token")
+const res = await API.post(
+  "/tournament/admin/declare-winner",
+  {
+    tournament_id: selectedTournament,
+    winner_id: selectedWinner
+  }
+);
 
-const res = await fetch("http://127.0.0.1:5000/tournament/admin/declare-winner",{
-method:"POST",
-headers:{
-"Content-Type":"application/json",
-Authorization:`Bearer ${token}`
-},
-body: JSON.stringify({
-tournament_id: selectedTournament,
-winner_id: selectedWinner
-})
-})
-
-const data = await res.json()
+const data = res.data;
 alert(data.message || data.error)
 
 }

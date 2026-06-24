@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { useLocation } from "react-router-dom"
 import Navbar from "../components/Navbar"
+import API from "../api/axios";
 
 function MyTournaments(){
 
@@ -21,13 +22,10 @@ useEffect(()=>{
 
   
 
-  fetch("http://127.0.0.1:5000/tournament/all",{
-    headers:{
-      Authorization:`Bearer ${token}`
-    }
-  })
-  .then(res=>res.json())
-  .then(data=>{
+  API.get("/tournament/my-tournaments")
+.then(res=>{
+
+const data = res.data;
     if(Array.isArray(data)){
       setTournaments(data)
     }else{

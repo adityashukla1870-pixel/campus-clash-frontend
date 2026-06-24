@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
-
+import API from "../api/axios";
 
 function TournamentRoom(){
 
@@ -10,16 +10,12 @@ const [room,setRoom] = useState(null)
 
 useEffect(()=>{
 
-const token = localStorage.getItem("token")
-
-fetch(`http://127.0.0.1:5000/tournament/room/${id}`,{
-headers:{
-Authorization:`Bearer ${token}`
-}
+API.get(`/tournament/room/${id}`)
+.then(res=>{
+  setRoom(res.data)
 })
-.then(res=>res.json())
-.then(data=>{
-setRoom(data)
+.catch(err=>{
+  console.error(err)
 })
 
 },[id])
@@ -51,7 +47,11 @@ useEffect(() => {
 
 
 if(!room){
-return <h2>Loading...</h2>
+  return (
+    <h2 style={{textAlign:"center"}}>
+      Loading Room...
+    </h2>
+  )
 }
 
 return(
