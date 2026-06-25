@@ -28,7 +28,8 @@ if(!selectedTournament) return
 
 API.get(`/tournament/participants/${selectedTournament}`)
 .then(res=>{
-  setParticipants(res.data)
+    console.log("PARTICIPANTS:", res.data);
+    setParticipants(res.data);
 })
 .catch(err=>{
   console.error(err)
@@ -79,7 +80,7 @@ return(
 
 {participants.map(p=>(
 <option key={p.user_id} value={p.user_id}>
-{p.username}
+    {p.name}
 </option>
 ))}
 
