@@ -1,4 +1,5 @@
 import { useState } from "react"
+import API from "../api/axios";
 
 function AdminCreateTournament(){
 
@@ -13,29 +14,20 @@ const handleSubmit = async () => {
 
   console.log("CLICKED")
 
-  const token = localStorage.getItem("token")
-  console.log("TOKEN:", token)
-
   try {
 
-    const res = await fetch("http://127.0.0.1:5000/tournament/create",{
-      method:"POST",
-      headers:{
-        "Content-Type":"application/json",
-        Authorization:`Bearer ${token}`
-      },
-      body: JSON.stringify({
-        name,
-        game,
-        entry_fee: entryFee,
-        prize_pool: prizePool,
-        max_players: maxPlayers
-      })
-    })
+  const res = await API.post(
+    "/tournament/create",
+    {
+      name,
+      game,
+      entry_fee: Number(entryFee),
+      prize_pool: Number(prizePool),
+      max_players: Number(maxPlayers)
+    }
+  );
 
-    console.log("STATUS:", res.status)
-
-    const data = await res.json()
+  const data = res.data;
     console.log("RESPONSE:", data)
 
     alert(data.message || data.error)

@@ -24,16 +24,10 @@ API.get("/tournament/all")
 
 
 // submit
-if(
-  !selectedId ||
-  !roomId ||
-  !password ||
-  !matchTime
-){
-  alert("Fill all fields");
-  return;
-}
+
 const handleSubmit = async ()=>{
+
+console.log("Selected Tournament ID:", selectedId);
 
 const formattedTime = new Date(matchTime).toISOString();
 
@@ -59,15 +53,17 @@ return(
 <h1>Release Room</h1>
 
 {/* Tournament Dropdown */}
-<select onChange={(e)=>setSelectedId(e.target.value)}>
-<option>Select Tournament</option>
+<select
+  value={selectedId}
+  onChange={(e) => setSelectedId(e.target.value)}
+>
+  <option value="">Select Tournament</option>
 
-{tournaments.map(t=>(
-<option key={t._id} value={t._id}>
-{t.name}
-</option>
-))}
-
+  {tournaments.map((t) => (
+    <option key={t.id} value={t.id}>
+      {t.name}
+    </option>
+  ))}
 </select>
 
 <br/><br/>
