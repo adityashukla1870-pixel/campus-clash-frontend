@@ -65,19 +65,55 @@ return(
     <p>💰 Entry Fee: ₹{t.entry_fee}</p>
     <p>🏆 Prize Pool: ₹{t.prize_pool}</p>
 
-    <p className={`status ${t.status === "approved" ? "approved" : "pending"}`}>
-      {t.status === "approved" ? "Approved ✅" : "Pending ⏳"}
-    </p>
+    <p
+  className={`status ${
+    t.status === "completed"
+      ? "completed"
+      : t.status === "approved"
+      ? "approved"
+      : "pending"
+  }`}
+>
+  {t.status === "completed"
+    ? "Completed 🏁"
+    : t.status === "approved"
+    ? "Approved ✅"
+    : "Pending ⏳"}
+</p>
+  {t.status === "completed" && (
+  <div style={{ marginTop: "15px" }}>
+    <h3>🏆 Winner: {t.winner}</h3>
 
-    <button
-      onClick={()=>{
-        console.log("BUTTON CLICKED", t.id)
-        navigate(`/room/${t.id}`)
-      }}
-      disabled={t.status !== "approved"}
-    >
-      Open Room
-    </button>
+    {t.is_winner ? (
+      <p
+        style={{
+          color: "#22c55e",
+          fontWeight: "bold",
+          fontSize: "18px"
+        }}
+      >
+        🎉 Congratulations! You won this tournament.
+      </p>
+    ) : (
+      <p
+        style={{
+          color: "#facc15",
+          fontWeight: "bold"
+        }}
+      >
+        ❤️ Better luck next time.
+      </p>
+    )}
+  </div>
+)}
+    {t.status !== "completed" && (
+  <button
+    onClick={() => navigate(`/room/${t.id}`)}
+    disabled={t.status !== "approved"}
+  >
+    Open Room
+  </button>
+)}
 
   </div>
 
