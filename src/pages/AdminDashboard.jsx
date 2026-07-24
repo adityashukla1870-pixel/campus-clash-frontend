@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom"
 import { motion } from "framer-motion"
 import { CreditCard, Radio, Trophy, Medal, ChevronRight } from "lucide-react"
 import AdminLayout from "../components/AdminLayout"
-import "./Admin.css"
+
 
 const adminActions = [
   { icon: CreditCard, label: "Payment Verification", desc: "Review & approve pending payments", path: "/admin/payments", accent: "gold" },
