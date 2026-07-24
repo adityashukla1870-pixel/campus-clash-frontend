@@ -1,5 +1,7 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
+import { motion } from "framer-motion"
+import { Swords, Mail, Lock, Loader2 } from "lucide-react"
 import API from "../api/axios"
 import "./Login.css"
 
@@ -32,10 +34,19 @@ function Login() {
   }
 
   return (
-    <div className="login-page">
-      <div className="auth-card">
+    <div className="auth-page">
+      <div className="auth-bg-glow" />
+
+      <motion.div
+        className="auth-card glass-card-static accent-top-purple"
+        initial={{ opacity: 0, y: 24, scale: 0.97 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+      >
         <div className="auth-logo">
-          <div className="logo-icon-big">⚔️</div>
+          <div className="logo-icon-big">
+            <Swords size={26} />
+          </div>
           <h1>Campus <span>Clash</span></h1>
           <p>Sign in to your account</p>
         </div>
@@ -43,24 +54,39 @@ function Login() {
         <form className="auth-form" onSubmit={handleLogin}>
           <div className="field-group">
             <label>Email</label>
-            <input
-              type="email"
-              placeholder="you@college.edu"
-              onChange={(e) => setEmail(e.target.value)}
-            />
+            <div className="input-with-icon">
+              <Mail size={16} className="input-icon" />
+              <input
+                type="email"
+                placeholder="you@college.edu"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
           </div>
 
           <div className="field-group">
             <label>Password</label>
-            <input
-              type="password"
-              placeholder="Enter your password"
-              onChange={(e) => setPassword(e.target.value)}
-            />
+            <div className="input-with-icon">
+              <Lock size={16} className="input-icon" />
+              <input
+                type="password"
+                placeholder="Enter your password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
           </div>
 
           <button type="submit" className="btn-primary" disabled={loading}>
-            {loading ? "Signing in..." : "Sign In"}
+            {loading ? (
+              <>
+                <Loader2 size={18} className="spin" />
+                Signing in...
+              </>
+            ) : (
+              "Sign In"
+            )}
           </button>
         </form>
 
@@ -68,7 +94,7 @@ function Login() {
           New here?
           <span onClick={() => navigate("/register")}>Create an account</span>
         </div>
-      </div>
+      </motion.div>
     </div>
   )
 }

@@ -1,6 +1,12 @@
 import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
+import { motion } from "framer-motion"
+import {
+  ArrowLeft, Gamepad2, IndianRupee, CreditCard, Copy, Check,
+  Upload, FileImage, Loader2, AlertTriangle,
+} from "lucide-react"
 import Navbar from "../components/Navbar"
+import LoadingScreen from "../components/LoadingScreen"
 import API from "../api/axios"
 import "./TournamentDetails.css"
 
@@ -19,7 +25,7 @@ function TournamentDetails() {
     API.post(`/tournament/register/${id}`).then(res => {
       setPaymentCode(res.data.payment_code)
     })
-  }, [])
+  }, [id])
 
   const handleCopy = () => {
     navigator.clipboard.writeText(paymentCode)
@@ -54,9 +60,7 @@ function TournamentDetails() {
     return (
       <>
         <Navbar />
-        <div style={{ paddingTop: 120, textAlign: "center", color: "var(--text-secondary)" }}>
-          Loading tournament...
-        </div>
+        <LoadingScreen message="Loading tournament..." />
       </>
     )
   }
@@ -67,65 +71,91 @@ function TournamentDetails() {
     <>
       <Navbar />
       <div className="details-page">
-        <div className="details-inner">
-          <div className="details-back" onClick={() => navigate("/tournaments")}>
-            ← Back to Tournaments
+        <motion.div
+          className="details-inner"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45 }}
+        >
+          <button className="details-back" onClick={() => navigate("/tournaments")}>
+            <ArrowLeft size={16} />
+            Back to Tournaments
+          </button>
+
+          <div className="details-header">
+            <div>
+              <div className="details-title">{tournament.name}</div>
+              <span className="details-game-badge">
+                <Gamepad2 size={12} />
+                {tournament.game}
+              </span>
+            </div>
           </div>
 
-          <div className="details-title">{tournament.name}</div>
-          <div className="details-game-badge">🎮 {tournament.game}</div>
-
           <div className="info-grid">
-            <div className="info-grid-item">
+            <div className="info-grid-item glass-card-static">
+              <IndianRupee size={16} className="ig-icon" />
               <div className="ig-label">Entry Fee</div>
               <div className="ig-value">₹{tournament.entry_fee}</div>
             </div>
-            <div className="info-grid-item">
+            <div className="info-grid-item glass-card-static">
+              <IndianRupee size={16} className="ig-icon gold" />
               <div className="ig-label">Prize Pool</div>
               <div className="ig-value gold">₹{tournament.prize_pool}</div>
             </div>
-            <div className="info-grid-item" style={{gridColumn:'1/-1'}}>
+            <div className="info-grid-item glass-card-static full-width">
               <div className="ig-label">Players — {tournament.players.length} / {tournament.max_players}</div>
-              <div style={{marginTop:8, height:6, background:'var(--bg-surface)', borderRadius:3, overflow:'hidden'}}>
-                <div style={{width:`${fillPct}%`, height:'100%', background:'var(--grad-purple)', borderRadius:3}} />
+              <div className="details-bar-track">
+                <motion.div
+                  className="details-bar-fill"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${fillPct}%` }}
+                  transition={{ duration: 0.8 }}
+                />
               </div>
             </div>
           </div>
 
-          {/* Payment section */}
-          <div className="section-card">
-            <h2>💳 Payment Details</h2>
+          <div className="section-card glass-card-static accent-top-purple">
+            <h2><CreditCard size={20} /> Payment Details</h2>
             <div className="upi-row">
               <span>UPI ID</span>
               <strong>campus@upi</strong>
             </div>
             <div className="upi-row">
               <span>Amount to pay</span>
-              <strong style={{color:'var(--gold)'}}>₹{tournament.entry_fee}</strong>
+              <strong className="gold-text">₹{tournament.entry_fee}</strong>
             </div>
 
             <div className="payment-code-box">
-              <div className="code-label">🔑 Your Payment Code</div>
+              <div className="code-label">Your Payment Code</div>
               <div className="code-value">{paymentCode || "Generating..."}</div>
-              <div className="code-note">⚠️ Add this code in the UPI payment remarks/note</div>
-              <button className="btn-secondary" onClick={handleCopy} style={{fontSize:14,padding:'8px 20px'}}>
-                {copied ? "✅ Copied!" : "Copy Code"}
+              <div className="code-note">
+                <AlertTriangle size={14} />
+                Add this code in the UPI payment remarks/note
+              </div>
+              <button className="btn-secondary copy-btn" onClick={handleCopy}>
+                {copied ? <><Check size={16} /> Copied!</> : <><Copy size={16} /> Copy Code</>}
               </button>
             </div>
           </div>
 
-          {/* Upload section */}
-          <div className="section-card">
-            <h2>📤 Submit Payment Proof</h2>
+          <div className="section-card glass-card-static accent-top-cyan">
+            <h2><Upload size={20} /> Submit Payment Proof</h2>
 
             <div className="upload-area">
               <input type="file" accept="image/*" onChange={(e) => setFile(e.target.files[0])} />
-              <div className="upload-icon">📁</div>
+              <FileImage size={32} className="upload-icon" />
               <p>Click to upload payment screenshot</p>
-              {file && <div className="file-name">✅ {file.name}</div>}
+              {file && (
+                <div className="file-name">
+                  <Check size={14} />
+                  {file.name}
+                </div>
+              )}
             </div>
 
-            <div className="field-group" style={{marginBottom:20}}>
+            <div className="field-group" style={{ marginBottom: 20 }}>
               <label>UTR / Reference Number</label>
               <input
                 type="text"
@@ -135,11 +165,19 @@ function TournamentDetails() {
               />
             </div>
 
-            <button className="btn-primary" style={{width:'100%',justifyContent:'center'}} onClick={handleUpload} disabled={loading}>
-              {loading ? "Submitting..." : "🚀 Submit Payment"}
+            <button
+              className="btn-primary submit-btn"
+              onClick={handleUpload}
+              disabled={loading}
+            >
+              {loading ? (
+                <><Loader2 size={18} className="spin" /> Submitting...</>
+              ) : (
+                "Submit Payment"
+              )}
             </button>
           </div>
-        </div>
+        </motion.div>
       </div>
     </>
   )
