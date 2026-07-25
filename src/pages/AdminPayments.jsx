@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import API from "../api/axios"
+import AdminTopBar from "../components/AdminTopBar"
 
 function AdminPayments() {
   const navigate = useNavigate()
@@ -36,7 +37,7 @@ function AdminPayments() {
     <div style={pageStyle}>
       <div style={innerStyle}>
         <div style={{display:'flex',alignItems:'center',gap:16,marginBottom:32}}>
-          <span style={{cursor:'pointer',color:'var(--text-secondary)',fontSize:14}} onClick={() => navigate('/admin')}>← Dashboard</span>
+          <AdminTopBar />
         </div>
         <h1 style={{fontFamily:'var(--font-display)',fontSize:28,fontWeight:700,marginBottom:6}}>💰 Payment Verification</h1>
         <p style={{color:'var(--text-secondary)',fontSize:14,marginBottom:32}}>Review and approve pending tournament payments.</p>

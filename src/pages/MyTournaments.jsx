@@ -1,42 +1,25 @@
 import { useEffect, useState } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
-import { motion } from "framer-motion"
-import {
-  Gamepad2, IndianRupee, Trophy, Clock, CheckCircle2,
-  Rocket, Target, Crown, Heart,
-} from "lucide-react"
 import Navbar from "../components/Navbar"
-import LoadingScreen from "../components/LoadingScreen"
 import API from "../api/axios"
 import "./MyTournament.css"
-
-const cardVariants = {
-  hidden: { opacity: 0, y: 16 },
-  visible: (i) => ({
-    opacity: 1,
-    y: 0,
-    transition: { delay: i * 0.07, duration: 0.4, ease: [0.16, 1, 0.3, 1] },
-  }),
-}
 
 function MyTournaments() {
   const navigate = useNavigate()
   const location = useLocation()
   const [tournaments, setTournaments] = useState([])
-  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const token = localStorage.getItem("token")
     if (!token) { navigate("/"); return }
     API.get("/tournament/my-tournaments")
       .then(res => setTournaments(Array.isArray(res.data) ? res.data : []))
-      .finally(() => setLoading(false))
-  }, [location.pathname, navigate])
+  }, [location.pathname])
 
   const statusChip = (status) => {
-    if (status === "completed") return <span className="chip-completed"><Trophy size={12} /> Completed</span>
-    if (status === "approved") return <span className="chip-approved"><CheckCircle2 size={12} /> Approved</span>
-    return <span className="chip-pending"><Clock size={12} /> Pending</span>
+    if (status === "completed") return <span className="chip-completed">Completed 🏁</span>
+    if (status === "approved") return <span className="chip-approved">Approved ✅</span>
+    return <span className="chip-pending">Pending ⏳</span>
   }
 
   return (
@@ -44,79 +27,54 @@ function MyTournaments() {
       <Navbar />
       <div className="mytournaments-page">
         <div className="mytournaments-inner">
-          <motion.div
-            initial={{ opacity: 0, y: -12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.45 }}
-          >
-            <h1 className="page-title">My <span>Matches</span></h1>
-            <div className="glow-line" />
-          </motion.div>
+          <h1 className="page-title">My <span>Matches</span></h1>
+          <div className="glow-line"></div>
 
-          {loading ? (
-            <LoadingScreen message="Loading your matches..." />
-          ) : tournaments.length === 0 ? (
-            <motion.div
-              className="empty-state"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-            >
-              <div className="empty-icon"><Target size={32} /></div>
+          {tournaments.length === 0 ? (
+            <div className="empty-state">
+              <div className="empty-icon">🎯</div>
               <p>You haven't joined any tournaments yet. Go find a battle!</p>
-            </motion.div>
+            </div>
           ) : (
             <div className="mytournament-list">
-              {tournaments.map((t, index) => (
-                <motion.div
-                  className="mytournament-card glass-card-static"
-                  key={t.id}
-                  custom={index}
-                  variants={cardVariants}
-                  initial="hidden"
-                  animate="visible"
-                  whileHover={{ y: -2 }}
-                >
+              {tournaments.map((t) => (
+                <div className="mytournament-card" key={t.id}>
                   <div className="mt-card-top">
                     <h2>{t.name}</h2>
                     {statusChip(t.status)}
                   </div>
 
                   <div className="mt-meta">
-                    <div className="mt-meta-item">
-                      <Gamepad2 size={14} className="meta-icon" />
-                      <div>
-                        <span className="meta-label">Game</span>
-                        <span className="meta-value">{t.game}</span>
+                    {t.team_name && (
+                      <div className="mt-meta-item">
+                        <span className="meta-label">Team</span>
+                        <span className="meta-value">👥 {t.team_name}</span>
                       </div>
+                    )}
+                    <div className="mt-meta-item">
+                      <span className="meta-label">Game</span>
+                      <span className="meta-value">🎮 {t.game}</span>
                     </div>
                     <div className="mt-meta-item">
-                      <IndianRupee size={14} className="meta-icon" />
-                      <div>
-                        <span className="meta-label">Entry Fee</span>
-                        <span className="meta-value">₹{t.entry_fee}</span>
-                      </div>
+                      <span className="meta-label">Entry Fee</span>
+                      <span className="meta-value">₹{t.entry_fee}</span>
                     </div>
                     <div className="mt-meta-item">
-                      <Trophy size={14} className="meta-icon gold" />
-                      <div>
-                        <span className="meta-label">Prize Pool</span>
-                        <span className="meta-value gold">₹{t.prize_pool}</span>
-                      </div>
+                      <span className="meta-label">Prize Pool</span>
+                      <span className="meta-value gold">₹{t.prize_pool}</span>
                     </div>
                   </div>
 
                   {t.status === "completed" && (
-                    <div className={`winner-banner${t.is_winner ? "" : " loser"}`}>
+                    <div className={`winner-banner${t.is_winner ? '' : ' loser'}`}>
                       {t.is_winner ? (
                         <>
-                          <div className="winner-icon"><Crown size={24} /></div>
-                          <p>You won this tournament!</p>
+                          <p style={{color:'var(--green)'}}>🎉 You won this tournament!</p>
                           <div className="winner-name">Congratulations, champion.</div>
                         </>
                       ) : (
                         <>
-                          <div className="winner-icon loser-icon"><Heart size={24} /></div>
-                          <p>Better luck next time</p>
+                          <p style={{color:'var(--yellow)'}}>❤️ Better luck next time</p>
                           <div className="winner-name">Winner: {t.winner}</div>
                         </>
                       )}
@@ -124,22 +82,31 @@ function MyTournaments() {
                   )}
 
                   {t.status !== "completed" && (
-                    <div className="mt-action">
+                    <div className="mt-action" style={{display:'flex', gap:10}}>
                       <button
                         className="btn-primary"
                         onClick={() => navigate(`/room/${t.id}`)}
                         disabled={t.status !== "approved"}
-                        style={t.status !== "approved" ? { opacity: 0.45, cursor: "not-allowed" } : {}}
+                        style={t.status !== "approved" ? {opacity:0.4,cursor:'not-allowed'} : {}}
                       >
-                        {t.status === "approved" ? (
-                          <><Rocket size={16} /> Open Room</>
-                        ) : (
-                          <><Clock size={16} /> Awaiting Approval</>
-                        )}
+                        {t.status === "approved" ? "🚀 Open Room" : "⏳ Awaiting Approval"}
+                      </button>
+                      {t.has_bracket && (
+                        <button className="btn-primary" onClick={() => navigate(`/tournament/${t.id}/bracket`)}>
+                          🏆 Bracket
+                        </button>
+                      )}
+                    </div>
+                  )}
+
+                  {t.status === "completed" && t.has_bracket && (
+                    <div className="mt-action">
+                      <button className="btn-primary" onClick={() => navigate(`/tournament/${t.id}/bracket`)}>
+                        🏆 View Final Bracket
                       </button>
                     </div>
                   )}
-                </motion.div>
+                </div>
               ))}
             </div>
           )}

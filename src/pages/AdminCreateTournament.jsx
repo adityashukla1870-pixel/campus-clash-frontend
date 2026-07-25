@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import API from "../api/axios"
+import AdminTopBar from "../components/AdminTopBar"
 
 function AdminCreateTournament() {
   const navigate = useNavigate()
@@ -10,6 +11,8 @@ function AdminCreateTournament() {
   const [maxPlayers, setMaxPlayers] = useState("")
   const [game, setGame] = useState("")
   const [prizePool, setPrizePool] = useState("")
+  const [mode, setMode] = useState("solo")
+  const [teamSize, setTeamSize] = useState("4")
   const [loading, setLoading] = useState(false)
 
   const handleSubmit = async () => {
@@ -19,11 +22,13 @@ function AdminCreateTournament() {
         name, game,
         entry_fee: Number(entryFee),
         prize_pool: Number(prizePool),
-        max_players: Number(maxPlayers)
+        max_players: Number(maxPlayers),
+        mode,
+        team_size: mode === "squad" ? Number(teamSize) : 1
       })
       alert(res.data.message || res.data.error)
     } catch (err) {
-      alert("Failed to create tournament")
+      alert(err.response?.data?.error || "Failed to create tournament")
     } finally {
       setLoading(false)
     }
@@ -31,12 +36,19 @@ function AdminCreateTournament() {
 
   const pageStyle = { minHeight:'100vh', background:'var(--bg-dark)', padding:'40px 24px' }
   const innerStyle = { maxWidth:560, margin:'0 auto' }
+  const modeBtnStyle = (active) => ({
+    flex: 1, padding: '12px 16px', borderRadius: 10, cursor: 'pointer', textAlign: 'center',
+    border: `1px solid ${active ? 'var(--purple)' : 'var(--border)'}`,
+    background: active ? 'var(--purple-glow)' : 'var(--bg-surface)',
+    color: active ? 'var(--purple-light)' : 'var(--text-secondary)',
+    fontWeight: 600, transition: 'all 0.2s',
+  })
 
   return (
     <div style={pageStyle}>
       <div style={innerStyle}>
         <div style={{display:'flex',alignItems:'center',gap:16,marginBottom:32}}>
-          <span style={{cursor:'pointer',color:'var(--text-secondary)',fontSize:14}} onClick={() => navigate('/admin')}>← Dashboard</span>
+          <AdminTopBar />
         </div>
 
         <h1 style={{fontFamily:'var(--font-display)',fontSize:28,fontWeight:700,marginBottom:6}}>🏆 Create Tournament</h1>
@@ -57,6 +69,22 @@ function AdminCreateTournament() {
               <label>Game</label>
               <input placeholder="e.g. BGMI, Free Fire, Valorant" onChange={e => setGame(e.target.value)} />
             </div>
+
+            <div className="field-group">
+              <label>Registration Mode</label>
+              <div style={{display:'flex', gap:10}}>
+                <div style={modeBtnStyle(mode === 'solo')} onClick={() => setMode('solo')}>🧍 Solo</div>
+                <div style={modeBtnStyle(mode === 'squad')} onClick={() => setMode('squad')}>👥 Squad</div>
+              </div>
+            </div>
+
+            {mode === 'squad' && (
+              <div className="field-group">
+                <label>Team Size (players per squad)</label>
+                <input type="number" min="2" placeholder="e.g. 4" value={teamSize} onChange={e => setTeamSize(e.target.value)} />
+              </div>
+            )}
+
             <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16}}>
               <div className="field-group">
                 <label>Entry Fee (₹)</label>
@@ -68,7 +96,7 @@ function AdminCreateTournament() {
               </div>
             </div>
             <div className="field-group">
-              <label>Max Players</label>
+              <label>{mode === 'squad' ? 'Max Teams' : 'Max Players'}</label>
               <input type="number" placeholder="e.g. 100" onChange={e => setMaxPlayers(e.target.value)} />
             </div>
             <div className="field-group">

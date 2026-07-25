@@ -1,60 +1,82 @@
-import { motion } from "framer-motion"
-import { Users, Trophy, Gamepad2, Medal } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
+import { FaUsers, FaTrophy, FaGamepad, FaMedal } from "react-icons/fa"
+import Reveal from "./Reveal"
 import "./Stats.css"
 
-const stats = [
-  { icon: Users, number: "500+", label: "Active Players", color: "purple" },
-  { icon: Trophy, number: "₹50K+", label: "Prize Pool", color: "gold" },
-  { icon: Gamepad2, number: "30+", label: "Tournaments", color: "cyan" },
-  { icon: Medal, number: "95%", label: "Match Success", color: "green" },
+const STATS = [
+  { icon: <FaUsers />, prefix: "", value: 500, suffix: "+", label: "Active Players" },
+  { icon: <FaTrophy />, prefix: "₹", value: 50, suffix: "K+", label: "Prize Pool" },
+  { icon: <FaGamepad />, prefix: "", value: 30, suffix: "+", label: "Tournaments" },
+  { icon: <FaMedal />, prefix: "", value: 95, suffix: "%", label: "Match Success" },
 ]
 
-const container = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.1 } },
+/** Counts a number up from 0 to `value` once it becomes visible. Presentation only. */
+function useCountUp(value, active, duration = 1400) {
+  const [display, setDisplay] = useState(0)
+  const started = useRef(false)
+
+  useEffect(() => {
+    if (!active || started.current) return
+    started.current = true
+
+    let startTime = null
+    const step = (timestamp) => {
+      if (startTime === null) startTime = timestamp
+      const progress = Math.min((timestamp - startTime) / duration, 1)
+      const eased = 1 - Math.pow(1 - progress, 3)
+      setDisplay(Math.round(eased * value))
+      if (progress < 1) requestAnimationFrame(step)
+    }
+    requestAnimationFrame(step)
+  }, [active, value, duration])
+
+  return display
 }
 
-const item = {
-  hidden: { opacity: 0, y: 24 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } },
+function StatCard({ stat, active, delay }) {
+  const count = useCountUp(stat.value, active)
+  return (
+    <Reveal delay={delay} direction="up" className="stat-card hover-lift">
+      <div className="stat-icon">{stat.icon}</div>
+      <h2>{stat.prefix}{count}{stat.suffix}</h2>
+      <p>{stat.label}</p>
+    </Reveal>
+  )
 }
 
 function Stats() {
-  return (
-    <section className="stats-section" id="stats">
-      <motion.div
-        className="stats-heading"
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.6 }}
-      >
-        <h2>
-          Trusted by <span className="stats-highlight">500+</span> College Players
-        </h2>
-        <p>Real tournaments. Real money. Real competition.</p>
-      </motion.div>
+  const sectionRef = useRef(null)
+  const [active, setActive] = useState(false)
 
-      <motion.div
-        className="stats-container"
-        variants={container}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: "-50px" }}
-      >
-        {stats.map((s, index) => {
-          const Icon = s.icon
-          return (
-            <motion.div className={`stat-card stat-${s.color}`} key={index} variants={item}>
-              <div className="stat-icon">
-                <Icon size={22} />
-              </div>
-              <h2>{s.number}</h2>
-              <p>{s.label}</p>
-            </motion.div>
-          )
-        })}
-      </motion.div>
+  useEffect(() => {
+    const node = sectionRef.current
+    if (!node) return
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActive(true)
+            observer.unobserve(entry.target)
+          }
+        })
+      },
+      { threshold: 0.3 }
+    )
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [])
+
+  return (
+    <section className="stats-section" id="stats" ref={sectionRef}>
+      <Reveal className="stats-heading">
+        <h2>Trusted by <span style={{color:'var(--purple-light)'}}>500+</span> College Players</h2>
+        <p>Real tournaments. Real money. Real competition.</p>
+      </Reveal>
+      <div className="stats-container">
+        {STATS.map((item, index) => (
+          <StatCard stat={item} active={active} delay={index * 90} key={index} />
+        ))}
+      </div>
     </section>
   )
 }

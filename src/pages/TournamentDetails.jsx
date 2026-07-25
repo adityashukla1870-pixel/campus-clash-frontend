@@ -1,12 +1,6 @@
 import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
-import { motion } from "framer-motion"
-import {
-  ArrowLeft, Gamepad2, IndianRupee, CreditCard, Copy, Check,
-  Upload, FileImage, Loader2, AlertTriangle,
-} from "lucide-react"
 import Navbar from "../components/Navbar"
-import LoadingScreen from "../components/LoadingScreen"
 import API from "../api/axios"
 import "./TournamentDetails.css"
 
@@ -20,11 +14,23 @@ function TournamentDetails() {
   const [copied, setCopied] = useState(false)
   const [loading, setLoading] = useState(false)
 
+  // Squad mode state
+  const [teamName, setTeamName] = useState("")
+  const [members, setMembers] = useState([])
+  const [teamConfirmed, setTeamConfirmed] = useState(false)
+  const [teamLoading, setTeamLoading] = useState(false)
+
   useEffect(() => {
-    API.get(`/tournament/${id}`).then(res => setTournament(res.data)).catch(console.error)
-    API.post(`/tournament/register/${id}`).then(res => {
-      setPaymentCode(res.data.payment_code)
-    })
+    API.get(`/tournament/${id}`).then(res => {
+      const t = res.data
+      setTournament(t)
+      if (t.mode === "squad") {
+        setMembers(Array.from({ length: Math.max(t.team_size - 1, 0) }, () => ({ name: "", game_uid: "" })))
+      } else {
+        // solo tournaments register immediately to reserve a payment code
+        API.post(`/tournament/register/${id}`).then(r => setPaymentCode(r.data.payment_code))
+      }
+    }).catch(console.error)
   }, [id])
 
   const handleCopy = () => {
@@ -33,11 +39,35 @@ function TournamentDetails() {
     setTimeout(() => setCopied(false), 2000)
   }
 
+  const updateMember = (index, field, value) => {
+    setMembers(prev => prev.map((m, i) => i === index ? { ...m, [field]: value } : m))
+  }
+
+  const handleConfirmTeam = async () => {
+    if (!teamName.trim()) { alert("Enter your team name"); return }
+    const incomplete = members.some(m => !m.name.trim())
+    if (incomplete) { alert("Enter names for all teammates"); return }
+
+    setTeamLoading(true)
+    try {
+      const res = await API.post(`/tournament/register/${id}`, {
+        team_name: teamName,
+        team_members: members
+      })
+      setPaymentCode(res.data.payment_code)
+      setTeamConfirmed(true)
+    } catch (err) {
+      alert(err.response?.data?.error || "Failed to register team")
+    } finally {
+      setTeamLoading(false)
+    }
+  }
+
   const handleUpload = async () => {
     if (!file || !utr) { alert("Upload screenshot and enter UTR"); return }
     setLoading(true)
     try {
-      const res1 = await API.post(`/tournament/register/${id}`)
+      const res1 = await API.post(`/tournament/register/${id}`, tournament.mode === "squad" ? { team_name: teamName, team_members: members } : {})
       const registrationId = res1.data.registration_id
       if (!registrationId) { alert("Registration failed"); return }
 
@@ -60,124 +90,153 @@ function TournamentDetails() {
     return (
       <>
         <Navbar />
-        <LoadingScreen message="Loading tournament..." />
+        <div style={{ paddingTop: 120, textAlign: "center", color: "var(--text-secondary)" }}>
+          Loading tournament...
+        </div>
       </>
     )
   }
 
+  const isSquad = tournament.mode === "squad"
+  const canPay = !isSquad || teamConfirmed
   const fillPct = Math.round((tournament.players.length / tournament.max_players) * 100)
 
   return (
     <>
       <Navbar />
       <div className="details-page">
-        <motion.div
-          className="details-inner"
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.45 }}
-        >
-          <button className="details-back" onClick={() => navigate("/tournaments")}>
-            <ArrowLeft size={16} />
-            Back to Tournaments
-          </button>
+        <div className="details-inner">
+          <div className="details-back" onClick={() => navigate("/tournaments")}>
+            ← Back to Tournaments
+          </div>
 
-          <div className="details-header">
-            <div>
-              <div className="details-title">{tournament.name}</div>
-              <span className="details-game-badge">
-                <Gamepad2 size={12} />
-                {tournament.game}
-              </span>
-            </div>
+          <div className="details-title">{tournament.name}</div>
+          <div className="details-game-badge">🎮 {tournament.game}</div>
+          <div className="details-game-badge" style={{marginLeft:8, background: isSquad ? 'var(--cyan-glow)' : 'var(--purple-glow)', color: isSquad ? 'var(--cyan)' : 'var(--purple-light)'}}>
+            {isSquad ? `👥 Squad — Team of ${tournament.team_size}` : '🧍 Solo'}
           </div>
 
           <div className="info-grid">
-            <div className="info-grid-item glass-card-static">
-              <IndianRupee size={16} className="ig-icon" />
+            <div className="info-grid-item">
               <div className="ig-label">Entry Fee</div>
               <div className="ig-value">₹{tournament.entry_fee}</div>
             </div>
-            <div className="info-grid-item glass-card-static">
-              <IndianRupee size={16} className="ig-icon gold" />
+            <div className="info-grid-item">
               <div className="ig-label">Prize Pool</div>
               <div className="ig-value gold">₹{tournament.prize_pool}</div>
             </div>
-            <div className="info-grid-item glass-card-static full-width">
+            <div className="info-grid-item" style={{gridColumn:'1/-1'}}>
               <div className="ig-label">Players — {tournament.players.length} / {tournament.max_players}</div>
-              <div className="details-bar-track">
-                <motion.div
-                  className="details-bar-fill"
-                  initial={{ width: 0 }}
-                  animate={{ width: `${fillPct}%` }}
-                  transition={{ duration: 0.8 }}
+              <div style={{marginTop:8, height:6, background:'var(--bg-surface)', borderRadius:3, overflow:'hidden'}}>
+                <div style={{width:`${fillPct}%`, height:'100%', background:'var(--grad-purple)', borderRadius:3}} />
+              </div>
+            </div>
+          </div>
+
+          {/* Team registration section (squad mode only) */}
+          {isSquad && (
+            <div className="section-card">
+              <h2>👥 Team Details</h2>
+              <div className="field-group" style={{marginBottom:20}}>
+                <label>Team Name</label>
+                <input
+                  type="text"
+                  placeholder="Enter your squad name"
+                  value={teamName}
+                  onChange={(e) => setTeamName(e.target.value)}
+                  disabled={teamConfirmed}
                 />
               </div>
-            </div>
-          </div>
 
-          <div className="section-card glass-card-static accent-top-purple">
-            <h2><CreditCard size={20} /> Payment Details</h2>
-            <div className="upi-row">
-              <span>UPI ID</span>
-              <strong>campus@upi</strong>
-            </div>
-            <div className="upi-row">
-              <span>Amount to pay</span>
-              <strong className="gold-text">₹{tournament.entry_fee}</strong>
-            </div>
+              {members.map((m, i) => (
+                <div key={i} style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:12, marginBottom:16}}>
+                  <div className="field-group">
+                    <label>Teammate {i + 1} Name</label>
+                    <input
+                      type="text"
+                      placeholder="Player name"
+                      value={m.name}
+                      onChange={(e) => updateMember(i, "name", e.target.value)}
+                      disabled={teamConfirmed}
+                    />
+                  </div>
+                  <div className="field-group">
+                    <label>Game UID (optional)</label>
+                    <input
+                      type="text"
+                      placeholder="In-game ID"
+                      value={m.game_uid}
+                      onChange={(e) => updateMember(i, "game_uid", e.target.value)}
+                      disabled={teamConfirmed}
+                    />
+                  </div>
+                </div>
+              ))}
 
-            <div className="payment-code-box">
-              <div className="code-label">Your Payment Code</div>
-              <div className="code-value">{paymentCode || "Generating..."}</div>
-              <div className="code-note">
-                <AlertTriangle size={14} />
-                Add this code in the UPI payment remarks/note
-              </div>
-              <button className="btn-secondary copy-btn" onClick={handleCopy}>
-                {copied ? <><Check size={16} /> Copied!</> : <><Copy size={16} /> Copy Code</>}
-              </button>
-            </div>
-          </div>
-
-          <div className="section-card glass-card-static accent-top-cyan">
-            <h2><Upload size={20} /> Submit Payment Proof</h2>
-
-            <div className="upload-area">
-              <input type="file" accept="image/*" onChange={(e) => setFile(e.target.files[0])} />
-              <FileImage size={32} className="upload-icon" />
-              <p>Click to upload payment screenshot</p>
-              {file && (
-                <div className="file-name">
-                  <Check size={14} />
-                  {file.name}
+              {!teamConfirmed ? (
+                <button className="btn-primary" style={{width:'100%',justifyContent:'center'}} onClick={handleConfirmTeam} disabled={teamLoading}>
+                  {teamLoading ? "Confirming..." : "✅ Confirm Team & Get Payment Code"}
+                </button>
+              ) : (
+                <div style={{background:'var(--green-bg)',border:'1px solid #22c55e44',borderRadius:12,padding:14,textAlign:'center',color:'var(--green)',fontWeight:600}}>
+                  Team "{teamName}" confirmed
                 </div>
               )}
             </div>
+          )}
 
-            <div className="field-group" style={{ marginBottom: 20 }}>
-              <label>UTR / Reference Number</label>
-              <input
-                type="text"
-                placeholder="Enter UPI transaction UTR"
-                value={utr}
-                onChange={(e) => setUtr(e.target.value)}
-              />
+          {/* Payment section */}
+          {canPay && (
+            <div className="section-card">
+              <h2>💳 Payment Details</h2>
+              <div className="upi-row">
+                <span>UPI ID</span>
+                <strong>campus@upi</strong>
+              </div>
+              <div className="upi-row">
+                <span>Amount to pay</span>
+                <strong style={{color:'var(--gold)'}}>₹{tournament.entry_fee}</strong>
+              </div>
+
+              <div className="payment-code-box">
+                <div className="code-label">🔑 Your Payment Code</div>
+                <div className="code-value">{paymentCode || "Generating..."}</div>
+                <div className="code-note">⚠️ Add this code in the UPI payment remarks/note</div>
+                <button className="btn-secondary" onClick={handleCopy} style={{fontSize:14,padding:'8px 20px'}}>
+                  {copied ? "✅ Copied!" : "Copy Code"}
+                </button>
+              </div>
             </div>
+          )}
 
-            <button
-              className="btn-primary submit-btn"
-              onClick={handleUpload}
-              disabled={loading}
-            >
-              {loading ? (
-                <><Loader2 size={18} className="spin" /> Submitting...</>
-              ) : (
-                "Submit Payment"
-              )}
-            </button>
-          </div>
-        </motion.div>
+          {/* Upload section */}
+          {canPay && (
+            <div className="section-card">
+              <h2>📤 Submit Payment Proof</h2>
+
+              <div className="upload-area">
+                <input type="file" accept="image/*" onChange={(e) => setFile(e.target.files[0])} />
+                <div className="upload-icon">📁</div>
+                <p>Click to upload payment screenshot</p>
+                {file && <div className="file-name">✅ {file.name}</div>}
+              </div>
+
+              <div className="field-group" style={{marginBottom:20}}>
+                <label>UTR / Reference Number</label>
+                <input
+                  type="text"
+                  placeholder="Enter UPI transaction UTR"
+                  value={utr}
+                  onChange={(e) => setUtr(e.target.value)}
+                />
+              </div>
+
+              <button className="btn-primary" style={{width:'100%',justifyContent:'center'}} onClick={handleUpload} disabled={loading}>
+                {loading ? "Submitting..." : "🚀 Submit Payment"}
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </>
   )

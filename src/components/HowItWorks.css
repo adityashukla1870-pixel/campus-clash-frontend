@@ -1,0 +1,84 @@
+.how-section {
+  background: var(--bg-surface);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.how-track {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+
+.how-step {
+  position: relative;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 28px 22px 24px;
+  text-align: left;
+  transition: border-color 0.3s, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.how-step:hover {
+  border-color: var(--border-glow);
+  transform: translateY(-4px);
+}
+
+.how-icon {
+  width: 44px; height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: var(--grad-cyan);
+  color: #04222b;
+  font-size: 18px;
+  margin-bottom: 18px;
+}
+
+.how-number {
+  position: absolute;
+  top: 22px; right: 22px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-muted);
+  letter-spacing: 1px;
+}
+
+.how-step h3 {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.how-step p {
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.how-connector {
+  display: none;
+}
+
+@media (min-width: 901px) {
+  .how-step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    top: 44px;
+    right: -24px;
+    width: 24px;
+    height: 1px;
+    background: linear-gradient(90deg, var(--border), transparent);
+  }
+}
+
+@media (max-width: 900px) {
+  .how-track { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 560px) {
+  .how-track { grid-template-columns: 1fr; }
+}

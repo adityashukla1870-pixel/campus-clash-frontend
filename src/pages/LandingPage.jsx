@@ -1,20 +1,38 @@
-import { motion } from "framer-motion"
-import Hero from "../components/Hero"
-import Stats from "../components/Stats"
-import "./LandingPage.css"
+import Navbar from "../components/Navbar";
+import Hero from "../components/Hero";
+import GamesTicker from "../components/GamesTicker";
+import Stats from "../components/Stats";
+import Features from "../components/Features";
+import HowItWorks from "../components/HowItWorks";
+import CTA from "../components/CTA";
+import Footer from "../components/Footer";
 
-function LandingPage() {
-  return (
-    <motion.div
-      className="landing"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.4 }}
-    >
-      <Hero />
-      <Stats />
-    </motion.div>
-  )
+function LandingPage(){
+
+return(
+
+<div className="landing">
+
+<Navbar/>
+
+<Hero/>
+
+<GamesTicker/>
+
+<Stats/>
+
+<Features/>
+
+<HowItWorks/>
+
+<CTA/>
+
+<Footer/>
+
+</div>
+
+)
+
 }
 
-export default LandingPage
+export default LandingPage;

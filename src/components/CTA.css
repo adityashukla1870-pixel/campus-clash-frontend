@@ -1,0 +1,42 @@
+.cta-section { padding-top: 40px; padding-bottom: 120px; }
+
+.cta-card {
+  max-width: 860px;
+  margin: 0 auto;
+  text-align: center;
+  padding: 64px 40px;
+  border-radius: 24px;
+  position: relative;
+  background:
+    linear-gradient(var(--bg-card), var(--bg-card)) padding-box,
+    linear-gradient(120deg, var(--purple), var(--cyan), var(--gold)) border-box;
+  border: 1px solid transparent;
+  box-shadow: 0 30px 80px rgba(124,58,237,0.18);
+}
+
+.cta-card h2 {
+  font-family: var(--font-display);
+  font-size: clamp(26px, 4vw, 38px);
+  font-weight: 700;
+  margin-bottom: 14px;
+}
+
+.cta-card p {
+  color: var(--text-secondary);
+  font-size: 16px;
+  max-width: 480px;
+  margin: 0 auto 32px;
+  line-height: 1.7;
+}
+
+.cta-buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 600px) {
+  .cta-card { padding: 44px 24px; }
+}

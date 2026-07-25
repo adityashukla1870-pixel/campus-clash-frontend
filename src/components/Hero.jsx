@@ -1,67 +1,47 @@
-import { motion } from "framer-motion"
-import { Gamepad2, ArrowRight, Zap, Users } from "lucide-react"
+import { FaGamepad, FaArrowRight, FaBolt } from "react-icons/fa"
 import { useNavigate } from "react-router-dom"
 import "./Hero.css"
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 30 },
-  visible: (i) => ({
-    opacity: 1,
-    y: 0,
-    transition: { delay: i * 0.12, duration: 0.6, ease: [0.16, 1, 0.3, 1] },
-  }),
-}
 
 function Hero() {
   const navigate = useNavigate()
 
   return (
     <section className="hero-section">
-      <div className="hero-grid-bg" />
-      <div className="hero-glow hero-glow-purple" />
-      <div className="hero-glow hero-glow-cyan" />
+      <div className="hero-orb hero-orb-1"></div>
+      <div className="hero-orb hero-orb-2"></div>
 
-      <motion.div className="hero-left" initial="hidden" animate="visible">
-        <motion.div className="hero-badge" custom={0} variants={fadeUp}>
-          <Zap size={14} />
+      <div className="hero-left animate-in">
+        <div className="hero-badge">
+          <FaBolt />
           India's College Esports Platform
-        </motion.div>
+        </div>
 
-        <motion.h1 custom={1} variants={fadeUp}>
-          LEVEL UP YOUR
-          <br />
-          <span className="accent">CAMPUS ESPORTS</span>
-          <br />
+        <h1>
+          LEVEL UP YOUR<br />
+          <span className="accent text-gradient-animated">CAMPUS ESPORTS</span><br />
           JOURNEY
-        </motion.h1>
+        </h1>
 
-        <motion.p className="hero-desc" custom={2} variants={fadeUp}>
+        <p className="hero-desc">
           Battle against the best college players across India, compete in high-stakes
           tournaments, and win real prize money. Your championship starts here.
-        </motion.p>
+        </p>
 
-        <motion.div className="hero-buttons" custom={3} variants={fadeUp}>
+        <div className="hero-buttons">
           <button className="btn-primary" onClick={() => navigate("/register")}>
-            <Gamepad2 size={18} />
-            Join The Arena
+            <FaGamepad /> Join The Arena
           </button>
           <button className="btn-secondary" onClick={() => navigate("/login")}>
-            Login
-            <ArrowRight size={16} />
+            Login <FaArrowRight />
           </button>
-        </motion.div>
-      </motion.div>
+        </div>
+      </div>
 
-      <motion.div
-        className="hero-right"
-        initial={{ opacity: 0, x: 40, rotateY: -8 }}
-        animate={{ opacity: 1, x: 0, rotateY: 0 }}
-        transition={{ duration: 0.8, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
-      >
-        <div className="preview-card glass-card-static accent-top-purple">
+      <div className="hero-right animate-in" style={{ animationDelay: "0.15s" }}>
+        <div className="preview-card">
           <div className="live-row">
             <div className="live-tag">
-              <span className="pulse-dot" />
+              <span className="pulse-dot"></span>
               Live Now
             </div>
             <span className="badge badge-purple">BGMI</span>
@@ -86,17 +66,15 @@ function Hero() {
           </div>
 
           <div className="player-avatars">
-            <div className="avatar-stack">
-              {[0, 1, 2, 3].map((i) => (
-                <div key={i} className="avatar-dot" style={{ zIndex: 4 - i }}>
-                  <Users size={12} />
-                </div>
+            <div className="avatar-pill">
+              {['🎮','🏆','⚔️','🔥'].map((e, i) => (
+                <div key={i} className="avatar-dot" style={{background: ['#7c3aed','#06b6d4','#f59e0b','#22c55e'][i]+'33'}}>{e}</div>
               ))}
             </div>
             <span className="player-count-text">+88 players joined</span>
           </div>
         </div>
-      </motion.div>
+      </div>
     </section>
   )
 }

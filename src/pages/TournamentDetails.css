@@ -1,218 +1,162 @@
 .details-page {
   min-height: 100vh;
   padding: 90px 0 60px;
+  background: var(--bg-dark);
 }
 
 .details-inner {
-  max-width: 720px;
+  max-width: 700px;
   margin: 0 auto;
-  padding: var(--space-2xl) var(--space-lg);
+  padding: 40px 24px;
 }
 
 .details-back {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-sm);
-  background: none;
-  border: none;
+  gap: 8px;
   color: var(--text-secondary);
-  font-family: var(--font-body);
   font-size: 14px;
   cursor: pointer;
-  margin-bottom: var(--space-xl);
-  transition: color var(--transition-fast);
-  padding: 0;
+  margin-bottom: 28px;
+  transition: color 0.2s;
 }
-
 .details-back:hover { color: var(--purple-light); }
-
-.details-header { margin-bottom: var(--space-xl); }
 
 .details-title {
   font-family: var(--font-display);
-  font-size: clamp(24px, 4vw, 32px);
+  font-size: 32px;
   font-weight: 700;
-  letter-spacing: 1px;
-  margin-bottom: var(--space-sm);
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
 }
 
 .details-game-badge {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 5px 14px;
+  padding: 4px 14px;
   background: var(--cyan-glow);
-  color: var(--cyan-light);
-  border: 1px solid rgba(6, 182, 212, 0.25);
+  color: var(--cyan);
+  border: 1px solid #06b6d444;
   border-radius: 999px;
-  font-size: 11px;
-  font-weight: 700;
+  font-size: 12px;
+  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  margin-bottom: 28px;
 }
 
 .info-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: var(--space-md);
-  margin-bottom: var(--space-xl);
+  gap: 12px;
+  margin-bottom: 28px;
 }
 
 .info-grid-item {
-  padding: var(--space-lg);
-  position: relative;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
 }
-
-.info-grid-item.full-width { grid-column: 1 / -1; }
-
-.ig-icon { color: var(--text-muted); margin-bottom: var(--space-sm); }
-.ig-icon.gold { color: var(--gold); }
-
-.ig-label {
-  font-size: 10px;
+.info-grid-item .ig-label {
+  font-size: 11px;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.8px;
   color: var(--text-muted);
   margin-bottom: 4px;
 }
-
-.ig-value {
+.info-grid-item .ig-value {
   font-family: var(--font-display);
   font-size: 22px;
   font-weight: 700;
   color: var(--text-primary);
 }
-
-.ig-value.gold {
-  background: var(--grad-prize);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.details-bar-track {
-  margin-top: var(--space-sm);
-  height: 6px;
-  background: var(--bg-surface);
-  border-radius: 3px;
-  overflow: hidden;
-}
-
-.details-bar-fill {
-  height: 100%;
-  background: var(--grad-purple);
-  border-radius: 3px;
-}
+.info-grid-item .ig-value.gold { color: var(--gold); }
 
 .section-card {
-  padding: var(--space-xl);
-  margin-bottom: var(--space-lg);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 28px;
+  margin-bottom: 20px;
   position: relative;
   overflow: hidden;
 }
 
+.section-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--grad-purple);
+}
+
 .section-card h2 {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
   font-family: var(--font-display);
-  font-size: 16px;
+  font-size: 20px;
   font-weight: 700;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  margin-bottom: var(--space-lg);
-  color: var(--text-primary);
+  margin-bottom: 16px;
 }
 
 .upi-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: var(--space-sm);
-  font-size: 14px;
+  margin-bottom: 8px;
+  font-size: 15px;
   color: var(--text-secondary);
-  padding: var(--space-sm) 0;
 }
-
-.upi-row strong { color: var(--text-primary); font-family: var(--font-mono); }
-.gold-text { color: var(--gold) !important; }
+.upi-row strong { color: var(--text-primary); }
 
 .payment-code-box {
   background: var(--bg-surface);
   border: 1px solid var(--border-glow);
-  border-radius: var(--radius-md);
-  padding: var(--space-lg);
-  margin-top: var(--space-md);
+  border-radius: 12px;
+  padding: 20px;
+  margin-top: 16px;
 }
 
-.code-label {
-  font-size: 10px;
+.payment-code-box .code-label {
+  font-size: 11px;
   text-transform: uppercase;
-  letter-spacing: 1.2px;
+  letter-spacing: 0.8px;
   color: var(--text-muted);
-  margin-bottom: var(--space-sm);
+  margin-bottom: 8px;
 }
 
-.code-value {
+.payment-code-box .code-value {
   font-family: var(--font-mono);
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 600;
   color: var(--purple-light);
-  letter-spacing: 4px;
-  margin-bottom: var(--space-md);
+  letter-spacing: 3px;
+  margin-bottom: 10px;
 }
 
 .code-note {
-  display: flex;
-  align-items: center;
-  gap: 6px;
   font-size: 12px;
   color: var(--gold);
-  margin-bottom: var(--space-md);
+  margin-bottom: 14px;
 }
-
-.copy-btn { font-size: 13px !important; padding: 9px 18px !important; }
 
 .upload-area {
-  border: 2px dashed var(--glass-border);
-  border-radius: var(--radius-md);
-  padding: var(--space-xl);
+  border: 2px dashed var(--border);
+  border-radius: 12px;
+  padding: 24px;
   text-align: center;
   cursor: pointer;
-  transition: border-color var(--transition-base), background var(--transition-base);
-  margin-bottom: var(--space-md);
+  transition: border-color 0.2s;
+  margin-bottom: 14px;
   position: relative;
 }
-
-.upload-area:hover {
-  border-color: var(--purple);
-  background: var(--purple-glow);
-}
-
+.upload-area:hover { border-color: var(--purple); }
 .upload-area input[type="file"] {
   position: absolute;
   inset: 0;
   opacity: 0;
   cursor: pointer;
 }
-
-.upload-icon { color: var(--text-muted); margin-bottom: var(--space-sm); }
+.upload-area .upload-icon { font-size: 28px; margin-bottom: 8px; }
 .upload-area p { font-size: 14px; color: var(--text-secondary); }
-
-.file-name {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 13px;
-  color: var(--cyan-light);
-  margin-top: var(--space-sm);
-}
-
-.submit-btn { width: 100%; }
-
-.spin { animation: spin 0.8s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
-
-@media (max-width: 480px) {
-  .info-grid { grid-template-columns: 1fr; }
-}
+.upload-area .file-name { font-size: 13px; color: var(--cyan); margin-top: 6px; }

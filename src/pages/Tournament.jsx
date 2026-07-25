@@ -1,27 +1,17 @@
 import { useEffect, useState } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
-import { motion } from "framer-motion"
 import { jwtDecode } from "jwt-decode"
-import { Trophy, Gamepad2, Users, IndianRupee, CheckCircle2, Lock, Target } from "lucide-react"
 import Navbar from "../components/Navbar"
-import LoadingScreen from "../components/LoadingScreen"
 import API from "../api/axios"
 import "./Tournament.css"
-
-const cardVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: (i) => ({
-    opacity: 1,
-    y: 0,
-    transition: { delay: i * 0.08, duration: 0.45, ease: [0.16, 1, 0.3, 1] },
-  }),
-}
 
 function Tournament() {
   const navigate = useNavigate()
   const [tournaments, setTournaments] = useState([])
   const [userId, setUserId] = useState("")
-  const [loading, setLoading] = useState(true)
+  const [search, setSearch] = useState("")
+  const [gameFilter, setGameFilter] = useState("all")
+  const [statusFilter, setStatusFilter] = useState("all")
   const location = useLocation()
 
   useEffect(() => {
@@ -33,137 +23,142 @@ function Tournament() {
     } catch {
       navigate("/"); return
     }
-    API.get("/tournament/all", { headers: { Authorization: `Bearer ${token}` } })
+    API.get("/tournament/all")
       .then(res => {
         const data = res.data
         setTournaments(Array.isArray(data) ? data : [])
       })
-      .finally(() => setLoading(false))
-  }, [location.pathname, navigate])
+  }, [location.pathname])
+
+  const gameOptions = [...new Set(tournaments.map(t => t.game).filter(Boolean))]
+
+  const filteredTournaments = tournaments.filter((t) => {
+    const matchesSearch = t.name?.toLowerCase().includes(search.toLowerCase())
+    const matchesGame = gameFilter === "all" || t.game === gameFilter
+    const matchesStatus = statusFilter === "all"
+      || (statusFilter === "open" && t.status === "upcoming" && t.players.length < t.max_players)
+      || (statusFilter === "full" && t.players.length >= t.max_players)
+      || (statusFilter === "in_progress" && t.status === "in_progress")
+      || (statusFilter === "completed" && t.status === "completed")
+    return matchesSearch && matchesGame && matchesStatus
+  })
 
   return (
     <>
       <Navbar />
       <div className="tournaments-page">
-        <motion.div
-          className="tournaments-header"
-          initial={{ opacity: 0, y: -16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
+        <div className="tournaments-header">
           <div className="tournaments-header-left">
-            <div className="header-icon-wrap">
-              <Trophy size={24} />
-            </div>
-            <div>
-              <h1>Tournaments</h1>
-              <p>Find your next battle — join, compete, win.</p>
-            </div>
+            <h1>🎮 Tournaments</h1>
+            <p>Find your next battle — join, compete, win.</p>
           </div>
-          <span className="badge badge-purple">
-            {tournaments.length} Active
-          </span>
-        </motion.div>
+          <span className="badge badge-purple">{tournaments.length} Active</span>
+        </div>
 
-        {loading ? (
-          <LoadingScreen message="Loading tournaments..." />
-        ) : tournaments.length === 0 ? (
-          <motion.div
-            className="tournaments-empty"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+        <div className="tournaments-filters">
+          <input
+            type="text"
+            className="tournaments-search"
+            placeholder="🔍 Search tournaments..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          <select
+            className="tournaments-select"
+            value={gameFilter}
+            onChange={(e) => setGameFilter(e.target.value)}
           >
-            <div className="empty-icon">
-              <Target size={32} />
-            </div>
+            <option value="all">All Games</option>
+            {gameOptions.map((g) => (
+              <option key={g} value={g}>{g}</option>
+            ))}
+          </select>
+          <select
+            className="tournaments-select"
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+          >
+            <option value="all">All Status</option>
+            <option value="open">Open</option>
+            <option value="full">Full</option>
+            <option value="in_progress">In Progress</option>
+            <option value="completed">Completed</option>
+          </select>
+        </div>
+
+        {tournaments.length === 0 ? (
+          <div className="tournaments-empty">
+            <div className="empty-icon">🎯</div>
             <p>No tournaments available right now. Check back soon!</p>
-          </motion.div>
+          </div>
+        ) : filteredTournaments.length === 0 ? (
+          <div className="tournaments-empty">
+            <div className="empty-icon">🔍</div>
+            <p>No tournaments match your filters.</p>
+          </div>
         ) : (
           <div className="tournament-list">
-            {tournaments.map((t, index) => {
+            {filteredTournaments.map((t) => {
               const alreadyJoined = t.players?.includes(userId)
               const isFull = t.players.length >= t.max_players
               const fillPct = Math.round((t.players.length / t.max_players) * 100)
 
               return (
-                <motion.div
-                  className="tournament-card glass-card-static accent-top-purple"
-                  key={t.id}
-                  custom={index}
-                  variants={cardVariants}
-                  initial="hidden"
-                  animate="visible"
-                  whileHover={{ y: -4, transition: { duration: 0.2 } }}
-                >
+                <div className="tournament-card" key={t.id}>
                   <div className="card-header">
-                    <span className="card-game-badge">
-                      <Gamepad2 size={12} />
-                      {t.game}
+                    <span className="card-game-badge">🎮 {t.game}</span>
+                    <span className="badge" style={{background: t.mode === 'squad' ? 'var(--cyan-glow)' : 'var(--purple-glow)', color: t.mode === 'squad' ? 'var(--cyan)' : 'var(--purple-light)', fontSize:11}}>
+                      {t.mode === 'squad' ? `👥 Squad (${t.team_size})` : '🧍 Solo'}
                     </span>
-                    {alreadyJoined && (
-                      <span className="badge badge-cyan">
-                        <CheckCircle2 size={11} />
-                        Joined
-                      </span>
-                    )}
-                    {isFull && !alreadyJoined && (
-                      <span className="card-full-badge">
-                        <Lock size={11} />
-                        Full
-                      </span>
-                    )}
+                    {alreadyJoined && <span className="badge badge-cyan">Joined</span>}
+                    {isFull && !alreadyJoined && <span style={{color:'var(--red)',fontSize:'12px',fontWeight:600}}>FULL</span>}
                   </div>
 
                   <div className="card-title">{t.name}</div>
 
                   <div className="card-stats">
                     <div className="card-stat">
-                      <IndianRupee size={14} className="stat-icon-sm gold" />
-                      <div>
-                        <div className="stat-label">Prize Pool</div>
-                        <div className="stat-value prize">₹{t.prize_pool}</div>
-                      </div>
+                      <div className="stat-label">Prize Pool</div>
+                      <div className="stat-value prize">₹{t.prize_pool}</div>
                     </div>
                     <div className="card-stat">
-                      <IndianRupee size={14} className="stat-icon-sm" />
-                      <div>
-                        <div className="stat-label">Entry Fee</div>
-                        <div className="stat-value">₹{t.entry_fee}</div>
-                      </div>
+                      <div className="stat-label">Entry Fee</div>
+                      <div className="stat-value">₹{t.entry_fee}</div>
                     </div>
                   </div>
 
                   <div className="player-bar">
                     <div className="player-bar-top">
-                      <span><Users size={13} /> Players</span>
+                      <span>Players</span>
                       <span>{t.players.length} / {t.max_players}</span>
                     </div>
                     <div className="bar-track">
-                      <motion.div
-                        className={`bar-fill${isFull ? " full" : ""}`}
-                        initial={{ width: 0 }}
-                        animate={{ width: `${fillPct}%` }}
-                        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                      <div
+                        className={`bar-fill${isFull ? ' full' : ''}`}
+                        style={{ width: `${fillPct}%` }}
                       />
                     </div>
                   </div>
 
                   <div className="card-actions">
+                    {t.has_bracket && (
+                      <button
+                        className="btn-joined"
+                        style={{marginRight:8}}
+                        onClick={() => navigate(`/tournament/${t.id}/bracket`)}
+                      >
+                        🏆 Bracket
+                      </button>
+                    )}
                     <button
-                      className={alreadyJoined ? "btn-joined" : isFull ? "btn-full" : "btn-join"}
+                      className={alreadyJoined ? 'btn-joined' : isFull ? 'btn-full' : 'btn-join'}
                       onClick={() => !alreadyJoined && !isFull && navigate(`/tournament/${t.id}`)}
                       disabled={alreadyJoined || isFull}
                     >
-                      {alreadyJoined ? (
-                        <><CheckCircle2 size={16} /> Registered</>
-                      ) : isFull ? (
-                        <><Lock size={16} /> Full</>
-                      ) : (
-                        <>Join Now</>
-                      )}
+                      {alreadyJoined ? '✅ Registered' : isFull ? '🔒 Full' : '⚔️ Join Now'}
                     </button>
                   </div>
-                </motion.div>
+                </div>
               )
             })}
           </div>

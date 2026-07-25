@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import API from "../api/axios"
+import AdminTopBar from "../components/AdminTopBar"
 
 function AdminReleaseRoom() {
   const navigate = useNavigate()
@@ -32,7 +33,7 @@ function AdminReleaseRoom() {
   return (
     <div style={pageStyle}>
       <div style={innerStyle}>
-        <span style={{cursor:'pointer',color:'var(--text-secondary)',fontSize:14,display:'block',marginBottom:32}} onClick={() => navigate('/admin')}>← Dashboard</span>
+        <AdminTopBar />
         <h1 style={{fontFamily:'var(--font-display)',fontSize:28,fontWeight:700,marginBottom:6}}>🎮 Release Room</h1>
         <p style={{color:'var(--text-secondary)',fontSize:14,marginBottom:32}}>Share room credentials with registered players.</p>
 
