@@ -66,6 +66,20 @@ body {
   overflow-x: hidden;
 }
 
+/* Whenever the sidebar (Navbar.jsx) is mounted, it adds this class to
+   push all page content clear of the fixed left rail — no per-page
+   padding changes needed. */
+body.has-sidebar {
+  margin-left: 220px;
+  transition: margin-left 0.15s ease;
+}
+
+@media (max-width: 640px) {
+  body.has-sidebar {
+    margin-left: 60px;
+  }
+}
+
 /* Scrollbar */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: var(--bg-dark); }

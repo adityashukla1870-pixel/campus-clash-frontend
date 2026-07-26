@@ -1,4 +1,9 @@
+import { useEffect } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
+import {
+  FiGrid, FiAward, FiTrendingUp, FiMessageCircle, FiUser,
+  FiShield, FiLogOut, FiLogIn, FiUserPlus
+} from "react-icons/fi"
 import NotificationBell from "./NotificationBell"
 import { getRole } from "../utils/auth"
 import "./Navbar.css"
@@ -9,6 +14,12 @@ function Navbar() {
   const token = localStorage.getItem("token")
   const role = getRole()
 
+  // Push page content out of the sidebar's way (see body.has-sidebar in index.css)
+  useEffect(() => {
+    document.body.classList.add("has-sidebar")
+    return () => document.body.classList.remove("has-sidebar")
+  }, [])
+
   const handleLogout = () => {
     localStorage.removeItem("token")
     navigate("/login")
@@ -17,54 +28,59 @@ function Navbar() {
   const isActive = (path) => location.pathname === path ? "nav-link active" : "nav-link"
 
   return (
-    <div className="navbar">
+    <div className="sidebar">
       <div
         className="logo"
         onClick={() => { token ? navigate("/tournaments") : navigate("/") }}
       >
         <img src="/favicon.svg" alt="" className="logo-icon" />
-        Campus <span className="logo-text-clash">Clash</span>
+        <span className="logo-text">Campus <span className="logo-text-clash">Clash</span></span>
       </div>
 
       <div className="nav-links">
         {token ? (
           <>
             <span className={isActive("/tournaments")} onClick={() => navigate("/tournaments")}>
-              Tournaments
+              <FiGrid size={18} /><span className="nav-label">Tournaments</span>
             </span>
             <span className={isActive("/my-tournaments")} onClick={() => navigate("/my-tournaments")}>
-              My Matches
+              <FiAward size={18} /><span className="nav-label">My Matches</span>
             </span>
             <span className={isActive("/leaderboard")} onClick={() => navigate("/leaderboard")}>
-              Leaderboard
+              <FiTrendingUp size={18} /><span className="nav-label">Leaderboard</span>
             </span>
             <span className={isActive("/community")} onClick={() => navigate("/community")}>
-              💬 Community
+              <FiMessageCircle size={18} /><span className="nav-label">Community</span>
             </span>
             <span className={isActive("/profile")} onClick={() => navigate("/profile")}>
-              Profile
+              <FiUser size={18} /><span className="nav-label">Profile</span>
             </span>
             {role === "admin" && (
               <span className={isActive("/admin")} onClick={() => navigate("/admin")} style={{color:'var(--gold)'}}>
-                🛡️ Admin Panel
+                <FiShield size={18} /><span className="nav-label">Admin Panel</span>
               </span>
             )}
-            <NotificationBell />
-            <span className="nav-btn-ghost" onClick={handleLogout}>
-              Logout
-            </span>
           </>
         ) : (
           <>
-            <span className="nav-btn-ghost" onClick={() => navigate("/login")}>
-              Login
+            <span className="nav-link" onClick={() => navigate("/login")}>
+              <FiLogIn size={18} /><span className="nav-label">Login</span>
             </span>
-            <span className="nav-btn" onClick={() => navigate("/register")}>
-              Join Arena
+            <span className="nav-link" onClick={() => navigate("/register")}>
+              <FiUserPlus size={18} /><span className="nav-label">Join Arena</span>
             </span>
           </>
         )}
       </div>
+
+      {token && (
+        <div className="sidebar-footer">
+          <NotificationBell />
+          <span className="nav-link nav-link-danger" onClick={handleLogout}>
+            <FiLogOut size={18} /><span className="nav-label">Logout</span>
+          </span>
+        </div>
+      )}
     </div>
   )
 }

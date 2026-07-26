@@ -40,9 +40,9 @@
 }
 
 .notif-dropdown {
-  position: absolute;
-  top: 48px;
-  right: 0;
+  position: fixed;
+  left: 232px;
+  bottom: 76px;
   width: 340px;
   max-height: 420px;
   background: var(--grad-card);
@@ -113,4 +113,12 @@
   margin-top: 4px;
   font-size: 11px;
   color: var(--text-muted);
+}
+
+@media (max-width: 640px) {
+  .notif-dropdown {
+    left: 68px;
+    bottom: 70px;
+    width: 300px;
+  }
 }
