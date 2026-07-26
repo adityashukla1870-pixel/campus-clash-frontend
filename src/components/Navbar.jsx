@@ -20,7 +20,7 @@ function Navbar() {
         className="logo"
         onClick={() => { token ? navigate("/tournaments") : navigate("/") }}
       >
-        <div className="logo-icon">⚔️</div>
+        <img src="/favicon.svg" alt="" className="logo-icon" />
         Campus <span className="logo-text-clash">Clash</span>
       </div>
 
@@ -35,6 +35,9 @@ function Navbar() {
             </span>
             <span className={isActive("/leaderboard")} onClick={() => navigate("/leaderboard")}>
               Leaderboard
+            </span>
+            <span className={isActive("/community")} onClick={() => navigate("/community")}>
+              💬 Community
             </span>
             <span className={isActive("/profile")} onClick={() => navigate("/profile")}>
               Profile

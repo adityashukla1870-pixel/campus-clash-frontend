@@ -13,6 +13,7 @@ import TournamentRoom from "./pages/TournamentRoom";
 import Bracket from "./pages/Bracket";
 import Leaderboard from "./pages/Leaderboard";
 import Profile from "./pages/Profile";
+import Community from "./pages/Community";
 
 import AdminDashboard from "./pages/AdminDashboard"
 import AdminPayments from "./pages/AdminPayments"
@@ -90,6 +91,15 @@ function App() {
         element={
           <ProtectedRoute>
             <Profile/>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/community"
+        element={
+          <ProtectedRoute>
+            <Community/>
           </ProtectedRoute>
         }
       />
