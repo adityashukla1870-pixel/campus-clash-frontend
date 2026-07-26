@@ -17,7 +17,9 @@ export function getRole() {
   }
 }
 
-// Where an already-logged-in user should land, based on their role
+// Where a logged-in user should land after login/redirect.
+// Admins get the same dashboard as everyone else — they can jump into
+// the Admin Panel separately via the navbar link.
 export function getHomeRoute() {
-  return getRole() === "admin" ? "/admin" : "/tournaments"
+  return "/tournaments"
 }

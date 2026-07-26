@@ -1,11 +1,13 @@
 import { useNavigate, useLocation } from "react-router-dom"
 import NotificationBell from "./NotificationBell"
+import { getRole } from "../utils/auth"
 import "./Navbar.css"
 
 function Navbar() {
   const navigate = useNavigate()
   const location = useLocation()
   const token = localStorage.getItem("token")
+  const role = getRole()
 
   const handleLogout = () => {
     localStorage.removeItem("token")
@@ -42,6 +44,11 @@ function Navbar() {
             <span className={isActive("/profile")} onClick={() => navigate("/profile")}>
               Profile
             </span>
+            {role === "admin" && (
+              <span className={isActive("/admin")} onClick={() => navigate("/admin")} style={{color:'var(--gold)'}}>
+                🛡️ Admin Panel
+              </span>
+            )}
             <NotificationBell />
             <span className="nav-btn-ghost" onClick={handleLogout}>
               Logout

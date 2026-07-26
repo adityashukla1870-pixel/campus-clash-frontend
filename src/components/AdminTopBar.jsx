@@ -24,20 +24,29 @@ function AdminTopBar({ showBack = true }) {
         </span>
       ) : <span />}
 
-      <span
-        style={{
-          cursor: "pointer",
-          color: "var(--red)",
-          fontSize: 14,
-          fontWeight: 500,
-          border: "1px solid var(--border)",
-          padding: "6px 14px",
-          borderRadius: 8,
-        }}
-        onClick={handleLogout}
-      >
-        Logout
-      </span>
+      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <span
+          style={{ cursor: "pointer", color: "var(--text-secondary)", fontSize: 14 }}
+          onClick={() => navigate("/tournaments")}
+        >
+          👤 User Dashboard
+        </span>
+
+        <span
+          style={{
+            cursor: "pointer",
+            color: "var(--red)",
+            fontSize: 14,
+            fontWeight: 500,
+            border: "1px solid var(--border)",
+            padding: "6px 14px",
+            borderRadius: 8,
+          }}
+          onClick={handleLogout}
+        >
+          Logout
+        </span>
+      </div>
     </div>
   )
 }

@@ -27,12 +27,7 @@ function Login() {
       const data = res.data
       if (data.token) {
         localStorage.setItem("token", data.token)
-        const decoded = JSON.parse(atob(data.token.split(".")[1]))
-        if (decoded.role === "admin") {
-          navigate("/admin", { replace: true })
-        } else {
-          navigate("/tournaments", { replace: true })
-        }
+        navigate("/tournaments", { replace: true })
       }
     } catch (err) {
       alert(err.response?.data?.msg || "Login Failed")
