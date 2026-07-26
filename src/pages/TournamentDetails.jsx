@@ -1,8 +1,12 @@
 import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
+import { QRCodeSVG } from "qrcode.react"
 import Navbar from "../components/Navbar"
 import API from "../api/axios"
 import "./TournamentDetails.css"
+
+const UPI_ID = "7052759580@pytes"
+const PAYEE_NAME = "Campus Clash"
 
 function TournamentDetails() {
   const { id } = useParams()
@@ -100,6 +104,10 @@ function TournamentDetails() {
   const isSquad = tournament.mode === "squad"
   const canPay = !isSquad || teamConfirmed
   const fillPct = Math.round((tournament.players.length / tournament.max_players) * 100)
+
+  const upiLink = paymentCode
+    ? `upi://pay?pa=${encodeURIComponent(UPI_ID)}&pn=${encodeURIComponent(PAYEE_NAME)}&am=${tournament.entry_fee}&tn=${encodeURIComponent(paymentCode)}&cu=INR`
+    : ""
 
   return (
     <>
@@ -199,6 +207,20 @@ function TournamentDetails() {
               </div>
 
               <div className="payment-code-box">
+                {upiLink && (
+                  <div style={{
+                    background: "#fff",
+                    padding: 14,
+                    borderRadius: 12,
+                    display: "inline-block",
+                    marginBottom: 16
+                  }}>
+                    <QRCodeSVG value={upiLink} size={180} />
+                  </div>
+                )}
+                <div className="code-note" style={{marginBottom: 10}}>
+                  📱 Scan to pay ₹{tournament.entry_fee} — amount &amp; code auto-filled
+                </div>
                 <div className="code-label">🔑 Your Payment Code</div>
                 <div className="code-value">{paymentCode || "Generating..."}</div>
                 <div className="code-note">⚠️ Add this code in the UPI payment remarks/note</div>
