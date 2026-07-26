@@ -5,7 +5,7 @@ import Navbar from "../components/Navbar"
 import API from "../api/axios"
 import "./TournamentDetails.css"
 
-const UPI_ID = "7052759580@pytes"
+const UPI_ID = "7052759580@ptyes"
 const PAYEE_NAME = "Campus Clash"
 
 function TournamentDetails() {
@@ -199,7 +199,7 @@ function TournamentDetails() {
               <h2>💳 Payment Details</h2>
               <div className="upi-row">
                 <span>UPI ID</span>
-                <strong>7052759580@ptyes</strong>
+                <strong>campus@upi</strong>
               </div>
               <div className="upi-row">
                 <span>Amount to pay</span>
