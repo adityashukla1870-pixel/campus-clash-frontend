@@ -28,7 +28,7 @@ function TournamentDetails() {
         setMembers(Array.from({ length: Math.max(t.team_size - 1, 0) }, () => ({ name: "", game_uid: "" })))
       } else {
         // solo tournaments register immediately to reserve a payment code
-        API.post(`/tournament/register/${id}`).then(r => setPaymentCode(r.data.payment_code))
+        API.post(`/tournament/register/${id}`, {}).then(r => setPaymentCode(r.data.payment_code))
       }
     }).catch(console.error)
   }, [id])
