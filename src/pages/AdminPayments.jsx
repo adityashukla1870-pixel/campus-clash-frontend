@@ -50,11 +50,44 @@ function AdminPayments() {
         ) : (
           payments.map(p => (
             <div key={p._id} style={cardStyle}>
-              <div style={{flex:1, minWidth:200}}>
+              <div style={{flex:1, minWidth:220}}>
+                <div style={{display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:14, flexWrap:'wrap', gap:8}}>
+                  <div>
+                    <div style={{fontSize:17, fontWeight:700, color:'var(--text-primary)'}}>{p.player_name}</div>
+                    {p.player_email && <div style={{fontSize:12, color:'var(--text-muted)'}}>{p.player_email}</div>}
+                  </div>
+                  {p.entry_fee != null && (
+                    <div style={{fontSize:15, fontWeight:700, color:'var(--gold)'}}>₹{p.entry_fee}</div>
+                  )}
+                </div>
+
+                <div style={{fontSize:13, color:'var(--purple-light)', marginBottom:14}}>🏆 {p.tournament_name}</div>
+
+                {p.team_name && (
+                  <div style={{marginBottom:14, padding:'10px 12px', background:'var(--bg-surface)', borderRadius:8}}>
+                    <div style={{fontSize:11,textTransform:'uppercase',letterSpacing:'0.8px',color:'var(--text-muted)',marginBottom:4}}>Squad — {p.team_name}</div>
+                    {p.team_members?.length > 0 && (
+                      <div style={{fontSize:12, color:'var(--text-secondary)'}}>
+                        {p.team_members.map(m => m.name).filter(Boolean).join(", ")}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:14, marginBottom:16}}>
+                  <div>
+                    <div style={{fontSize:11,textTransform:'uppercase',letterSpacing:'0.8px',color:'var(--text-muted)',marginBottom:4}}>Payment Code</div>
+                    <div style={{fontFamily:'var(--font-mono)',fontSize:15,fontWeight:700,color:'var(--purple-light)'}}>{p.payment_code}</div>
+                  </div>
+                  <div>
+                    <div style={{fontSize:11,textTransform:'uppercase',letterSpacing:'0.8px',color:'var(--text-muted)',marginBottom:4}}>UTR Number</div>
+                    <div style={{fontFamily:'var(--font-mono)',fontSize:15,fontWeight:700,color:'var(--cyan)'}}>{p.utr || "—"}</div>
+                  </div>
+                </div>
+
                 <div style={{fontSize:11,textTransform:'uppercase',letterSpacing:'0.8px',color:'var(--text-muted)',marginBottom:4}}>Registration ID</div>
-                <div style={{fontFamily:'var(--font-mono)',fontSize:13,color:'var(--text-secondary)',marginBottom:12,wordBreak:'break-all'}}>{p._id}</div>
-                <div style={{fontSize:11,textTransform:'uppercase',letterSpacing:'0.8px',color:'var(--text-muted)',marginBottom:4}}>UTR Number</div>
-                <div style={{fontFamily:'var(--font-mono)',fontSize:16,fontWeight:600,color:'var(--cyan)',marginBottom:16}}>{p.utr}</div>
+                <div style={{fontFamily:'var(--font-mono)',fontSize:12,color:'var(--text-secondary)',marginBottom:16,wordBreak:'break-all'}}>{p._id}</div>
+
                 <div style={{display:'flex',gap:10}}>
                   <button className="btn-success" onClick={() => approve(p._id)}>✅ Approve</button>
                   <button className="btn-danger" onClick={() => reject(p._id)}>❌ Reject</button>
