@@ -14,6 +14,8 @@ function AdminCreateTournament() {
   const [mode, setMode] = useState("solo")
   const [teamSize, setTeamSize] = useState("4")
   const [format, setFormat] = useState("quick")
+  const [pointsTable, setPointsTable] = useState({ "1": 10, "2": 6, "3": 5, "4": 4, "5": 3, "6": 2, "7": 2, "8": 1, "9": 1 })
+  const [killPoint, setKillPoint] = useState("1")
   const [loading, setLoading] = useState(false)
 
   const handleSubmit = async () => {
@@ -26,7 +28,9 @@ function AdminCreateTournament() {
         max_players: Number(maxPlayers),
         mode,
         team_size: mode === "squad" ? Number(teamSize) : 1,
-        format
+        format,
+        points_table: format === "full" ? pointsTable : undefined,
+        kill_point_value: format === "full" ? Number(killPoint) : undefined
       })
       alert(res.data.message || res.data.error)
     } catch (err) {
@@ -96,6 +100,30 @@ function AdminCreateTournament() {
                   : "Groups → Playoffs → Finals with a points-based leaderboard. Manage stages after creating."}
               </p>
             </div>
+
+            {format === 'full' && (
+              <div className="field-group">
+                <label>Placement Points (per match)</label>
+                <div style={{display:'grid', gridTemplateColumns:'repeat(3, 1fr)', gap:8, marginBottom:10}}>
+                  {Object.keys(pointsTable).map(place => (
+                    <div key={place} style={{display:'flex', alignItems:'center', gap:6}}>
+                      <span style={{fontSize:12, color:'var(--text-muted)', width:32}}>#{place}</span>
+                      <input
+                        type="number"
+                        value={pointsTable[place]}
+                        onChange={e => setPointsTable({ ...pointsTable, [place]: Number(e.target.value) })}
+                        style={{width:'100%'}}
+                      />
+                    </div>
+                  ))}
+                </div>
+                <label style={{fontSize:13}}>Points per kill</label>
+                <input type="number" value={killPoint} onChange={e => setKillPoint(e.target.value)} style={{width:100}} />
+                <p style={{fontSize:12, color:'var(--text-muted)', marginTop:8}}>
+                  Default is the standard BGMI/Free Fire scale — edit any value if your tournament uses a different system.
+                </p>
+              </div>
+            )}
 
             {mode === 'squad' && (
               <div className="field-group">
