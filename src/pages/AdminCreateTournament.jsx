@@ -13,6 +13,7 @@ function AdminCreateTournament() {
   const [prizePool, setPrizePool] = useState("")
   const [mode, setMode] = useState("solo")
   const [teamSize, setTeamSize] = useState("4")
+  const [format, setFormat] = useState("quick")
   const [loading, setLoading] = useState(false)
 
   const handleSubmit = async () => {
@@ -24,7 +25,8 @@ function AdminCreateTournament() {
         prize_pool: Number(prizePool),
         max_players: Number(maxPlayers),
         mode,
-        team_size: mode === "squad" ? Number(teamSize) : 1
+        team_size: mode === "squad" ? Number(teamSize) : 1,
+        format
       })
       alert(res.data.message || res.data.error)
     } catch (err) {
@@ -76,6 +78,23 @@ function AdminCreateTournament() {
                 <div style={modeBtnStyle(mode === 'solo')} onClick={() => setMode('solo')}>🧍 Solo</div>
                 <div style={modeBtnStyle(mode === 'squad')} onClick={() => setMode('squad')}>👥 Squad</div>
               </div>
+            </div>
+
+            <div className="field-group">
+              <label>Tournament Format</label>
+              <div style={{display:'flex', gap:10}}>
+                <div style={modeBtnStyle(format === 'quick')} onClick={() => setFormat('quick')}>
+                  ⚡ Quick Match
+                </div>
+                <div style={modeBtnStyle(format === 'full')} onClick={() => setFormat('full')}>
+                  🏟️ Full Tournament
+                </div>
+              </div>
+              <p style={{fontSize:12, color:'var(--text-muted)', marginTop:8}}>
+                {format === 'quick'
+                  ? "Single room + one winner — same as before, good for casual matches."
+                  : "Groups → Playoffs → Finals with a points-based leaderboard. Manage stages after creating."}
+              </p>
             </div>
 
             {mode === 'squad' && (

@@ -7,6 +7,7 @@ const adminActions = [
   { icon: "🏆", label: "Create Tournament", desc: "Set up a new esports tournament", path: "/admin/create-tournament", color: "#7c3aed" },
   { icon: "🥇", label: "Declare Winner", desc: "Finalize results and announce winner", path: "/admin/winner", color: "#22c55e" },
   { icon: "🏆", label: "Bracket Manager", desc: "Generate brackets & report match results", path: "/admin/bracket", color: "#a855f7" },
+  { icon: "🎯", label: "Manage Stages", desc: "Groups, playoffs & finals for Full Tournaments", path: "/admin/stages", color: "#22d3ee" },
 ]
 
 function AdminDashboard() {

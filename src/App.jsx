@@ -14,6 +14,7 @@ import Bracket from "./pages/Bracket";
 import Leaderboard from "./pages/Leaderboard";
 import Profile from "./pages/Profile";
 import Community from "./pages/Community";
+import StageStandings from "./pages/StageStandings";
 
 import AdminDashboard from "./pages/AdminDashboard"
 import AdminPayments from "./pages/AdminPayments"
@@ -21,6 +22,7 @@ import AdminReleaseRoom from "./pages/AdminReleaseRoom"
 import AdminCreateTournament from "./pages/AdminCreateTournament"
 import AdminWinner from "./pages/AdminWinner"
 import AdminBracket from "./pages/AdminBracket"
+import AdminStages from "./pages/AdminStages"
 
 
 function App() {
@@ -105,6 +107,15 @@ function App() {
       />
 
       <Route
+        path="/tournament/:id/standings"
+        element={
+          <ProtectedRoute>
+            <StageStandings/>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
   path="/my-tournaments"
   element={
     <ProtectedRoute>
@@ -127,6 +138,7 @@ function App() {
       <Route path="/admin/create-tournament" element={<AdminRoute><AdminCreateTournament /></AdminRoute>} />
       <Route path="/admin/winner" element={<AdminRoute><AdminWinner /></AdminRoute>} />
       <Route path="/admin/bracket" element={<AdminRoute><AdminBracket /></AdminRoute>} />
+      <Route path="/admin/stages" element={<AdminRoute><AdminStages /></AdminRoute>} />
 
 
     </Routes>

@@ -124,6 +124,16 @@ function TournamentDetails() {
             {isSquad ? `👥 Squad — Team of ${tournament.team_size}` : '🧍 Solo'}
           </div>
 
+          {tournament.format === "full" && (
+            <div
+              className="details-game-badge"
+              style={{marginLeft:8, cursor:'pointer', background:'var(--gold-glow, #f59e0b22)', color:'var(--gold)'}}
+              onClick={() => navigate(`/tournament/${id}/standings`)}
+            >
+              📊 View Standings
+            </div>
+          )}
+
           <div className="info-grid">
             <div className="info-grid-item">
               <div className="ig-label">Entry Fee</div>
@@ -199,7 +209,7 @@ function TournamentDetails() {
               <h2>💳 Payment Details</h2>
               <div className="upi-row">
                 <span>UPI ID</span>
-                <strong>7052759580@ptyes</strong>
+                <strong>campus@upi</strong>
               </div>
               <div className="upi-row">
                 <span>Amount to pay</span>
