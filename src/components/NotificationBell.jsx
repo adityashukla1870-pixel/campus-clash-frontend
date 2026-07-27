@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react"
+import { createPortal } from "react-dom"
 import { useNavigate } from "react-router-dom"
 import { FiBell } from "react-icons/fi"
 import API from "../api/axios"
@@ -27,7 +28,8 @@ function NotificationBell() {
   const [open, setOpen] = useState(false)
   const [items, setItems] = useState([])
   const [unread, setUnread] = useState(0)
-  const boxRef = useRef(null)
+  const bellRef = useRef(null)
+  const dropdownRef = useRef(null)
 
   const fetchNotifications = () => {
     API.get("/notifications/my")
@@ -46,7 +48,9 @@ function NotificationBell() {
 
   useEffect(() => {
     const onClickOutside = (e) => {
-      if (boxRef.current && !boxRef.current.contains(e.target)) setOpen(false)
+      const clickedBell = bellRef.current && bellRef.current.contains(e.target)
+      const clickedDropdown = dropdownRef.current && dropdownRef.current.contains(e.target)
+      if (!clickedBell && !clickedDropdown) setOpen(false)
     }
     document.addEventListener("mousedown", onClickOutside)
     return () => document.removeEventListener("mousedown", onClickOutside)
@@ -68,14 +72,14 @@ function NotificationBell() {
   }
 
   return (
-    <div className="notif-bell-wrap" ref={boxRef}>
+    <div className="notif-bell-wrap" ref={bellRef}>
       <div className="notif-bell" onClick={handleToggle}>
         <FiBell size={19} />
         {unread > 0 && <span className="notif-badge">{unread > 9 ? "9+" : unread}</span>}
       </div>
 
-      {open && (
-        <div className="notif-dropdown">
+      {open && createPortal(
+        <div className="notif-dropdown" ref={dropdownRef}>
           <div className="notif-dropdown-header">Notifications</div>
           {items.length === 0 ? (
             <div className="notif-empty">You're all caught up 🎉</div>
@@ -96,7 +100,8 @@ function NotificationBell() {
               ))}
             </div>
           )}
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   )
