@@ -105,16 +105,27 @@ function Tournament() {
 
               return (
                 <div className="tournament-card" key={t.id}>
+                  {t.status === 'in_progress' && <div className="card-live-tag">🔴 LIVE</div>}
+                  {t.status === 'completed' && <div className="card-live-tag ended">🏁 ENDED</div>}
                   <div className="card-header">
                     <span className="card-game-badge">🎮 {t.game}</span>
                     <span className="badge" style={{background: t.mode === 'squad' ? 'var(--cyan-glow)' : 'var(--purple-glow)', color: t.mode === 'squad' ? 'var(--cyan)' : 'var(--purple-light)', fontSize:11}}>
                       {t.mode === 'squad' ? `👥 Squad (${t.team_size})` : '🧍 Solo'}
+                    </span>
+                    <span className="badge" style={{background: t.format === 'full' ? '#f59e0b22' : 'var(--cyan-glow)', color: t.format === 'full' ? 'var(--gold)' : 'var(--cyan)', fontSize:11}}>
+                      {t.format === 'full' ? '🏅 Multi-Stage' : '⚡ Quick Match'}
                     </span>
                     {alreadyJoined && <span className="badge badge-cyan">Joined</span>}
                     {isFull && !alreadyJoined && <span style={{color:'var(--red)',fontSize:'12px',fontWeight:600}}>FULL</span>}
                   </div>
 
                   <div className="card-title">{t.name}</div>
+
+                  <div className="card-format-note">
+                    {t.format === 'full'
+                      ? 'Group stages → playoffs → grand finale, with a live points table.'
+                      : 'Single decisive match — winner takes the prize pool.'}
+                  </div>
 
                   <div className="card-stats">
                     <div className="card-stat">

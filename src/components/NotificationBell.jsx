@@ -68,7 +68,18 @@ function NotificationBell() {
 
   const handleItemClick = (n) => {
     setOpen(false)
-    if (n.tournament_id) navigate(`/tournament/${n.tournament_id}`)
+    if (!n.tournament_id) return
+
+    // Different notification types point to different pages —
+    // a "room released" notification should open the room page,
+    // not the tournament registration page.
+    if (n.type === "room") {
+      navigate(`/room/${n.tournament_id}`)
+    } else if (n.type === "winner" || n.type === "payment") {
+      navigate("/my-tournaments")
+    } else {
+      navigate(`/tournament/${n.tournament_id}`)
+    }
   }
 
   return (

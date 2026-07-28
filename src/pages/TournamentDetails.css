@@ -99,6 +99,45 @@
   margin-bottom: 16px;
 }
 
+.scoring-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.scoring-chip {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 6px;
+  text-align: center;
+}
+.scoring-chip-rank {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-bottom: 2px;
+}
+.scoring-chip-pts {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--gold);
+}
+
+.kill-points-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--purple-glow);
+  border: 1px solid var(--border-glow);
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+.kill-points-row strong { color: var(--cyan); }
+
 .upi-row {
   display: flex;
   justify-content: space-between;

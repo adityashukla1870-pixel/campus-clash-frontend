@@ -123,11 +123,14 @@ function TournamentDetails() {
           <div className="details-game-badge" style={{marginLeft:8, background: isSquad ? 'var(--cyan-glow)' : 'var(--purple-glow)', color: isSquad ? 'var(--cyan)' : 'var(--purple-light)'}}>
             {isSquad ? `👥 Squad — Team of ${tournament.team_size}` : '🧍 Solo'}
           </div>
+          <div className="details-game-badge" style={{marginLeft:8, background: tournament.format === 'full' ? '#f59e0b22' : 'var(--cyan-glow)', color: tournament.format === 'full' ? 'var(--gold)' : 'var(--cyan)'}}>
+            {tournament.format === 'full' ? '🏅 Multi-Stage Tournament' : '⚡ Quick Match'}
+          </div>
 
           {tournament.format === "full" && (
             <div
               className="details-game-badge"
-              style={{marginLeft:8, cursor:'pointer', background:'var(--gold-glow, #f59e0b22)', color:'var(--gold)'}}
+              style={{marginLeft:8, cursor:'pointer', background:'#f59e0b22', color:'var(--gold)'}}
               onClick={() => navigate(`/tournament/${id}/standings`)}
             >
               📊 View Standings
@@ -150,6 +153,32 @@ function TournamentDetails() {
               </div>
             </div>
           </div>
+
+          {/* Scoring system — visible to users so they know the rules before joining */}
+          {tournament.points_table && (
+            <div className="section-card">
+              <h2>🎯 Scoring System</h2>
+              <p style={{color:'var(--text-secondary)', fontSize:13, marginBottom:16, marginTop:-8}}>
+                {tournament.format === 'full'
+                  ? 'Points are earned from your placement rank and every kill across matches.'
+                  : 'Points are earned from your placement rank and every kill in the match.'}
+              </p>
+              <div className="scoring-grid">
+                {Object.entries(tournament.points_table)
+                  .sort((a, b) => Number(a[0]) - Number(b[0]))
+                  .map(([rank, pts]) => (
+                    <div className="scoring-chip" key={rank}>
+                      <div className="scoring-chip-rank">#{rank}</div>
+                      <div className="scoring-chip-pts">{pts} pts</div>
+                    </div>
+                  ))}
+              </div>
+              <div className="kill-points-row">
+                <span>🔫 Per Kill</span>
+                <strong>{tournament.kill_point_value} {tournament.kill_point_value === 1 ? 'point' : 'points'}</strong>
+              </div>
+            </div>
+          )}
 
           {/* Team registration section (squad mode only) */}
           {isSquad && (
