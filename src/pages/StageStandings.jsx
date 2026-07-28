@@ -45,16 +45,36 @@ function PodView({ podSummary, advanceCount }) {
       {detail?.matches?.length > 0 && (
         <div className="match-list">
           {detail.matches.map(m => (
-            <div key={m.id} className="match-row">
-              <span className="match-label">Match {m.match_number}{m.map && ` · ${m.map}`}</span>
-              {m.status === "completed" ? (
-                <span className="match-tag done">
-                  Results in{m.mvp && ` · ⭐ ${m.mvp.name} (${m.mvp.kills} kills)`}
-                </span>
-              ) : m.room_id ? (
-                <span className="match-tag live">Room live</span>
-              ) : (
-                <span className="match-tag pending">Upcoming</span>
+            <div key={m.id} className={`match-row-wrap${m.room_id && m.status !== 'completed' ? ' has-room' : ''}`}>
+              <div className="match-row">
+                <span className="match-label">Match {m.match_number}{m.map && ` · ${m.map}`}</span>
+                {m.status === "completed" ? (
+                  <span className="match-tag done">
+                    Results in{m.mvp && ` · ⭐ ${m.mvp.name} (${m.mvp.kills} kills)`}
+                  </span>
+                ) : m.room_id ? (
+                  <span className="match-tag live">🔑 Room live</span>
+                ) : (
+                  <span className="match-tag pending">Upcoming</span>
+                )}
+              </div>
+              {m.room_id && m.status !== 'completed' && (
+                <div className="match-room-details">
+                  <div>
+                    <span className="mrd-label">Room ID</span>
+                    <span className="mrd-value">{m.room_id}</span>
+                  </div>
+                  <div>
+                    <span className="mrd-label">Password</span>
+                    <span className="mrd-value">{m.room_password}</span>
+                  </div>
+                  {m.match_start_time && (
+                    <div>
+                      <span className="mrd-label">Starts</span>
+                      <span className="mrd-value">{new Date(m.match_start_time).toLocaleString()}</span>
+                    </div>
+                  )}
+                </div>
               )}
             </div>
           ))}

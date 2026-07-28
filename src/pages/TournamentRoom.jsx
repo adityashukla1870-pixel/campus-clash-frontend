@@ -1,18 +1,36 @@
 import { useEffect, useState } from "react"
-import { useParams } from "react-router-dom"
+import { useParams, useNavigate } from "react-router-dom"
 import Navbar from "../components/Navbar"
 import API from "../api/axios"
 
 function TournamentRoom() {
   const { id } = useParams()
+  const navigate = useNavigate()
   const [timeLeft, setTimeLeft] = useState("")
   const [room, setRoom] = useState(null)
+  const [isFullFormat, setIsFullFormat] = useState(false)
 
   useEffect(() => {
-    API.get(`/tournament/room/${id}`)
-      .then(res => setRoom(res.data))
-      .catch(console.error)
-  }, [id])
+    // Multi-stage ("full" format) tournaments release rooms per-match on the
+    // Standings page, not on this tournament-level room. Check the format
+    // first so those users get sent to the right place instead of seeing a
+    // permanent "waiting for admin" message.
+    API.get(`/tournament/${id}`)
+      .then(res => {
+        if (res.data.format === "full") {
+          setIsFullFormat(true)
+          navigate(`/tournament/${id}/standings`, { replace: true })
+        } else {
+          API.get(`/tournament/room/${id}`)
+            .then(r => setRoom(r.data))
+            .catch(console.error)
+        }
+      })
+      .catch(() => {
+        // fall back to the old behaviour if the tournament lookup fails
+        API.get(`/tournament/room/${id}`).then(r => setRoom(r.data)).catch(console.error)
+      })
+  }, [id, navigate])
 
   useEffect(() => {
     if (!room || !room.room_id) return
@@ -47,12 +65,14 @@ function TournamentRoom() {
     overflow: 'hidden',
   }
 
-  if (!room) {
+  if (isFullFormat || !room) {
     return (
       <>
         <Navbar />
         <div style={roomPageStyle}>
-          <div style={{color:'var(--text-secondary)'}}>Loading room details...</div>
+          <div style={{color:'var(--text-secondary)'}}>
+            {isFullFormat ? "Redirecting to standings..." : "Loading room details..."}
+          </div>
         </div>
       </>
     )

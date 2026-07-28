@@ -114,6 +114,38 @@
   font-size: 13px;
 }
 
+.match-row-wrap.has-room .match-row {
+  border-radius: 8px 8px 0 0;
+}
+
+.match-room-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  background: var(--purple-glow);
+  border: 1px solid var(--border-glow);
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  padding: 12px 14px;
+}
+.match-room-details > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.mrd-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--text-muted);
+}
+.mrd-value {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--cyan);
+}
+
 .match-tag { font-size: 12px; font-weight: 600; }
 .match-tag.done { color: var(--green); }
 .match-tag.live { color: var(--cyan); }
