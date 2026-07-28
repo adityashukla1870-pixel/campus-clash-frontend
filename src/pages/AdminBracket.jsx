@@ -12,7 +12,11 @@ function AdminBracket() {
   const [generating, setGenerating] = useState(false)
 
   useEffect(() => {
-    API.get("/tournament/all").then(res => setTournaments(res.data)).catch(console.error)
+    API.get("/tournament/all").then(res => {
+      // Multi-stage ("full" format) tournaments are managed from "Manage Stages" —
+      // the knockout bracket tool only applies to single-match "quick" tournaments.
+      setTournaments((res.data || []).filter(t => t.format !== "full"))
+    }).catch(console.error)
   }, [])
 
   useEffect(() => {
@@ -81,6 +85,9 @@ function AdminBracket() {
               <option value="">Select tournament...</option>
               {tournaments.map(t => <option key={t.id} value={t.id}>{t.name}{t.has_bracket ? " (bracket generated)" : ""}</option>)}
             </select>
+            <p style={{fontSize:12,color:'var(--text-muted)',marginTop:8}}>
+              Only "Quick Match" tournaments show up here. Multi-stage tournaments are managed from "Manage Stages".
+            </p>
           </div>
 
           {selectedId && !rounds && (

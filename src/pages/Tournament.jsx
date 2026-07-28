@@ -152,7 +152,7 @@ function Tournament() {
                   </div>
 
                   <div className="card-actions">
-                    {t.has_bracket && (
+                    {t.has_bracket && t.format !== 'full' && (
                       <button
                         className="btn-joined"
                         style={{marginRight:8}}

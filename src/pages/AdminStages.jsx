@@ -2,20 +2,40 @@ import { useEffect, useState } from "react"
 import API from "../api/axios"
 import AdminTopBar from "../components/AdminTopBar"
 
-function PodCard({ pod, isSquad, onChanged }) {
+function PodCard({ pod, isSquad, stageId, onChanged }) {
   const [detail, setDetail] = useState(null)
   const [standings, setStandings] = useState([])
   const [newMap, setNewMap] = useState("")
   const [roomDrafts, setRoomDrafts] = useState({})
   const [resultDrafts, setResultDrafts] = useState({})
   const [busy, setBusy] = useState(false)
+  const [unassigned, setUnassigned] = useState([])
+  const [addSelection, setAddSelection] = useState("")
 
   const load = () => {
     API.get(`/stages/pods/${pod.id}`).then(res => setDetail(res.data))
     API.get(`/stages/pods/${pod.id}/standings`).then(res => setStandings(res.data))
+    if (pod.status === 'active') {
+      API.get(`/stages/${stageId}/unassigned`).then(res => setUnassigned(res.data)).catch(() => setUnassigned([]))
+    }
   }
 
   useEffect(load, [pod.id])
+
+  const addParticipant = async () => {
+    if (!addSelection) return
+    setBusy(true)
+    try {
+      await API.post(`/stages/pods/${pod.id}/add-participant`, { registration_id: addSelection })
+      setAddSelection("")
+      load()
+      onChanged()
+    } catch (err) {
+      alert(err.response?.data?.error || "Failed to add team")
+    } finally {
+      setBusy(false)
+    }
+  }
 
   const addMatch = async () => {
     setBusy(true)
@@ -144,6 +164,27 @@ function PodCard({ pod, isSquad, onChanged }) {
           </tbody>
         </table>
       </div>
+
+      {pod.status === 'active' && (
+        <div style={{ background: 'var(--bg-card)', border: '1px dashed var(--border)', borderRadius: 10, padding: 12, marginBottom: 14 }}>
+          <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 8 }}>
+            ➕ Add a team approved after this group was created
+          </div>
+          {unassigned.length === 0 ? (
+            <div style={{ fontSize: 12.5, color: 'var(--text-muted)' }}>No unassigned approved teams right now.</div>
+          ) : (
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <select value={addSelection} onChange={e => setAddSelection(e.target.value)} style={{ flex: 1, minWidth: 160 }}>
+                <option value="">Select a team...</option>
+                {unassigned.map(u => <option key={u.registration_id} value={u.registration_id}>{u.name}</option>)}
+              </select>
+              <button className="btn-secondary" disabled={busy || !addSelection} onClick={addParticipant}>
+                Add to {pod.name}
+              </button>
+            </div>
+          )}
+        </div>
+      )}
 
       {detail?.matches?.map(m => (
         <div key={m.id} style={{ background: 'var(--bg-card)', borderRadius: 10, padding: 12, marginBottom: 10 }}>
@@ -284,7 +325,7 @@ function StageSection({ stageSummary, isSquad, onChanged }) {
       </div>
 
       {detail?.pods?.map(p => (
-        <PodCard key={p.id} pod={p} isSquad={isSquad} onChanged={() => { load(); onChanged() }} />
+        <PodCard key={p.id} pod={p} isSquad={isSquad} stageId={stageSummary.id} onChanged={() => { load(); onChanged() }} />
       ))}
     </div>
   )

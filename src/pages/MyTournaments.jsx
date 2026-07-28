@@ -91,7 +91,7 @@ function MyTournaments() {
                       >
                         {t.status === "approved" ? "🚀 Open Room" : "⏳ Awaiting Approval"}
                       </button>
-                      {t.has_bracket && (
+                      {t.has_bracket && t.format !== 'full' && (
                         <button className="btn-primary" onClick={() => navigate(`/tournament/${t.id}/bracket`)}>
                           🏆 Bracket
                         </button>
@@ -99,7 +99,7 @@ function MyTournaments() {
                     </div>
                   )}
 
-                  {t.status === "completed" && t.has_bracket && (
+                  {t.status === "completed" && t.has_bracket && t.format !== 'full' && (
                     <div className="mt-action">
                       <button className="btn-primary" onClick={() => navigate(`/tournament/${t.id}/bracket`)}>
                         🏆 View Final Bracket
