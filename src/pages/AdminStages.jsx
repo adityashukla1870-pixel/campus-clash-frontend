@@ -250,6 +250,16 @@ function StageSection({ stageSummary, isSquad, onChanged }) {
     }
   }
 
+  const deleteStage = async () => {
+    if (!confirm(`Delete "${stageSummary.name}" completely? This removes all its groups and match data — can't be undone.`)) return
+    try {
+      await API.delete(`/stages/${stageSummary.id}`)
+      onChanged()
+    } catch (err) {
+      alert(err.response?.data?.error || "Failed to delete stage")
+    }
+  }
+
   return (
     <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 16, padding: 22, marginBottom: 20 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 10 }}>
@@ -264,9 +274,12 @@ function StageSection({ stageSummary, isSquad, onChanged }) {
           </p>
         </div>
         {stageSummary.status === 'active' && (
-          <button className="btn-success" disabled={!allPodsDone} onClick={finalizeStage} title={!allPodsDone ? "Finalize every group first" : ""}>
-            {stageSummary.is_final ? '🏆 Finalize & Declare Winner' : '✅ Finalize Stage'}
-          </button>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button className="btn-success" disabled={!allPodsDone} onClick={finalizeStage} title={!allPodsDone ? "Finalize every group first" : ""}>
+              {stageSummary.is_final ? '🏆 Finalize & Declare Winner' : '✅ Finalize Stage'}
+            </button>
+            <button className="btn-danger" onClick={deleteStage}>🗑️ Delete</button>
+          </div>
         )}
       </div>
 
