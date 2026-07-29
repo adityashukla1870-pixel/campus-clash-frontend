@@ -1,26 +1,30 @@
 /* ============================================
    CAMPUS CLASH — Global Design System
-   Dark esports aesthetic | Purple/Cyan palette
+   "Gold Standard Esports" — dark, metallic-gold,
+   prestige-at-war aesthetic (see DESIGN_HANDOFF.md)
+   (CSS vars still named --purple/--cyan for
+   backwards compatibility — they map to gold/
+   BGMI-yellow now, not literal purple/cyan)
    ============================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Hanken+Grotesk:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
 
 :root {
-  /* Core palette */
-  --bg-dark:       #0a0a0f;
-  --bg-card:       #111118;
-  --bg-surface:    #16161f;
-  --border:        #252535;
-  --border-glow:   #7c3aed44;
+  /* Core palette — warm near-black, not cool navy-black */
+  --bg-dark:       #08070a;
+  --bg-card:       #1f1b13;
+  --bg-surface:    #231f17;
+  --border:        #4d4635;
+  --border-glow:   #d4af3744;
 
   /* Accents */
-  --purple:        #7c3aed;
-  --purple-light:  #a855f7;
-  --purple-glow:   #7c3aed33;
-  --cyan:          #06b6d4;
-  --cyan-light:    #22d3ee;
-  --cyan-glow:     #06b6d422;
-  --gold:          #f59e0b;
+  --purple:        #d4af37;  /* Metallic Gold — primary accent */
+  --purple-light:  #f2ca50;
+  --purple-glow:   #d4af3733;
+  --cyan:          #f9a825;  /* BGMI Yellow-Gold — secondary accent */
+  --cyan-light:    #ffb957;
+  --cyan-glow:     #f9a82522;
+  --gold:          #f59e0b;  /* money / prize pool figures, unchanged */
 
   /* Status */
   --green:         #22c55e;
@@ -30,21 +34,25 @@
   --yellow-bg:     #facc1515;
   --red-bg:        #ef444415;
 
-  /* Text */
-  --text-primary:   #f0f0ff;
-  --text-secondary: #9090b0;
-  --text-muted:     #555570;
+  /* Text — warm off-white, not cool blue-white */
+  --text-primary:   #eae1d4;
+  --text-secondary: #d0c5af;
+  --text-muted:     #99907c;
 
   /* Fonts */
-  --font-display:  'Rajdhani', sans-serif;
-  --font-body:     'Inter', sans-serif;
-  --font-mono:     'JetBrains Mono', monospace;
+  --font-display:  'Montserrat', sans-serif;   /* headings — heavy weight, uppercase */
+  --font-body:     'Hanken Grotesk', sans-serif;
+  --font-label:    'Space Grotesk', sans-serif; /* uppercase tracked labels/badges */
+  --font-mono:     'JetBrains Mono', monospace; /* room codes / countdown timers only */
+
+  /* Shape language */
+  --chamfer: 10px; /* corner cut size for .chamfer / .chamfer-sm */
 
   /* Gradients */
-  --grad-hero:     linear-gradient(135deg, #0a0a0f 0%, #13101f 50%, #0a0a0f 100%);
-  --grad-card:     linear-gradient(145deg, #16161f, #111118);
-  --grad-purple:   linear-gradient(135deg, #7c3aed, #a855f7);
-  --grad-cyan:     linear-gradient(135deg, #06b6d4, #22d3ee);
+  --grad-hero:     linear-gradient(135deg, #08070a 0%, #1a1509 50%, #08070a 100%);
+  --grad-card:     linear-gradient(145deg, #231f17, #1f1b13);
+  --grad-purple:   linear-gradient(135deg, #d4af37, #f2ca50);
+  --grad-cyan:     linear-gradient(135deg, #f9a825, #ffb957);
   --grad-prize:    linear-gradient(135deg, #f59e0b, #fbbf24);
 }
 
@@ -231,7 +239,7 @@ body.has-sidebar {
 }
 .badge-live { background: #ef444420; color: #ef4444; border: 1px solid #ef444444; }
 .badge-purple { background: var(--purple-glow); color: var(--purple-light); border: 1px solid var(--border-glow); }
-.badge-cyan { background: var(--cyan-glow); color: var(--cyan); border: 1px solid #06b6d444; }
+.badge-cyan { background: var(--cyan-glow); color: var(--cyan); border: 1px solid #b8860b44; }
 
 /* Page title */
 .page-title {
@@ -277,13 +285,13 @@ body.has-sidebar {
 /* Status chips */
 .chip-pending  { display:inline-block; padding:4px 12px; border-radius:999px; font-size:12px; font-weight:600; background:var(--yellow-bg); color:var(--yellow); border:1px solid #facc1544; }
 .chip-approved { display:inline-block; padding:4px 12px; border-radius:999px; font-size:12px; font-weight:600; background:var(--green-bg); color:var(--green); border:1px solid #22c55e44; }
-.chip-completed{ display:inline-block; padding:4px 12px; border-radius:999px; font-size:12px; font-weight:600; background:#7c3aed20; color:var(--purple-light); border:1px solid var(--border-glow); }
+.chip-completed{ display:inline-block; padding:4px 12px; border-radius:999px; font-size:12px; font-weight:600; background:#d4af3720; color:var(--purple-light); border:1px solid var(--border-glow); }
 
 /* Alert toast-style */
 .alert-info {
   padding: 12px 16px;
   background: var(--cyan-glow);
-  border: 1px solid #06b6d444;
+  border: 1px solid #b8860b44;
   border-radius: 10px;
   color: var(--cyan-light);
   font-size: 14px;
@@ -376,6 +384,61 @@ body.has-sidebar {
 /* Elevated hover lift utility */
 .hover-lift { transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s; }
 .hover-lift:hover { transform: translateY(-6px); }
+
+/* ---- "Gold Standard" shape language (see DESIGN_HANDOFF.md) ---- */
+
+/* Glass card — semi-transparent surface with blur, subtle gold edge */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(212, 175, 55, 0.14);
+}
+
+/* Chamfered ("snipped") corners — armored/technical look, used instead of
+   rounded corners on primary containers. Two sizes; apply to any block-level
+   element. Don't combine with border-radius on the same element. */
+.chamfer {
+  clip-path: polygon(
+    var(--chamfer) 0, 100% 0, 100% calc(100% - var(--chamfer)),
+    calc(100% - var(--chamfer)) 100%, 0 100%, 0 var(--chamfer)
+  );
+}
+.chamfer-sm {
+  clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+}
+
+/* Subtle 3D tilt on hover — used for featured/game-selection cards */
+.tilt-card {
+  transform: perspective(1000px) rotateX(2deg) rotateY(-2deg);
+  transition: transform 0.5s ease;
+}
+.tilt-card:hover { transform: perspective(1000px) rotateX(0deg) rotateY(0deg); }
+
+/* Ghost-style input — bottom border only, lights up gold on focus.
+   Pair with a wrapping element and .ghost-input-underline for the animated line. */
+.ghost-input {
+  width: 100%;
+  background: var(--bg-dark);
+  border: none;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-primary);
+  padding: 14px 4px;
+  font-family: var(--font-body);
+  font-size: 15px;
+  transition: border-color 0.3s;
+}
+.ghost-input:focus { outline: none; border-color: var(--purple); }
+.ghost-input::placeholder { color: var(--text-muted); }
+
+.uppercase-label {
+  font-family: var(--font-label);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
 
 /* Section spacing rhythm shared by landing sections */
 .section {
