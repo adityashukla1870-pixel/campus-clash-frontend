@@ -13,10 +13,10 @@
 }
 
 .how-step {
+  --chamfer: 12px;
   position: relative;
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: 16px;
   padding: 28px 22px 24px;
   text-align: left;
   transition: border-color 0.3s, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);

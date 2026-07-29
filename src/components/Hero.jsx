@@ -38,7 +38,7 @@ function Hero() {
       </div>
 
       <div className="hero-right animate-in" style={{ animationDelay: "0.15s" }}>
-        <div className="preview-card">
+        <div className="preview-card chamfer">
           <div className="live-row">
             <div className="live-tag">
               <span className="pulse-dot"></span>
@@ -68,7 +68,7 @@ function Hero() {
           <div className="player-avatars">
             <div className="avatar-pill">
               {['🎮','🏆','⚔️','🔥'].map((e, i) => (
-                <div key={i} className="avatar-dot" style={{background: ['#7c3aed','#06b6d4','#f59e0b','#22c55e'][i]+'33'}}>{e}</div>
+                <div key={i} className="avatar-dot" style={{background: ['#d4af37','#f9a825','#f59e0b','#22c55e'][i]+'33'}}>{e}</div>
               ))}
             </div>
             <span className="player-count-text">+88 players joined</span>

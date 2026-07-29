@@ -15,8 +15,8 @@
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(rgba(124,58,237,0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(124,58,237,0.04) 1px, transparent 1px);
+    linear-gradient(rgba(212,175,55,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(212,175,55,0.05) 1px, transparent 1px);
   background-size: 48px 48px;
   pointer-events: none;
 }
@@ -28,7 +28,7 @@
   top: -20%;
   right: -10%;
   width: 600px; height: 600px;
-  background: radial-gradient(circle, rgba(124,58,237,0.12) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(212,175,55,0.12) 0%, transparent 70%);
   pointer-events: none;
 }
 
@@ -118,18 +118,18 @@
 }
 
 .preview-card {
+  --chamfer: 16px;
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: 20px;
   padding: 28px;
   position: relative;
-  box-shadow: 0 0 60px rgba(124,58,237,0.12), 0 24px 48px rgba(0,0,0,0.4);
+  box-shadow: 0 0 60px rgba(212,175,55,0.12), 0 24px 48px rgba(0,0,0,0.4);
   animation: floatY 6s ease-in-out infinite;
   transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s;
 }
 .preview-card:hover {
   transform: translateY(-6px) scale(1.015);
-  box-shadow: 0 0 80px rgba(124,58,237,0.2), 0 32px 60px rgba(0,0,0,0.45);
+  box-shadow: 0 0 80px rgba(212,175,55,0.2), 0 32px 60px rgba(0,0,0,0.45);
 }
 
 .preview-card::before {
@@ -138,7 +138,6 @@
   top: 0; left: 0; right: 0;
   height: 2px;
   background: var(--grad-purple);
-  border-radius: 20px 20px 0 0;
 }
 
 .live-row {

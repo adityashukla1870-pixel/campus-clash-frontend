@@ -11,13 +11,14 @@
     linear-gradient(var(--bg-card), var(--bg-card)) padding-box,
     linear-gradient(120deg, var(--purple), var(--cyan), var(--gold)) border-box;
   border: 1px solid transparent;
-  box-shadow: 0 30px 80px rgba(124,58,237,0.18);
+  box-shadow: 0 30px 80px rgba(212,175,55,0.18);
 }
 
 .cta-card h2 {
   font-family: var(--font-display);
   font-size: clamp(26px, 4vw, 38px);
   font-weight: 700;
+  text-transform: uppercase;
   margin-bottom: 14px;
 }
 

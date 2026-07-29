@@ -46,7 +46,7 @@ function Features() {
 
       <div className="features-grid">
         {FEATURES.map((f, i) => (
-          <Reveal key={i} delay={i * 80} direction="up" className="feature-card hover-lift">
+          <Reveal key={i} delay={i * 80} direction="up" className="feature-card glass-panel chamfer hover-lift">
             <div className="feature-icon">{f.icon}</div>
             <h3>{f.title}</h3>
             <p>{f.desc}</p>

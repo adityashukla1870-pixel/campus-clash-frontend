@@ -21,6 +21,7 @@
   font-family: var(--font-display);
   font-size: 36px;
   font-weight: 700;
+  text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-bottom: 12px;
 }
@@ -39,14 +40,13 @@
 }
 
 .stat-card {
+  --chamfer: 14px;
   background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: 16px;
   padding: 28px 20px;
   text-align: center;
   transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s;
   position: relative;
-  overflow: hidden;
 }
 
 .stat-card::before {

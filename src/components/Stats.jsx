@@ -36,7 +36,7 @@ function useCountUp(value, active, duration = 1400) {
 function StatCard({ stat, active, delay }) {
   const count = useCountUp(stat.value, active)
   return (
-    <Reveal delay={delay} direction="up" className="stat-card hover-lift">
+    <Reveal delay={delay} direction="up" className="stat-card chamfer hover-lift">
       <div className="stat-icon">{stat.icon}</div>
       <h2>{stat.prefix}{count}{stat.suffix}</h2>
       <p>{stat.label}</p>

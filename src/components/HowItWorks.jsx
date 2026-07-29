@@ -20,7 +20,7 @@ function HowItWorks() {
 
       <div className="how-track">
         {STEPS.map((s, i) => (
-          <Reveal key={i} delay={i * 100} direction="up" className="how-step">
+          <Reveal key={i} delay={i * 100} direction="up" className="how-step chamfer">
             <div className="how-icon">{s.icon}</div>
             <span className="how-number">{s.step}</span>
             <h3>{s.title}</h3>
