@@ -3,11 +3,40 @@ import { useNavigate } from "react-router-dom"
 import { handleTiltMove, handleTiltLeave } from "../utils/tilt"
 import "./Hero.css"
 
+const HERO_PARTICLES = [
+  { top: '15%', left: '8%',  size: 9, color: 'var(--purple-light)', glow: 'var(--purple-glow)', delay: '0s',   dur: '8s' },
+  { top: '28%', left: '92%', size: 6, color: 'var(--cyan-light)',   glow: 'var(--cyan-glow)',   delay: '1.4s', dur: '9s' },
+  { top: '68%', left: '4%',  size: 7, color: 'var(--cyan-light)',   glow: 'var(--cyan-glow)',   delay: '2.8s', dur: '7s' },
+  { top: '80%', left: '38%', size: 5, color: 'var(--purple-light)', glow: 'var(--purple-glow)', delay: '4.2s', dur: '10s' },
+  { top: '10%', left: '55%', size: 6, color: 'var(--purple-light)', glow: 'var(--purple-glow)', delay: '0.7s', dur: '8.5s' },
+  { top: '45%', left: '88%', size: 8, color: 'var(--cyan-light)',   glow: 'var(--cyan-glow)',   delay: '3.5s', dur: '9.5s' },
+  { top: '90%', left: '80%', size: 5, color: 'var(--purple-light)', glow: 'var(--purple-glow)', delay: '2s',   dur: '7.5s' },
+]
+
 function Hero() {
   const navigate = useNavigate()
 
   return (
     <section className="hero-section">
+      <div className="hero-scanline" aria-hidden="true"></div>
+      <div className="hero-particles" aria-hidden="true">
+        {HERO_PARTICLES.map((p, i) => (
+          <span
+            key={i}
+            className="hero-particle"
+            style={{
+              top: p.top,
+              left: p.left,
+              width: p.size,
+              height: p.size,
+              background: p.color,
+              boxShadow: `0 0 ${p.size * 2.4}px ${p.size / 1.6}px ${p.glow}`,
+              animationDelay: p.delay,
+              animationDuration: p.dur,
+            }}
+          />
+        ))}
+      </div>
       <div className="hero-orb hero-orb-1"></div>
       <div className="hero-orb hero-orb-2"></div>
 

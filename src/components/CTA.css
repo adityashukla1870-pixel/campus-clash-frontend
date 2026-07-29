@@ -12,6 +12,12 @@
     linear-gradient(120deg, var(--purple), var(--cyan), var(--gold)) border-box;
   border: 1px solid transparent;
   box-shadow: 0 30px 80px rgba(212,175,55,0.18);
+  animation: ctaGlowPulse 5s ease-in-out infinite;
+}
+
+@keyframes ctaGlowPulse {
+  0%, 100% { box-shadow: 0 30px 80px rgba(212,175,55,0.18); }
+  50%      { box-shadow: 0 30px 100px rgba(212,175,55,0.3); }
 }
 
 .cta-card h2 {
