@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import API from "../api/axios"
 import { isAuthenticated, getHomeRoute } from "../utils/auth"
+import logo from "../assets/logo.png"
 import "./Login.css"
 
 const REMEMBER_KEY = "cc_remember_email"
@@ -43,18 +44,23 @@ function Login() {
 
   return (
     <div className="login-page">
+      <div className="login-top-bar" aria-hidden="true" />
+
       <section className="login-brand-panel">
+        <div className="login-brand-radial" aria-hidden="true" />
         <div className="login-brand-glow" aria-hidden="true">
-          <span style={{ top: '20%', left: '30%', animationDelay: '0s' }} />
-          <span style={{ top: '60%', left: '70%', animationDelay: '1.2s' }} />
-          <span style={{ top: '75%', left: '25%', animationDelay: '2.4s' }} />
-          <span style={{ top: '35%', left: '80%', animationDelay: '3.6s' }} />
-          <span style={{ top: '50%', left: '50%', animationDelay: '0.8s' }} />
+          <span style={{ top: '18%', left: '28%', animationDelay: '0s' }} />
+          <span style={{ top: '62%', left: '72%', animationDelay: '1.2s' }} />
+          <span style={{ top: '78%', left: '22%', animationDelay: '2.4s' }} />
+          <span style={{ top: '32%', left: '82%', animationDelay: '3.6s' }} />
+          <span style={{ top: '50%', left: '48%', animationDelay: '0.8s' }} />
+          <span style={{ top: '12%', left: '60%', animationDelay: '1.8s' }} />
+          <span style={{ top: '85%', left: '55%', animationDelay: '2.9s' }} />
         </div>
         <div className="login-brand-content reveal reveal-up animate-in">
-          <div className="login-brand-icon chamfer">⚔️</div>
+          <img src={logo} alt="Campus Clash" className="login-brand-logo" />
           <div>
-            <h2>Enter The Arena</h2>
+            <h2>Enter <span>The</span> Arena</h2>
             <div className="login-brand-rule" />
           </div>
         </div>
@@ -74,28 +80,32 @@ function Login() {
           <form className="auth-form" onSubmit={handleLogin}>
             <div className="field-group-ghost">
               <label className="uppercase-label" htmlFor="email">Email Address</label>
-              <input
-                id="email"
-                type="email"
-                className="ghost-input"
-                placeholder="you@college.edu"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
+              <div className="ghost-input-wrap">
+                <input
+                  id="email"
+                  type="email"
+                  className="ghost-input"
+                  placeholder="you@college.edu"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+                <span className="ghost-input-underline" />
+              </div>
             </div>
 
             <div className="field-group-ghost">
-              <div className="field-label-row">
-                <label className="uppercase-label" htmlFor="password">Password</label>
+              <label className="uppercase-label" htmlFor="password">Password</label>
+              <div className="ghost-input-wrap">
+                <input
+                  id="password"
+                  type="password"
+                  className="ghost-input"
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+                <span className="ghost-input-underline" />
               </div>
-              <input
-                id="password"
-                type="password"
-                className="ghost-input"
-                placeholder="Enter your password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
             </div>
 
             <div className="remember-row">
@@ -108,7 +118,7 @@ function Login() {
               <label htmlFor="remember">Remember this device</label>
             </div>
 
-            <button type="submit" className="btn-primary shimmer-wrap" disabled={loading}>
+            <button type="submit" className="login-submit-btn shimmer-wrap chamfer-sm" disabled={loading}>
               {loading ? "Signing in..." : "Login"}
             </button>
           </form>
