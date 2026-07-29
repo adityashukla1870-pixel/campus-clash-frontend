@@ -1,5 +1,6 @@
 import { FaUserPlus, FaTrophy, FaGamepad, FaMoneyBillWave } from "react-icons/fa"
 import Reveal from "./Reveal"
+import { handleTiltMove, handleTiltLeave } from "../utils/tilt"
 import "./HowItWorks.css"
 
 const STEPS = [
@@ -20,7 +21,14 @@ function HowItWorks() {
 
       <div className="how-track">
         {STEPS.map((s, i) => (
-          <Reveal key={i} delay={i * 100} direction="up" className="how-step chamfer">
+          <Reveal
+            key={i}
+            delay={i * 100}
+            direction="up"
+            className="how-step chamfer"
+            onMouseMove={(e) => handleTiltMove(e, { maxTilt: 8, lift: -4 })}
+            onMouseLeave={handleTiltLeave}
+          >
             <div className="how-icon">{s.icon}</div>
             <span className="how-number">{s.step}</span>
             <h3>{s.title}</h3>

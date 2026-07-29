@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react"
  * Adds an "in-view" class once the element enters the viewport.
  * No app/business logic is affected; this only toggles CSS animation classes.
  */
-function Reveal({ children, className = "", as: Tag = "div", delay = 0, direction = "up" }) {
+function Reveal({ children, className = "", as: Tag = "div", delay = 0, direction = "up", ...rest }) {
   const ref = useRef(null)
   const [visible, setVisible] = useState(false)
 
@@ -34,6 +34,7 @@ function Reveal({ children, className = "", as: Tag = "div", delay = 0, directio
       ref={ref}
       className={`reveal reveal-${direction} ${visible ? "reveal-visible" : ""} ${className}`}
       style={{ transitionDelay: visible ? `${delay}ms` : "0ms" }}
+      {...rest}
     >
       {children}
     </Tag>

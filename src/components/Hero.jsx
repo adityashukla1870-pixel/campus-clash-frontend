@@ -1,5 +1,6 @@
 import { FaGamepad, FaArrowRight, FaBolt } from "react-icons/fa"
 import { useNavigate } from "react-router-dom"
+import { handleTiltMove, handleTiltLeave } from "../utils/tilt"
 import "./Hero.css"
 
 function Hero() {
@@ -38,7 +39,11 @@ function Hero() {
       </div>
 
       <div className="hero-right animate-in" style={{ animationDelay: "0.15s" }}>
-        <div className="preview-card chamfer">
+        <div
+          className="preview-card chamfer"
+          onMouseMove={(e) => handleTiltMove(e, { maxTilt: 6, lift: -6, pauseAnimation: true })}
+          onMouseLeave={(e) => handleTiltLeave(e, { pauseAnimation: true })}
+        >
           <div className="live-row">
             <div className="live-tag">
               <span className="pulse-dot"></span>

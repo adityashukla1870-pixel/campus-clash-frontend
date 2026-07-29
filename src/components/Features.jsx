@@ -1,5 +1,6 @@
 import { FaShieldAlt, FaBolt, FaWallet, FaChartLine, FaUsers, FaHeadset } from "react-icons/fa"
 import Reveal from "./Reveal"
+import { handleTiltMove, handleTiltLeave } from "../utils/tilt"
 import "./Features.css"
 
 const FEATURES = [
@@ -46,7 +47,14 @@ function Features() {
 
       <div className="features-grid">
         {FEATURES.map((f, i) => (
-          <Reveal key={i} delay={i * 80} direction="up" className="feature-card glass-panel chamfer hover-lift">
+          <Reveal
+            key={i}
+            delay={i * 80}
+            direction="up"
+            className="feature-card glass-panel chamfer hover-lift"
+            onMouseMove={(e) => handleTiltMove(e, { maxTilt: 8 })}
+            onMouseLeave={handleTiltLeave}
+          >
             <div className="feature-icon">{f.icon}</div>
             <h3>{f.title}</h3>
             <p>{f.desc}</p>

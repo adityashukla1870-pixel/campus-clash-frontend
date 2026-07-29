@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react"
 import { FaUsers, FaTrophy, FaGamepad, FaMedal } from "react-icons/fa"
 import Reveal from "./Reveal"
+import { handleTiltMove, handleTiltLeave } from "../utils/tilt"
 import "./Stats.css"
 
 const STATS = [
@@ -36,7 +37,13 @@ function useCountUp(value, active, duration = 1400) {
 function StatCard({ stat, active, delay }) {
   const count = useCountUp(stat.value, active)
   return (
-    <Reveal delay={delay} direction="up" className="stat-card chamfer hover-lift">
+    <Reveal
+      delay={delay}
+      direction="up"
+      className="stat-card chamfer hover-lift"
+      onMouseMove={(e) => handleTiltMove(e, { maxTilt: 10 })}
+      onMouseLeave={handleTiltLeave}
+    >
       <div className="stat-icon">{stat.icon}</div>
       <h2>{stat.prefix}{count}{stat.suffix}</h2>
       <p>{stat.label}</p>
