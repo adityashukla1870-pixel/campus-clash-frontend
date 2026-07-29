@@ -33,7 +33,7 @@ function Login() {
         } else {
           localStorage.removeItem(REMEMBER_KEY)
         }
-        navigate("/tournaments", { replace: true })
+        navigate(getHomeRoute(), { replace: true })
       }
     } catch (err) {
       alert(err.response?.data?.msg || "Login Failed")

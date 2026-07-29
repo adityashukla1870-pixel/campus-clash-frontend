@@ -10,20 +10,21 @@
   padding: 40px 24px;
 }
 
+.mt-page-title {
+  text-transform: uppercase;
+  margin-top: 6px;
+}
+
 .mytournament-list {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 18px;
 }
 
 .mytournament-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 16px;
   padding: 24px;
   position: relative;
   overflow: hidden;
-  transition: border-color 0.25s, box-shadow 0.25s;
 }
 
 .mytournament-card:hover {
@@ -45,24 +46,26 @@
   font-size: 20px;
   font-weight: 700;
   flex: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
 }
 
 .mt-meta {
   display: flex;
-  gap: 20px;
+  gap: 22px;
   margin-bottom: 16px;
   flex-wrap: wrap;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
 }
 
 .mt-meta-item {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
 }
 .mt-meta-item .meta-label {
   font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.6px;
   color: var(--text-muted);
 }
 .mt-meta-item .meta-value {

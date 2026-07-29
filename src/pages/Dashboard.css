@@ -1,0 +1,276 @@
+.dashboard-page {
+  min-height: 100vh;
+  padding: 90px 0 60px;
+  background: var(--bg-dark);
+}
+
+.dashboard-inner {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 40px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.dash-loading {
+  color: var(--text-secondary);
+  text-align: center;
+  padding: 80px 0;
+  font-family: var(--font-body);
+}
+
+/* Welcome banner */
+.dash-welcome {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 28px 32px;
+  flex-wrap: wrap;
+}
+
+.dash-welcome-title {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  font-size: 28px;
+  font-weight: 800;
+  margin-top: 6px;
+  letter-spacing: -0.01em;
+}
+
+.dash-welcome-title span {
+  color: var(--purple-light);
+}
+
+.dash-welcome-sub {
+  color: var(--text-secondary);
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+/* Stat cards */
+.dash-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.dash-stat-card {
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dash-stat-value {
+  font-family: var(--font-display);
+  font-size: 32px;
+  font-weight: 800;
+}
+
+.dash-stat-value.gold {
+  color: var(--gold);
+}
+
+/* Two column section */
+.dash-two-col {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.dash-section {
+  padding: 24px;
+}
+
+.dash-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.dash-section-head h2 {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.dash-view-all {
+  font-family: var(--font-label);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--purple-light);
+  cursor: pointer;
+}
+
+.dash-view-all:hover {
+  text-decoration: underline;
+}
+
+/* Battle list */
+.dash-battle-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.dash-battle-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.dash-battle-card:hover {
+  border-color: var(--border-glow);
+}
+
+.dash-battle-name {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.dash-battle-meta {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.dash-battle-status {
+  font-family: var(--font-label);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--cyan);
+  white-space: nowrap;
+}
+
+/* Rank card */
+.dash-rank-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: var(--purple-glow);
+  border: 1px solid var(--border-glow);
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+
+.dash-rank-number {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--purple-light);
+}
+
+.dash-rank-wins {
+  font-weight: 700;
+  color: var(--cyan);
+}
+
+.dash-rank-prize {
+  font-size: 12px;
+  color: var(--gold);
+  margin-top: 2px;
+}
+
+.dash-recent-activity {
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+}
+
+.dash-activity-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  font-size: 13px;
+  border-bottom: 1px solid var(--border);
+}
+
+.dash-activity-row:last-child {
+  border-bottom: none;
+}
+
+.dash-activity-win {
+  color: var(--green);
+  font-weight: 600;
+}
+
+.dash-activity-loss {
+  color: var(--text-muted);
+}
+
+.dash-empty-sub {
+  color: var(--text-muted);
+  font-size: 13px;
+  margin-top: 8px;
+}
+
+/* Empty states */
+.dash-empty {
+  text-align: center;
+  padding: 30px 16px;
+  color: var(--text-muted);
+}
+
+.dash-empty-icon {
+  font-size: 36px;
+  margin-bottom: 10px;
+}
+
+.dash-empty p {
+  margin-bottom: 14px;
+  font-size: 14px;
+}
+
+/* Quick links */
+.dash-quicklinks {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.dash-quicklink {
+  flex: 1;
+  min-width: 180px;
+  text-align: center;
+  padding: 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  font-family: var(--font-label);
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.dash-quicklink:hover {
+  border-color: var(--border-glow);
+  color: var(--purple-light);
+}
+
+@media (max-width: 900px) {
+  .dash-stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .dash-two-col { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 560px) {
+  .dashboard-inner { padding: 24px 16px; }
+  .dash-welcome { flex-direction: column; align-items: flex-start; }
+  .dash-stats-grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+}

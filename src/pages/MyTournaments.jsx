@@ -27,7 +27,8 @@ function MyTournaments() {
       <Navbar />
       <div className="mytournaments-page">
         <div className="mytournaments-inner">
-          <h1 className="page-title">My <span>Matches</span></h1>
+          <span className="uppercase-label">Elite Match History</span>
+          <h1 className="page-title mt-page-title">My <span>Matches</span></h1>
           <div className="glow-line"></div>
 
           {tournaments.length === 0 ? (
@@ -38,7 +39,7 @@ function MyTournaments() {
           ) : (
             <div className="mytournament-list">
               {tournaments.map((t) => (
-                <div className="mytournament-card" key={t.id}>
+                <div className="mytournament-card glass-panel chamfer hover-lift" key={t.id}>
                   <div className="mt-card-top">
                     <h2>{t.name}</h2>
                     {statusChip(t.status)}
@@ -47,20 +48,20 @@ function MyTournaments() {
                   <div className="mt-meta">
                     {t.team_name && (
                       <div className="mt-meta-item">
-                        <span className="meta-label">Team</span>
+                        <span className="meta-label uppercase-label">Team</span>
                         <span className="meta-value">👥 {t.team_name}</span>
                       </div>
                     )}
                     <div className="mt-meta-item">
-                      <span className="meta-label">Game</span>
+                      <span className="meta-label uppercase-label">Game</span>
                       <span className="meta-value">🎮 {t.game}</span>
                     </div>
                     <div className="mt-meta-item">
-                      <span className="meta-label">Entry Fee</span>
+                      <span className="meta-label uppercase-label">Entry Fee</span>
                       <span className="meta-value">₹{t.entry_fee}</span>
                     </div>
                     <div className="mt-meta-item">
-                      <span className="meta-label">Prize Pool</span>
+                      <span className="meta-label uppercase-label">Prize Pool</span>
                       <span className="meta-value gold">₹{t.prize_pool}</span>
                     </div>
                   </div>
@@ -84,7 +85,7 @@ function MyTournaments() {
                   {t.status !== "completed" && (
                     <div className="mt-action" style={{display:'flex', gap:10}}>
                       <button
-                        className="btn-primary"
+                        className="btn-primary shimmer-wrap"
                         onClick={() => navigate(`/room/${t.id}`)}
                         disabled={t.status !== "approved"}
                         style={t.status !== "approved" ? {opacity:0.4,cursor:'not-allowed'} : {}}

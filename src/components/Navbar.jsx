@@ -1,7 +1,7 @@
 import { useEffect } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
 import {
-  FiGrid, FiAward, FiTrendingUp, FiMessageCircle, FiUser,
+  FiHome, FiGrid, FiAward, FiTrendingUp, FiMessageCircle, FiUser,
   FiShield, FiLogOut, FiLogIn, FiUserPlus
 } from "react-icons/fi"
 import NotificationBell from "./NotificationBell"
@@ -31,7 +31,7 @@ function Navbar() {
     <div className="sidebar">
       <div
         className="logo"
-        onClick={() => { token ? navigate("/tournaments") : navigate("/") }}
+        onClick={() => { token ? navigate("/dashboard") : navigate("/") }}
       >
         <img src="/favicon.svg" alt="" className="logo-icon" />
         <span className="logo-text">Campus <span className="logo-text-clash">Clash</span></span>
@@ -40,6 +40,9 @@ function Navbar() {
       <div className="nav-links">
         {token ? (
           <>
+            <span className={isActive("/dashboard")} onClick={() => navigate("/dashboard")}>
+              <FiHome size={18} /><span className="nav-label">Dashboard</span>
+            </span>
             <span className={isActive("/tournaments")} onClick={() => navigate("/tournaments")}>
               <FiGrid size={18} /><span className="nav-label">Tournaments</span>
             </span>

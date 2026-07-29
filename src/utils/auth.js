@@ -21,5 +21,5 @@ export function getRole() {
 // Admins get the same dashboard as everyone else — they can jump into
 // the Admin Panel separately via the navbar link.
 export function getHomeRoute() {
-  return "/tournaments"
+  return "/dashboard"
 }
