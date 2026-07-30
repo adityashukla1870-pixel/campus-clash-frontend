@@ -1,4 +1,4 @@
-import Navbar from "../components/Navbar";
+import LandingNavbar from "../components/LandingNavbar";
 import Hero from "../components/Hero";
 import GamesTicker from "../components/GamesTicker";
 import Stats from "../components/Stats";
@@ -13,7 +13,7 @@ return(
 
 <div className="landing">
 
-<Navbar/>
+<LandingNavbar/>
 
 <Hero/>
 

@@ -6,6 +6,7 @@ import {
 } from "react-icons/fi"
 import NotificationBell from "./NotificationBell"
 import { getRole } from "../utils/auth"
+import logo from "../assets/logo.png"
 import "./Navbar.css"
 
 function Navbar() {
@@ -33,11 +34,12 @@ function Navbar() {
         className="logo"
         onClick={() => { token ? navigate("/dashboard") : navigate("/") }}
       >
-        <img src="/favicon.svg" alt="" className="logo-icon" />
+        <img src={logo} alt="" className="logo-icon" />
         <span className="logo-text">Campus <span className="logo-text-clash">Clash</span></span>
       </div>
 
       <div className="nav-links">
+        {token && <span className="nav-section-label">Menu</span>}
         {token ? (
           <>
             <span className={isActive("/dashboard")} onClick={() => navigate("/dashboard")}>
@@ -55,11 +57,13 @@ function Navbar() {
             <span className={isActive("/community")} onClick={() => navigate("/community")}>
               <FiMessageCircle size={18} /><span className="nav-label">Community</span>
             </span>
+
+            <span className="nav-section-label">Account</span>
             <span className={isActive("/profile")} onClick={() => navigate("/profile")}>
               <FiUser size={18} /><span className="nav-label">Profile</span>
             </span>
             {role === "admin" && (
-              <span className={isActive("/admin")} onClick={() => navigate("/admin")} style={{color:'var(--gold)'}}>
+              <span className={`${isActive("/admin")} nav-link-admin`} onClick={() => navigate("/admin")}>
                 <FiShield size={18} /><span className="nav-label">Admin Panel</span>
               </span>
             )}

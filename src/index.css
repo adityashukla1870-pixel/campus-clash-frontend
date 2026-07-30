@@ -82,9 +82,10 @@ body.has-sidebar {
   transition: margin-left 0.15s ease;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 767px) {
   body.has-sidebar {
-    margin-left: 60px;
+    margin-left: 0;
+    margin-bottom: 64px;
   }
 }
 
