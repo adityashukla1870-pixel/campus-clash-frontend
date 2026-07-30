@@ -1,7 +1,7 @@
 .community-page {
   min-height: 100vh;
   background: var(--bg-dark);
-  padding: 100px 6% 40px;
+  padding: 40px 6% 40px;
   display: flex;
   flex-direction: column;
   max-width: 900px;

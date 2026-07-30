@@ -1,7 +1,7 @@
 .standings-page {
   min-height: 100vh;
   background: var(--bg-dark);
-  padding: 100px 6% 60px;
+  padding: 40px 6% 60px;
   max-width: 820px;
   margin: 0 auto;
 }

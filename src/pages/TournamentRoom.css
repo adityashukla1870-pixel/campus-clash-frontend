@@ -1,6 +1,6 @@
 .room-page {
   min-height: 100vh;
-  padding: 110px var(--space-lg) 60px;
+  padding: 40px var(--space-lg) 60px;
   display: flex;
   align-items: center;
   justify-content: center;

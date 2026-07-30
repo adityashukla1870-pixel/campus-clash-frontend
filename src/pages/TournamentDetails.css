@@ -1,6 +1,6 @@
 .details-page {
   min-height: 100vh;
-  padding: 90px 0 60px;
+  padding: 40px 0 60px;
   background: var(--bg-dark);
 }
 
@@ -44,25 +44,6 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-bottom: 28px;
-}
-
-.reg-timer {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 14px;
-  background: var(--purple-glow);
-  border: 1px solid var(--border-glow);
-  border-radius: 999px;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--purple-light);
-  width: fit-content;
-}
-.reg-timer.reg-timer-closed {
-  background: var(--red-bg);
-  border-color: #ef444444;
-  color: var(--red);
 }
 
 .info-grid {
