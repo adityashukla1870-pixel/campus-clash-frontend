@@ -59,7 +59,7 @@ function AdminCreateTournament() {
         </div>
 
         <h1 style={{fontFamily:'var(--font-display)',fontSize:28,fontWeight:700,marginBottom:6}}>🏆 Create Tournament</h1>
-        <p style={{color:'var(--text-secondary)',fontSize:14,marginBottom:32}}>Fill in the details to launch a new tournament.</p>
+        <p style={{color:'var(--text-secondary)',fontSize:14,marginBottom:32}}>Fill in the details to launch a new tournament. (build check: deadline-v2)</p>
 
         <div style={{
           background:'var(--bg-card)', border:'1px solid var(--border)',
