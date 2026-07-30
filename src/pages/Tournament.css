@@ -243,6 +243,26 @@
   border: 1px solid var(--border) !important;
 }
 
+.reg-timer {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  margin-bottom: 18px;
+  background: var(--purple-glow);
+  border: 1px solid var(--border-glow);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--purple-light);
+  width: fit-content;
+}
+.reg-timer.reg-timer-closed {
+  background: var(--red-bg);
+  border-color: #ef444444;
+  color: var(--red);
+}
+
 .tournaments-empty {
   text-align: center;
   padding: 80px 24px;

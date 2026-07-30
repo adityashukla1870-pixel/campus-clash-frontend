@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
 import { jwtDecode } from "jwt-decode"
 import Navbar from "../components/Navbar"
+import RegistrationTimer from "../components/RegistrationTimer"
 import API from "../api/axios"
 import "./Tournament.css"
 
@@ -29,6 +30,10 @@ function Tournament() {
         setTournaments(Array.isArray(data) ? data : [])
       })
   }, [location.pathname])
+
+  const markRegistrationClosed = (tournamentId) => {
+    setTournaments(prev => prev.map(t => t.id === tournamentId ? { ...t, registration_closed: true } : t))
+  }
 
   const gameOptions = [...new Set(tournaments.map(t => t.game).filter(Boolean))]
 
@@ -102,6 +107,7 @@ function Tournament() {
               const alreadyJoined = t.players?.includes(userId)
               const isFull = t.players.length >= t.max_players
               const fillPct = Math.round((t.players.length / t.max_players) * 100)
+              const regClosed = !!t.registration_closed
 
               return (
                 <div className="tournament-card" key={t.id}>
@@ -126,6 +132,14 @@ function Tournament() {
                       ? 'Group stages → playoffs → grand finale, with a live points table.'
                       : 'Single decisive match — winner takes the prize pool.'}
                   </div>
+
+                  {t.registration_deadline && !alreadyJoined && (
+                    <RegistrationTimer
+                      deadline={t.registration_deadline}
+                      onExpire={() => markRegistrationClosed(t.id)}
+                      style={{marginBottom: 18, marginTop: -8}}
+                    />
+                  )}
 
                   <div className="card-stats">
                     <div className="card-stat">
@@ -162,11 +176,11 @@ function Tournament() {
                       </button>
                     )}
                     <button
-                      className={alreadyJoined ? 'btn-joined' : isFull ? 'btn-full' : 'btn-join'}
-                      onClick={() => !alreadyJoined && !isFull && navigate(`/tournament/${t.id}`)}
-                      disabled={alreadyJoined || isFull}
+                      className={alreadyJoined ? 'btn-joined' : (isFull || regClosed) ? 'btn-full' : 'btn-join'}
+                      onClick={() => !alreadyJoined && !isFull && !regClosed && navigate(`/tournament/${t.id}`)}
+                      disabled={alreadyJoined || isFull || regClosed}
                     >
-                      {alreadyJoined ? '✅ Registered' : isFull ? '🔒 Full' : '⚔️ Join Now'}
+                      {alreadyJoined ? '✅ Registered' : isFull ? '🔒 Full' : regClosed ? '🔒 Registration Closed' : '⚔️ Join Now'}
                     </button>
                   </div>
                 </div>

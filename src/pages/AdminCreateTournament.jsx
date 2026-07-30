@@ -30,7 +30,8 @@ function AdminCreateTournament() {
         team_size: mode === "squad" ? Number(teamSize) : 1,
         format,
         points_table: format === "full" ? pointsTable : undefined,
-        kill_point_value: format === "full" ? Number(killPoint) : undefined
+        kill_point_value: format === "full" ? Number(killPoint) : undefined,
+        registration_deadline: date ? new Date(date).toISOString() : undefined
       })
       alert(res.data.message || res.data.error)
     } catch (err) {
@@ -147,8 +148,13 @@ function AdminCreateTournament() {
               <input type="number" placeholder="e.g. 100" onChange={e => setMaxPlayers(e.target.value)} />
             </div>
             <div className="field-group">
-              <label>Tournament Date</label>
+              <label>Registration Deadline</label>
               <input type="datetime-local" onChange={e => setDate(e.target.value)} />
+              <p style={{fontSize:12, color:'var(--text-muted)', marginTop:8}}>
+                Players can only register before this time. A live countdown shows on the tournament card,
+                and registration auto-closes once it passes — whoever's registered by then is final.
+                Leave blank for no deadline.
+              </p>
             </div>
 
             <button className="btn-primary" style={{width:'100%',justifyContent:'center',marginTop:4}} onClick={handleSubmit} disabled={loading}>
