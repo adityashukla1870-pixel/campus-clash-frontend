@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
 import { jwtDecode } from "jwt-decode"
+import { FiSearch, FiZap } from "react-icons/fi"
 import Navbar from "../components/Navbar"
-import RegistrationTimer from "../components/RegistrationTimer"
 import API from "../api/axios"
 import "./Tournament.css"
+
+const GAME_ICONS = { BGMI: "🎮", "Free Fire": "🔥", Valorant: "🎯", "Call of Duty Mobile": "🪖" }
 
 function Tournament() {
   const navigate = useNavigate()
@@ -31,10 +33,6 @@ function Tournament() {
       })
   }, [location.pathname])
 
-  const markRegistrationClosed = (tournamentId) => {
-    setTournaments(prev => prev.map(t => t.id === tournamentId ? { ...t, registration_closed: true } : t))
-  }
-
   const gameOptions = [...new Set(tournaments.map(t => t.game).filter(Boolean))]
 
   const filteredTournaments = tournaments.filter((t) => {
@@ -48,6 +46,15 @@ function Tournament() {
     return matchesSearch && matchesGame && matchesStatus
   })
 
+  // Feature the biggest live tournament, or failing that the biggest
+  // upcoming one — real data only, no placeholder art.
+  const featured = [...tournaments]
+    .filter(t => t.status === "in_progress")
+    .sort((a, b) => (b.prize_pool || 0) - (a.prize_pool || 0))[0]
+    || [...tournaments]
+      .filter(t => t.status === "upcoming" && t.players.length < t.max_players)
+      .sort((a, b) => (b.prize_pool || 0) - (a.prize_pool || 0))[0]
+
   return (
     <>
       <Navbar />
@@ -60,24 +67,37 @@ function Tournament() {
           <span className="badge badge-purple">{tournaments.length} Active</span>
         </div>
 
+        {featured && (
+          <section className="featured-banner" onClick={() => navigate(`/tournament/${featured.id}`)}>
+            <div className="featured-banner-glow" aria-hidden="true" />
+            <div className="featured-banner-inner">
+              {featured.status === "in_progress" ? (
+                <div className="featured-tag live"><span className="dot" /> Live Now</div>
+              ) : (
+                <div className="featured-tag"><FiZap size={13} /> Featured</div>
+              )}
+              <h2>{featured.name}</h2>
+              <p className="featured-game">{GAME_ICONS[featured.game] || "🎮"} {featured.game}</p>
+              <div className="featured-prize-label">Total Prize Pool</div>
+              <div className="featured-prize-value">₹{featured.prize_pool?.toLocaleString?.() || featured.prize_pool}</div>
+              <button className="featured-cta shimmer-wrap chamfer-sm" onClick={(e) => { e.stopPropagation(); navigate(`/tournament/${featured.id}`) }}>
+                {featured.status === "in_progress" ? "View Tournament" : "Register Now"}
+              </button>
+            </div>
+          </section>
+        )}
+
         <div className="tournaments-filters">
-          <input
-            type="text"
-            className="tournaments-search"
-            placeholder="🔍 Search tournaments..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-          <select
-            className="tournaments-select"
-            value={gameFilter}
-            onChange={(e) => setGameFilter(e.target.value)}
-          >
-            <option value="all">All Games</option>
-            {gameOptions.map((g) => (
-              <option key={g} value={g}>{g}</option>
-            ))}
-          </select>
+          <div className="tournaments-search-wrap">
+            <FiSearch className="tournaments-search-icon" />
+            <input
+              type="text"
+              className="tournaments-search"
+              placeholder="Search tournaments..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
           <select
             className="tournaments-select"
             value={statusFilter}
@@ -89,6 +109,21 @@ function Tournament() {
             <option value="in_progress">In Progress</option>
             <option value="completed">Completed</option>
           </select>
+        </div>
+
+        <div className="game-pills">
+          <button className={`game-pill${gameFilter === 'all' ? ' active' : ''}`} onClick={() => setGameFilter('all')}>
+            All Games
+          </button>
+          {gameOptions.map((g) => (
+            <button
+              key={g}
+              className={`game-pill${gameFilter === g ? ' active' : ''}`}
+              onClick={() => setGameFilter(g)}
+            >
+              {GAME_ICONS[g] || "🎮"} {g}
+            </button>
+          ))}
         </div>
 
         {tournaments.length === 0 ? (
@@ -107,10 +142,9 @@ function Tournament() {
               const alreadyJoined = t.players?.includes(userId)
               const isFull = t.players.length >= t.max_players
               const fillPct = Math.round((t.players.length / t.max_players) * 100)
-              const regClosed = !!t.registration_closed
 
               return (
-                <div className="tournament-card" key={t.id}>
+                <div className="tournament-card hover-lift" key={t.id}>
                   {t.status === 'in_progress' && <div className="card-live-tag">🔴 LIVE</div>}
                   {t.status === 'completed' && <div className="card-live-tag ended">🏁 ENDED</div>}
                   <div className="card-header">
@@ -132,14 +166,6 @@ function Tournament() {
                       ? 'Group stages → playoffs → grand finale, with a live points table.'
                       : 'Single decisive match — winner takes the prize pool.'}
                   </div>
-
-                  {t.registration_deadline && !alreadyJoined && (
-                    <RegistrationTimer
-                      deadline={t.registration_deadline}
-                      onExpire={() => markRegistrationClosed(t.id)}
-                      style={{marginBottom: 18, marginTop: -8}}
-                    />
-                  )}
 
                   <div className="card-stats">
                     <div className="card-stat">
@@ -176,11 +202,11 @@ function Tournament() {
                       </button>
                     )}
                     <button
-                      className={alreadyJoined ? 'btn-joined' : (isFull || regClosed) ? 'btn-full' : 'btn-join'}
-                      onClick={() => !alreadyJoined && !isFull && !regClosed && navigate(`/tournament/${t.id}`)}
-                      disabled={alreadyJoined || isFull || regClosed}
+                      className={alreadyJoined ? 'btn-joined' : isFull ? 'btn-full' : 'btn-join'}
+                      onClick={() => !alreadyJoined && !isFull && navigate(`/tournament/${t.id}`)}
+                      disabled={alreadyJoined || isFull}
                     >
-                      {alreadyJoined ? '✅ Registered' : isFull ? '🔒 Full' : regClosed ? '🔒 Registration Closed' : '⚔️ Join Now'}
+                      {alreadyJoined ? '✅ Registered' : isFull ? '🔒 Full' : '⚔️ Join Now'}
                     </button>
                   </div>
                 </div>
