@@ -5,7 +5,7 @@
 }
 
 .details-inner {
-  max-width: 700px;
+  max-width: 1080px;
   margin: 0 auto;
   padding: 40px 24px;
 }
@@ -17,82 +17,147 @@
   color: var(--text-secondary);
   font-size: 14px;
   cursor: pointer;
-  margin-bottom: 28px;
+  margin-bottom: 24px;
   transition: color 0.2s;
 }
 .details-back:hover { color: var(--purple-light); }
 
 .details-banner-image {
   width: 100%;
-  height: 220px;
+  height: 260px;
   background-size: cover;
   background-position: center;
   border-radius: 16px;
   border: 1px solid var(--border);
-  margin-bottom: 24px;
+  margin-bottom: 28px;
 }
 @media (max-width: 640px) {
   .details-banner-image { height: 160px; }
 }
 
-.details-title {
-  font-family: var(--font-display);
-  font-size: 32px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  margin-bottom: 6px;
+/* ---------------- Header ---------------- */
+.details-header { margin-bottom: 32px; }
+
+.details-eyebrow {
+  font-family: var(--font-label);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--purple);
+  margin-bottom: 8px;
 }
 
-.details-game-badge {
+.details-title {
+  font-family: var(--font-display);
+  font-size: clamp(26px, 3.4vw, 38px);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  line-height: 1.15;
+  margin-bottom: 16px;
+}
+
+.details-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.details-badge {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 14px;
+  padding: 6px 14px;
   background: var(--cyan-glow);
   color: var(--cyan);
-  border: 1px solid #06b6d444;
+  border: 1px solid rgba(249,168,37,0.3);
   border-radius: 999px;
   font-size: 12px;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 28px;
+  letter-spacing: 0.04em;
+}
+.details-badge.purple { background: var(--purple-glow); color: var(--purple-light); border-color: var(--border-glow); }
+.details-badge.gold { background: rgba(245,158,11,0.14); color: var(--gold); border-color: rgba(245,158,11,0.35); }
+.details-badge.clickable { cursor: pointer; transition: transform 0.2s; }
+.details-badge.clickable:hover { transform: translateY(-1px); }
+
+/* ---------------- Two-column layout ---------------- */
+.details-layout {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 28px;
+  align-items: start;
 }
 
+@media (max-width: 860px) {
+  .details-layout { grid-template-columns: 1fr; }
+}
+
+.details-main, .details-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.details-sidebar {
+  position: sticky;
+  top: 24px;
+}
+@media (max-width: 860px) {
+  .details-sidebar { position: static; }
+}
+
+/* ---------------- Info grid ---------------- */
 .info-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 12px;
-  margin-bottom: 28px;
 }
 
 .info-grid-item {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: 12px;
-  padding: 16px;
+  padding: 18px;
 }
 .info-grid-item .ig-label {
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.8px;
   color: var(--text-muted);
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 .info-grid-item .ig-value {
   font-family: var(--font-display);
-  font-size: 22px;
-  font-weight: 700;
+  font-size: 24px;
+  font-weight: 800;
   color: var(--text-primary);
 }
 .info-grid-item .ig-value.gold { color: var(--gold); }
 
+.ig-progress-track {
+  margin-top: 10px;
+  height: 7px;
+  background: var(--bg-surface);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.ig-progress-fill {
+  height: 100%;
+  background: var(--grad-purple);
+  border-radius: 4px;
+  box-shadow: 0 0 10px var(--purple-glow);
+  transition: width 0.4s ease;
+}
+
+/* ---------------- Section cards ---------------- */
 .section-card {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: 16px;
-  padding: 28px;
-  margin-bottom: 20px;
+  padding: 26px;
   position: relative;
   overflow: hidden;
 }
@@ -106,12 +171,37 @@
 }
 
 .section-card h2 {
+  display: flex;
+  align-items: center;
+  gap: 9px;
   font-family: var(--font-display);
-  font-size: 20px;
+  font-size: 17px;
   font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
   margin-bottom: 16px;
 }
+.section-card h2 svg { color: var(--purple); flex-shrink: 0; }
 
+.section-subtext {
+  color: var(--text-secondary);
+  font-size: 13px;
+  margin: -8px 0 16px;
+  line-height: 1.5;
+}
+
+.details-cta {
+  width: 100%;
+  justify-content: center;
+  padding: 14px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-top: 4px;
+}
+
+/* ---------------- Scoring ---------------- */
 .scoring-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
@@ -151,22 +241,62 @@
 }
 .kill-points-row strong { color: var(--cyan); }
 
+/* ---------------- Team form ---------------- */
+.field-group { margin-bottom: 18px; }
+.field-group:last-child { margin-bottom: 0; }
+
+.team-member-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+@media (max-width: 480px) {
+  .team-member-row { grid-template-columns: 1fr; }
+}
+
+.team-confirmed-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+  background: var(--green-bg);
+  border: 1px solid #22c55e44;
+  border-radius: 12px;
+  padding: 14px;
+  color: var(--green);
+  font-weight: 600;
+}
+
+/* ---------------- Payment ---------------- */
+.payment-card { border-color: var(--border-glow); }
+
 .upi-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
   font-size: 15px;
   color: var(--text-secondary);
 }
 .upi-row strong { color: var(--text-primary); }
+.gold-text { color: var(--gold) !important; }
 
 .payment-code-box {
   background: var(--bg-surface);
   border: 1px solid var(--border-glow);
   border-radius: 12px;
-  padding: 20px;
+  padding: 22px;
   margin-top: 16px;
+  text-align: center;
+}
+
+.qr-wrap {
+  background: #fff;
+  padding: 14px;
+  border-radius: 12px;
+  display: inline-block;
+  margin-bottom: 16px;
 }
 
 .payment-code-box .code-label {
@@ -179,11 +309,12 @@
 
 .payment-code-box .code-value {
   font-family: var(--font-mono);
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 600;
   color: var(--purple-light);
   letter-spacing: 3px;
   margin-bottom: 10px;
+  text-shadow: 0 0 20px var(--purple-glow);
 }
 
 .code-note {
@@ -192,23 +323,29 @@
   margin-bottom: 14px;
 }
 
+.payment-code-box .btn-secondary {
+  font-size: 14px;
+  padding: 9px 22px;
+}
+
+/* ---------------- Upload ---------------- */
 .upload-area {
   border: 2px dashed var(--border);
   border-radius: 12px;
-  padding: 24px;
+  padding: 26px;
   text-align: center;
   cursor: pointer;
-  transition: border-color 0.2s;
-  margin-bottom: 14px;
+  transition: border-color 0.2s, background 0.2s;
+  margin-bottom: 18px;
   position: relative;
 }
-.upload-area:hover { border-color: var(--purple); }
+.upload-area:hover { border-color: var(--purple); background: var(--purple-glow); }
 .upload-area input[type="file"] {
   position: absolute;
   inset: 0;
   opacity: 0;
   cursor: pointer;
 }
-.upload-area .upload-icon { font-size: 28px; margin-bottom: 8px; }
+.upload-area .upload-icon { color: var(--purple); margin-bottom: 10px; }
 .upload-area p { font-size: 14px; color: var(--text-secondary); }
-.upload-area .file-name { font-size: 13px; color: var(--cyan); margin-top: 6px; }
+.upload-area .file-name { font-size: 13px; color: var(--cyan); margin-top: 8px; }

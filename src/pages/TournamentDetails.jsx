@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { QRCodeSVG } from "qrcode.react"
+import { FiUpload, FiUsers, FiTarget, FiCreditCard, FiBarChart2, FiCheckCircle } from "react-icons/fi"
 import Navbar from "../components/Navbar"
 import API from "../api/axios"
 import { resolveImageUrl } from "../utils/media"
@@ -126,185 +127,181 @@ function TournamentDetails() {
             />
           )}
 
-          <div className="details-title">{tournament.name}</div>
-          <div className="details-game-badge">🎮 {tournament.game}</div>
-          <div className="details-game-badge" style={{marginLeft:8, background: isSquad ? 'var(--cyan-glow)' : 'var(--purple-glow)', color: isSquad ? 'var(--cyan)' : 'var(--purple-light)'}}>
-            {isSquad ? `👥 Squad — Team of ${tournament.team_size}` : '🧍 Solo'}
-          </div>
-          <div className="details-game-badge" style={{marginLeft:8, background: tournament.format === 'full' ? '#f59e0b22' : 'var(--cyan-glow)', color: tournament.format === 'full' ? 'var(--gold)' : 'var(--cyan)'}}>
-            {tournament.format === 'full' ? '🏅 Multi-Stage Tournament' : '⚡ Quick Match'}
-          </div>
-
-          {tournament.format === "full" && (
-            <div
-              className="details-game-badge"
-              style={{marginLeft:8, cursor:'pointer', background:'#f59e0b22', color:'var(--gold)'}}
-              onClick={() => navigate(`/tournament/${id}/standings`)}
-            >
-              📊 View Standings
-            </div>
-          )}
-
-          <div className="info-grid">
-            <div className="info-grid-item">
-              <div className="ig-label">Entry Fee</div>
-              <div className="ig-value">₹{tournament.entry_fee}</div>
-            </div>
-            <div className="info-grid-item">
-              <div className="ig-label">Prize Pool</div>
-              <div className="ig-value gold">₹{tournament.prize_pool}</div>
-            </div>
-            <div className="info-grid-item" style={{gridColumn:'1/-1'}}>
-              <div className="ig-label">Players — {tournament.players.length} / {tournament.max_players}</div>
-              <div style={{marginTop:8, height:6, background:'var(--bg-surface)', borderRadius:3, overflow:'hidden'}}>
-                <div style={{width:`${fillPct}%`, height:'100%', background:'var(--grad-purple)', borderRadius:3}} />
-              </div>
+          <div className="details-header">
+            <div className="details-eyebrow">Tournament Details</div>
+            <h1 className="details-title">{tournament.name}</h1>
+            <div className="details-badges">
+              <span className="details-badge">🎮 {tournament.game}</span>
+              <span className={`details-badge ${isSquad ? 'cyan' : 'purple'}`}>
+                {isSquad ? `👥 Squad — Team of ${tournament.team_size}` : '🧍 Solo'}
+              </span>
+              <span className={`details-badge ${tournament.format === 'full' ? 'gold' : 'cyan'}`}>
+                {tournament.format === 'full' ? '🏅 Multi-Stage Tournament' : '⚡ Quick Match'}
+              </span>
+              {tournament.format === "full" && (
+                <span className="details-badge gold clickable" onClick={() => navigate(`/tournament/${id}/standings`)}>
+                  <FiBarChart2 size={13} /> View Standings
+                </span>
+              )}
             </div>
           </div>
 
-          {/* Scoring system — visible to users so they know the rules before joining */}
-          {tournament.points_table && (
-            <div className="section-card">
-              <h2>🎯 Scoring System</h2>
-              <p style={{color:'var(--text-secondary)', fontSize:13, marginBottom:16, marginTop:-8}}>
-                {tournament.format === 'full'
-                  ? 'Points are earned from your placement rank and every kill across matches.'
-                  : 'Points are earned from your placement rank and every kill in the match.'}
-              </p>
-              <div className="scoring-grid">
-                {Object.entries(tournament.points_table)
-                  .sort((a, b) => Number(a[0]) - Number(b[0]))
-                  .map(([rank, pts]) => (
-                    <div className="scoring-chip" key={rank}>
-                      <div className="scoring-chip-rank">#{rank}</div>
-                      <div className="scoring-chip-pts">{pts} pts</div>
-                    </div>
-                  ))}
-              </div>
-              <div className="kill-points-row">
-                <span>🔫 Per Kill</span>
-                <strong>{tournament.kill_point_value} {tournament.kill_point_value === 1 ? 'point' : 'points'}</strong>
-              </div>
-            </div>
-          )}
-
-          {/* Team registration section (squad mode only) */}
-          {isSquad && (
-            <div className="section-card">
-              <h2>👥 Team Details</h2>
-              <div className="field-group" style={{marginBottom:20}}>
-                <label>Team Name</label>
-                <input
-                  type="text"
-                  placeholder="Enter your squad name"
-                  value={teamName}
-                  onChange={(e) => setTeamName(e.target.value)}
-                  disabled={teamConfirmed}
-                />
-              </div>
-
-              {members.map((m, i) => (
-                <div key={i} style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:12, marginBottom:16}}>
-                  <div className="field-group">
-                    <label>Teammate {i + 1} Name</label>
-                    <input
-                      type="text"
-                      placeholder="Player name"
-                      value={m.name}
-                      onChange={(e) => updateMember(i, "name", e.target.value)}
-                      disabled={teamConfirmed}
-                    />
-                  </div>
-                  <div className="field-group">
-                    <label>Game UID (optional)</label>
-                    <input
-                      type="text"
-                      placeholder="In-game ID"
-                      value={m.game_uid}
-                      onChange={(e) => updateMember(i, "game_uid", e.target.value)}
-                      disabled={teamConfirmed}
-                    />
+          <div className="details-layout">
+            {/* ---------------- Main column ---------------- */}
+            <div className="details-main">
+              <div className="info-grid">
+                <div className="info-grid-item">
+                  <div className="ig-label">Entry Fee</div>
+                  <div className="ig-value">₹{tournament.entry_fee}</div>
+                </div>
+                <div className="info-grid-item">
+                  <div className="ig-label">Prize Pool</div>
+                  <div className="ig-value gold">₹{tournament.prize_pool}</div>
+                </div>
+                <div className="info-grid-item" style={{ gridColumn: '1/-1' }}>
+                  <div className="ig-label">Players — {tournament.players.length} / {tournament.max_players}</div>
+                  <div className="ig-progress-track">
+                    <div className="ig-progress-fill" style={{ width: `${fillPct}%` }} />
                   </div>
                 </div>
-              ))}
+              </div>
 
-              {!teamConfirmed ? (
-                <button className="btn-primary" style={{width:'100%',justifyContent:'center'}} onClick={handleConfirmTeam} disabled={teamLoading}>
-                  {teamLoading ? "Confirming..." : "✅ Confirm Team & Get Payment Code"}
-                </button>
-              ) : (
-                <div style={{background:'var(--green-bg)',border:'1px solid #22c55e44',borderRadius:12,padding:14,textAlign:'center',color:'var(--green)',fontWeight:600}}>
-                  Team "{teamName}" confirmed
+              {/* Scoring system — visible to users so they know the rules before joining */}
+              {tournament.points_table && (
+                <div className="section-card">
+                  <h2><FiTarget size={17} /> Scoring System</h2>
+                  <p className="section-subtext">
+                    {tournament.format === 'full'
+                      ? 'Points are earned from your placement rank and every kill across matches.'
+                      : 'Points are earned from your placement rank and every kill in the match.'}
+                  </p>
+                  <div className="scoring-grid">
+                    {Object.entries(tournament.points_table)
+                      .sort((a, b) => Number(a[0]) - Number(b[0]))
+                      .map(([rank, pts]) => (
+                        <div className="scoring-chip" key={rank}>
+                          <div className="scoring-chip-rank">#{rank}</div>
+                          <div className="scoring-chip-pts">{pts} pts</div>
+                        </div>
+                      ))}
+                  </div>
+                  <div className="kill-points-row">
+                    <span>🔫 Per Kill</span>
+                    <strong>{tournament.kill_point_value} {tournament.kill_point_value === 1 ? 'point' : 'points'}</strong>
+                  </div>
+                </div>
+              )}
+
+              {/* Team registration section (squad mode only) */}
+              {isSquad && (
+                <div className="section-card">
+                  <h2><FiUsers size={17} /> Team Details</h2>
+                  <div className="field-group">
+                    <label>Team Name</label>
+                    <input
+                      type="text"
+                      placeholder="Enter your squad name"
+                      value={teamName}
+                      onChange={(e) => setTeamName(e.target.value)}
+                      disabled={teamConfirmed}
+                    />
+                  </div>
+
+                  {members.map((m, i) => (
+                    <div key={i} className="team-member-row">
+                      <div className="field-group">
+                        <label>Teammate {i + 1} Name</label>
+                        <input
+                          type="text"
+                          placeholder="Player name"
+                          value={m.name}
+                          onChange={(e) => updateMember(i, "name", e.target.value)}
+                          disabled={teamConfirmed}
+                        />
+                      </div>
+                      <div className="field-group">
+                        <label>Game UID (optional)</label>
+                        <input
+                          type="text"
+                          placeholder="In-game ID"
+                          value={m.game_uid}
+                          onChange={(e) => updateMember(i, "game_uid", e.target.value)}
+                          disabled={teamConfirmed}
+                        />
+                      </div>
+                    </div>
+                  ))}
+
+                  {!teamConfirmed ? (
+                    <button className="btn-primary chamfer-sm details-cta" onClick={handleConfirmTeam} disabled={teamLoading}>
+                      {teamLoading ? "Confirming..." : "Confirm Team & Get Payment Code"}
+                    </button>
+                  ) : (
+                    <div className="team-confirmed-note">
+                      <FiCheckCircle size={16} /> Team "{teamName}" confirmed
+                    </div>
+                  )}
                 </div>
               )}
             </div>
-          )}
 
-          {/* Payment section */}
-          {canPay && (
-            <div className="section-card">
-              <h2>💳 Payment Details</h2>
-              <div className="upi-row">
-                <span>UPI ID</span>
-                <strong>campus@upi</strong>
-              </div>
-              <div className="upi-row">
-                <span>Amount to pay</span>
-                <strong style={{color:'var(--gold)'}}>₹{tournament.entry_fee}</strong>
-              </div>
-
-              <div className="payment-code-box">
-                {upiLink && (
-                  <div style={{
-                    background: "#fff",
-                    padding: 14,
-                    borderRadius: 12,
-                    display: "inline-block",
-                    marginBottom: 16
-                  }}>
-                    <QRCodeSVG value={upiLink} size={180} />
+            {/* ---------------- Sidebar: payment ---------------- */}
+            {canPay && (
+              <div className="details-sidebar">
+                <div className="section-card payment-card">
+                  <h2><FiCreditCard size={17} /> Payment Details</h2>
+                  <div className="upi-row">
+                    <span>UPI ID</span>
+                    <strong>campus@upi</strong>
                   </div>
-                )}
-                <div className="code-note" style={{marginBottom: 10}}>
-                  📱 Scan to pay ₹{tournament.entry_fee} — amount &amp; code auto-filled
+                  <div className="upi-row">
+                    <span>Amount to pay</span>
+                    <strong className="gold-text">₹{tournament.entry_fee}</strong>
+                  </div>
+
+                  <div className="payment-code-box">
+                    {upiLink && (
+                      <div className="qr-wrap">
+                        <QRCodeSVG value={upiLink} size={172} />
+                      </div>
+                    )}
+                    <div className="code-note">📱 Scan to pay ₹{tournament.entry_fee} — amount &amp; code auto-filled</div>
+                    <div className="code-label">🔑 Your Payment Code</div>
+                    <div className="code-value">{paymentCode || "Generating..."}</div>
+                    <div className="code-note">⚠️ Add this code in the UPI payment remarks/note</div>
+                    <button className="btn-secondary" onClick={handleCopy}>
+                      {copied ? "✅ Copied!" : "Copy Code"}
+                    </button>
+                  </div>
                 </div>
-                <div className="code-label">🔑 Your Payment Code</div>
-                <div className="code-value">{paymentCode || "Generating..."}</div>
-                <div className="code-note">⚠️ Add this code in the UPI payment remarks/note</div>
-                <button className="btn-secondary" onClick={handleCopy} style={{fontSize:14,padding:'8px 20px'}}>
-                  {copied ? "✅ Copied!" : "Copy Code"}
-                </button>
+
+                <div className="section-card">
+                  <h2><FiUpload size={17} /> Submit Payment Proof</h2>
+
+                  <div className="upload-area">
+                    <input type="file" accept="image/*" onChange={(e) => setFile(e.target.files[0])} />
+                    <FiUpload className="upload-icon" size={26} />
+                    <p>Click to upload payment screenshot</p>
+                    {file && <div className="file-name">✅ {file.name}</div>}
+                  </div>
+
+                  <div className="field-group">
+                    <label>UTR / Reference Number</label>
+                    <input
+                      type="text"
+                      placeholder="Enter UPI transaction UTR"
+                      value={utr}
+                      onChange={(e) => setUtr(e.target.value)}
+                    />
+                  </div>
+
+                  <button className="btn-primary chamfer-sm details-cta" onClick={handleUpload} disabled={loading}>
+                    {loading ? "Submitting..." : "🚀 Submit Payment"}
+                  </button>
+                </div>
               </div>
-            </div>
-          )}
-
-          {/* Upload section */}
-          {canPay && (
-            <div className="section-card">
-              <h2>📤 Submit Payment Proof</h2>
-
-              <div className="upload-area">
-                <input type="file" accept="image/*" onChange={(e) => setFile(e.target.files[0])} />
-                <div className="upload-icon">📁</div>
-                <p>Click to upload payment screenshot</p>
-                {file && <div className="file-name">✅ {file.name}</div>}
-              </div>
-
-              <div className="field-group" style={{marginBottom:20}}>
-                <label>UTR / Reference Number</label>
-                <input
-                  type="text"
-                  placeholder="Enter UPI transaction UTR"
-                  value={utr}
-                  onChange={(e) => setUtr(e.target.value)}
-                />
-              </div>
-
-              <button className="btn-primary" style={{width:'100%',justifyContent:'center'}} onClick={handleUpload} disabled={loading}>
-                {loading ? "Submitting..." : "🚀 Submit Payment"}
-              </button>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
     </>
