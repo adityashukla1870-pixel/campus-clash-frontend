@@ -251,6 +251,15 @@
   margin-bottom: 16px;
 }
 
+.card-banner-image {
+  height: 140px;
+  margin: -24px -24px 18px -24px;
+  background-size: cover;
+  background-position: center;
+  border-radius: 16px 16px 0 0;
+  border-bottom: 1px solid var(--border);
+}
+
 .card-live-tag {
   position: absolute;
   top: 14px;

@@ -2,7 +2,6 @@ import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { QRCodeSVG } from "qrcode.react"
 import Navbar from "../components/Navbar"
-import RegistrationTimer from "../components/RegistrationTimer"
 import API from "../api/axios"
 import "./TournamentDetails.css"
 
@@ -18,7 +17,6 @@ function TournamentDetails() {
   const [file, setFile] = useState(null)
   const [copied, setCopied] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [regClosed, setRegClosed] = useState(false)
 
   // Squad mode state
   const [teamName, setTeamName] = useState("")
@@ -30,12 +28,11 @@ function TournamentDetails() {
     API.get(`/tournament/${id}`).then(res => {
       const t = res.data
       setTournament(t)
-      setRegClosed(!!t.registration_closed)
       if (t.mode === "squad") {
         setMembers(Array.from({ length: Math.max(t.team_size - 1, 0) }, () => ({ name: "", game_uid: "" })))
-      } else if (!t.registration_closed) {
+      } else {
         // solo tournaments register immediately to reserve a payment code
-        API.post(`/tournament/register/${id}`, {}).then(r => setPaymentCode(r.data.payment_code)).catch(console.error)
+        API.post(`/tournament/register/${id}`, {}).then(r => setPaymentCode(r.data.payment_code))
       }
     }).catch(console.error)
   }, [id])
@@ -51,7 +48,6 @@ function TournamentDetails() {
   }
 
   const handleConfirmTeam = async () => {
-    if (regClosed) { alert("Registration is closed for this tournament"); return }
     if (!teamName.trim()) { alert("Enter your team name"); return }
     const incomplete = members.some(m => !m.name.trim())
     if (incomplete) { alert("Enter names for all teammates"); return }
@@ -72,7 +68,6 @@ function TournamentDetails() {
   }
 
   const handleUpload = async () => {
-    if (regClosed) { alert("Registration is closed for this tournament"); return }
     if (!file || !utr) { alert("Upload screenshot and enter UTR"); return }
     setLoading(true)
     try {
@@ -107,7 +102,7 @@ function TournamentDetails() {
   }
 
   const isSquad = tournament.mode === "squad"
-  const canPay = (!isSquad || teamConfirmed) && !regClosed
+  const canPay = !isSquad || teamConfirmed
   const fillPct = Math.round((tournament.players.length / tournament.max_players) * 100)
 
   const upiLink = paymentCode
@@ -122,6 +117,13 @@ function TournamentDetails() {
           <div className="details-back" onClick={() => navigate("/tournaments")}>
             ← Back to Tournaments
           </div>
+
+          {tournament.banner_image && (
+            <div
+              className="details-banner-image"
+              style={{ backgroundImage: `url(${import.meta.env.VITE_API_URL}/${tournament.banner_image.replace(/\\/g, "/")})` }}
+            />
+          )}
 
           <div className="details-title">{tournament.name}</div>
           <div className="details-game-badge">🎮 {tournament.game}</div>
@@ -139,22 +141,6 @@ function TournamentDetails() {
               onClick={() => navigate(`/tournament/${id}/standings`)}
             >
               📊 View Standings
-            </div>
-          )}
-
-          {tournament.registration_deadline && (
-            <div>
-              <RegistrationTimer
-                deadline={tournament.registration_deadline}
-                onExpire={() => setRegClosed(true)}
-                style={{marginBottom: 24}}
-              />
-            </div>
-          )}
-
-          {regClosed && (
-            <div style={{background:'var(--red-bg)', border:'1px solid #ef444444', borderRadius:12, padding:14, marginBottom:24, color:'var(--red)', fontWeight:600, fontSize:14}}>
-              🔒 Registration for this tournament is closed. Only players who registered before the deadline will be included.
             </div>
           )}
 
@@ -242,8 +228,8 @@ function TournamentDetails() {
               ))}
 
               {!teamConfirmed ? (
-                <button className="btn-primary" style={{width:'100%',justifyContent:'center'}} onClick={handleConfirmTeam} disabled={teamLoading || regClosed}>
-                  {regClosed ? "🔒 Registration Closed" : teamLoading ? "Confirming..." : "✅ Confirm Team & Get Payment Code"}
+                <button className="btn-primary" style={{width:'100%',justifyContent:'center'}} onClick={handleConfirmTeam} disabled={teamLoading}>
+                  {teamLoading ? "Confirming..." : "✅ Confirm Team & Get Payment Code"}
                 </button>
               ) : (
                 <div style={{background:'var(--green-bg)',border:'1px solid #22c55e44',borderRadius:12,padding:14,textAlign:'center',color:'var(--green)',fontWeight:600}}>

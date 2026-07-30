@@ -68,7 +68,15 @@ function Tournament() {
         </div>
 
         {featured && (
-          <section className="featured-banner" onClick={() => navigate(`/tournament/${featured.id}`)}>
+          <section
+            className="featured-banner"
+            onClick={() => navigate(`/tournament/${featured.id}`)}
+            style={featured.banner_image ? {
+              backgroundImage: `linear-gradient(90deg, rgba(8,7,10,0.94) 20%, rgba(8,7,10,0.55) 65%, rgba(8,7,10,0.25) 100%), url(${import.meta.env.VITE_API_URL}/${featured.banner_image.replace(/\\/g, "/")})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+            } : undefined}
+          >
             <div className="featured-banner-glow" aria-hidden="true" />
             <div className="featured-banner-inner">
               {featured.status === "in_progress" ? (
@@ -145,6 +153,12 @@ function Tournament() {
 
               return (
                 <div className="tournament-card hover-lift" key={t.id}>
+                  {t.banner_image && (
+                    <div
+                      className="card-banner-image"
+                      style={{ backgroundImage: `url(${import.meta.env.VITE_API_URL}/${t.banner_image.replace(/\\/g, "/")})` }}
+                    />
+                  )}
                   {t.status === 'in_progress' && <div className="card-live-tag">🔴 LIVE</div>}
                   {t.status === 'completed' && <div className="card-live-tag ended">🏁 ENDED</div>}
                   <div className="card-header">

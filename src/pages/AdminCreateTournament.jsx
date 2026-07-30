@@ -16,22 +16,39 @@ function AdminCreateTournament() {
   const [format, setFormat] = useState("quick")
   const [pointsTable, setPointsTable] = useState({ "1": 10, "2": 6, "3": 5, "4": 4, "5": 3, "6": 2, "7": 2, "8": 1, "9": 1 })
   const [killPoint, setKillPoint] = useState("1")
+  const [bannerImage, setBannerImage] = useState(null)
+  const [bannerPreview, setBannerPreview] = useState(null)
   const [loading, setLoading] = useState(false)
+
+  const handleBannerChange = (e) => {
+    const f = e.target.files?.[0]
+    if (!f) { setBannerImage(null); setBannerPreview(null); return }
+    setBannerImage(f)
+    setBannerPreview(URL.createObjectURL(f))
+  }
 
   const handleSubmit = async () => {
     setLoading(true)
     try {
-      const res = await API.post("/tournament/create", {
-        name, game,
-        entry_fee: Number(entryFee),
-        prize_pool: Number(prizePool),
-        max_players: Number(maxPlayers),
-        mode,
-        team_size: mode === "squad" ? Number(teamSize) : 1,
-        format,
-        points_table: format === "full" ? pointsTable : undefined,
-        kill_point_value: format === "full" ? Number(killPoint) : undefined,
-        registration_deadline: date ? new Date(date).toISOString() : undefined
+      const formData = new FormData()
+      formData.append("name", name)
+      formData.append("game", game)
+      formData.append("entry_fee", Number(entryFee))
+      formData.append("prize_pool", Number(prizePool))
+      formData.append("max_players", Number(maxPlayers))
+      formData.append("mode", mode)
+      formData.append("team_size", mode === "squad" ? Number(teamSize) : 1)
+      formData.append("format", format)
+      if (format === "full") {
+        formData.append("points_table", JSON.stringify(pointsTable))
+        formData.append("kill_point_value", Number(killPoint))
+      }
+      if (bannerImage) {
+        formData.append("banner_image", bannerImage)
+      }
+
+      const res = await API.post("/tournament/create", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
       })
       alert(res.data.message || res.data.error)
     } catch (err) {
@@ -59,7 +76,7 @@ function AdminCreateTournament() {
         </div>
 
         <h1 style={{fontFamily:'var(--font-display)',fontSize:28,fontWeight:700,marginBottom:6}}>🏆 Create Tournament</h1>
-        <p style={{color:'var(--text-secondary)',fontSize:14,marginBottom:32}}>Fill in the details to launch a new tournament. (build check: deadline-v2)</p>
+        <p style={{color:'var(--text-secondary)',fontSize:14,marginBottom:32}}>Fill in the details to launch a new tournament.</p>
 
         <div style={{
           background:'var(--bg-card)', border:'1px solid var(--border)',
@@ -75,6 +92,21 @@ function AdminCreateTournament() {
             <div className="field-group">
               <label>Game</label>
               <input placeholder="e.g. BGMI, Free Fire, Valorant" onChange={e => setGame(e.target.value)} />
+            </div>
+
+            <div className="field-group">
+              <label>Banner Image <span style={{color:'var(--text-muted)', fontWeight:400}}>(optional)</span></label>
+              <input type="file" accept="image/*" onChange={handleBannerChange} />
+              <p style={{fontSize:12, color:'var(--text-muted)', marginTop:6}}>
+                Shown on the tournament card and details page. Landscape images work best.
+              </p>
+              {bannerPreview && (
+                <img
+                  src={bannerPreview}
+                  alt="Banner preview"
+                  style={{width:'100%', height:160, objectFit:'cover', borderRadius:10, marginTop:10, border:'1px solid var(--border)'}}
+                />
+              )}
             </div>
 
             <div className="field-group">
@@ -148,13 +180,8 @@ function AdminCreateTournament() {
               <input type="number" placeholder="e.g. 100" onChange={e => setMaxPlayers(e.target.value)} />
             </div>
             <div className="field-group">
-              <label>Registration Deadline</label>
+              <label>Tournament Date</label>
               <input type="datetime-local" onChange={e => setDate(e.target.value)} />
-              <p style={{fontSize:12, color:'var(--text-muted)', marginTop:8}}>
-                Players can only register before this time. A live countdown shows on the tournament card,
-                and registration auto-closes once it passes — whoever's registered by then is final.
-                Leave blank for no deadline.
-              </p>
             </div>
 
             <button className="btn-primary" style={{width:'100%',justifyContent:'center',marginTop:4}} onClick={handleSubmit} disabled={loading}>
