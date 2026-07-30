@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom"
 import { QRCodeSVG } from "qrcode.react"
 import Navbar from "../components/Navbar"
 import API from "../api/axios"
+import { resolveImageUrl } from "../utils/media"
 import "./TournamentDetails.css"
 
 const UPI_ID = "7052759580@ptyes"
@@ -121,7 +122,7 @@ function TournamentDetails() {
           {tournament.banner_image && (
             <div
               className="details-banner-image"
-              style={{ backgroundImage: `url(${import.meta.env.VITE_API_URL}/${tournament.banner_image.replace(/\\/g, "/")})` }}
+              style={{ backgroundImage: `url(${resolveImageUrl(tournament.banner_image)})` }}
             />
           )}
 

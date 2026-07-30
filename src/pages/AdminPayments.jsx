@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import API from "../api/axios"
+import { resolveImageUrl } from "../utils/media"
 import AdminTopBar from "../components/AdminTopBar"
 
 function AdminPayments() {
@@ -97,7 +98,7 @@ function AdminPayments() {
                 <div style={{flexShrink:0}}>
                   <div style={{fontSize:11,textTransform:'uppercase',letterSpacing:'0.8px',color:'var(--text-muted)',marginBottom:8}}>Screenshot</div>
                   <img
-                    src={`${import.meta.env.VITE_API_URL}/${p.screenshot.replace("\\", "/")}`}
+                    src={resolveImageUrl(p.screenshot)}
                     style={{width:180,height:160,objectFit:'cover',borderRadius:10,border:'1px solid var(--border)'}}
                     alt="Payment proof"
                   />

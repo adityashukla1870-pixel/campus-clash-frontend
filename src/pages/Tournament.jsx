@@ -4,6 +4,7 @@ import { jwtDecode } from "jwt-decode"
 import { FiSearch, FiZap } from "react-icons/fi"
 import Navbar from "../components/Navbar"
 import API from "../api/axios"
+import { resolveImageUrl } from "../utils/media"
 import "./Tournament.css"
 
 const GAME_ICONS = { BGMI: "🎮", "Free Fire": "🔥", Valorant: "🎯", "Call of Duty Mobile": "🪖" }
@@ -72,7 +73,7 @@ function Tournament() {
             className="featured-banner"
             onClick={() => navigate(`/tournament/${featured.id}`)}
             style={featured.banner_image ? {
-              backgroundImage: `linear-gradient(90deg, rgba(8,7,10,0.94) 20%, rgba(8,7,10,0.55) 65%, rgba(8,7,10,0.25) 100%), url(${import.meta.env.VITE_API_URL}/${featured.banner_image.replace(/\\/g, "/")})`,
+              backgroundImage: `linear-gradient(90deg, rgba(8,7,10,0.94) 20%, rgba(8,7,10,0.55) 65%, rgba(8,7,10,0.25) 100%), url(${resolveImageUrl(featured.banner_image)})`,
               backgroundSize: 'cover',
               backgroundPosition: 'center',
             } : undefined}
@@ -156,7 +157,7 @@ function Tournament() {
                   {t.banner_image && (
                     <div
                       className="card-banner-image"
-                      style={{ backgroundImage: `url(${import.meta.env.VITE_API_URL}/${t.banner_image.replace(/\\/g, "/")})` }}
+                      style={{ backgroundImage: `url(${resolveImageUrl(t.banner_image)})` }}
                     />
                   )}
                   {t.status === 'in_progress' && <div className="card-live-tag">🔴 LIVE</div>}
