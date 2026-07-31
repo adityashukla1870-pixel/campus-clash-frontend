@@ -1,84 +1,114 @@
+import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
+import { FiUsers, FiZap, FiDollarSign, FiClock, FiArrowRight } from "react-icons/fi"
 import AdminTopBar from "../components/AdminTopBar"
+import API from "../api/axios"
+import "./AdminDashboard.css"
 
 const adminActions = [
   { icon: "💰", label: "Payment Verification", desc: "Review & approve pending payments", path: "/admin/payments", color: "#f59e0b" },
-  { icon: "🎮", label: "Release Room", desc: "Share room ID & password with players", path: "/admin/release-room", color: "#06b6d4" },
-  { icon: "🏆", label: "Create Tournament", desc: "Set up a new esports tournament", path: "/admin/create-tournament", color: "#7c3aed" },
+  { icon: "🎮", label: "Release Room", desc: "Share room ID & password with players", path: "/admin/release-room", color: "#f9a825" },
+  { icon: "🏆", label: "Create Tournament", desc: "Set up a new esports tournament", path: "/admin/create-tournament", color: "#d4af37" },
   { icon: "🥇", label: "Declare Winner", desc: "Finalize results and announce winner", path: "/admin/winner", color: "#22c55e" },
-  { icon: "🏆", label: "Bracket Manager", desc: "Generate brackets & report match results", path: "/admin/bracket", color: "#a855f7" },
-  { icon: "🎯", label: "Manage Stages", desc: "Groups, playoffs & finals for Full Tournaments", path: "/admin/stages", color: "#22d3ee" },
+  { icon: "🏆", label: "Bracket Manager", desc: "Generate brackets & report match results", path: "/admin/bracket", color: "#f2ca50" },
+  { icon: "🎯", label: "Manage Stages", desc: "Groups, playoffs & finals for Full Tournaments", path: "/admin/stages", color: "#ffb957" },
 ]
 
 function AdminDashboard() {
   const navigate = useNavigate()
+  const [tournaments, setTournaments] = useState([])
+  const [pending, setPending] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    Promise.all([
+      API.get("/tournament/all"),
+      API.get("/tournament/admin/pending-payments"),
+    ]).then(([tRes, pRes]) => {
+      setTournaments(Array.isArray(tRes.data) ? tRes.data : [])
+      setPending(Array.isArray(pRes.data) ? pRes.data : [])
+    }).catch(console.error).finally(() => setLoading(false))
+  }, [])
+
+  const liveCount = tournaments.filter(t => t.status === "in_progress").length
+  const totalPlayers = tournaments.reduce((sum, t) => sum + (t.players?.length || 0), 0)
+  const totalPrizePool = tournaments.reduce((sum, t) => sum + (t.prize_pool || 0), 0)
+
+  const statCards = [
+    { icon: FiUsers, label: "Total Players", value: totalPlayers, note: `Across ${tournaments.length} tournaments`, color: "purple" },
+    { icon: FiZap, label: "Live Events", value: liveCount, note: liveCount > 0 ? "Happening right now" : "Nothing live currently", color: "cyan" },
+    { icon: FiDollarSign, label: "Total Prize Pool", value: `₹${totalPrizePool.toLocaleString()}`, note: "Across all tournaments", color: "gold" },
+    { icon: FiClock, label: "Pending Verification", value: pending.length, note: "Awaiting admin action", color: "red", pulse: pending.length > 0 },
+  ]
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: 'var(--bg-dark)',
-      padding: '60px 24px',
-    }}>
-      <div style={{maxWidth: 700, margin: '0 auto'}}>
+    <div className="admin-dash-page">
+      <div className="admin-dash-inner">
         <AdminTopBar showBack={false} />
-        <div style={{
-          display:'flex', alignItems:'center', gap:16,
-          marginBottom: 40,
-          paddingBottom: 24,
-          borderBottom: '1px solid var(--border)',
-        }}>
-          <div style={{
-            width:52, height:52,
-            background:'linear-gradient(135deg,#7c3aed,#a855f7)',
-            borderRadius:14,
-            display:'flex', alignItems:'center', justifyContent:'center',
-            fontSize:26,
-          }}>⚔️</div>
+
+        <div className="admin-dash-header">
+          <div className="admin-dash-header-icon">⚔️</div>
           <div>
-            <h1 style={{fontFamily:'var(--font-display)',fontSize:28,fontWeight:700}}>Admin Dashboard</h1>
-            <p style={{color:'var(--text-secondary)',fontSize:14}}>Campus Clash — Control Panel</p>
+            <h1>Admin Dashboard</h1>
+            <p>Campus Clash — Control Panel</p>
           </div>
         </div>
 
-        <div style={{display:'grid', gridTemplateColumns:'repeat(2,1fr)', gap:16}}>
-          {adminActions.map((action) => (
-            <div
-              key={action.path}
-              onClick={() => navigate(action.path)}
-              style={{
-                background:'var(--bg-card)',
-                border:'1px solid var(--border)',
-                borderRadius:16,
-                padding:24,
-                cursor:'pointer',
-                transition:'all 0.22s',
-                position:'relative',
-                overflow:'hidden',
-              }}
-              onMouseEnter={e => {
-                e.currentTarget.style.borderColor = action.color + '66'
-                e.currentTarget.style.transform = 'translateY(-3px)'
-                e.currentTarget.style.boxShadow = `0 12px 32px ${action.color}22`
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.borderColor = 'var(--border)'
-                e.currentTarget.style.transform = 'none'
-                e.currentTarget.style.boxShadow = 'none'
-              }}
-            >
-              <div style={{
-                width:48,height:48,
-                background:action.color+'22',
-                border:`1px solid ${action.color}44`,
-                borderRadius:12,
-                display:'flex',alignItems:'center',justifyContent:'center',
-                fontSize:22, marginBottom:14,
-              }}>{action.icon}</div>
-              <h3 style={{fontFamily:'var(--font-display)',fontSize:18,fontWeight:700,marginBottom:6}}>{action.label}</h3>
-              <p style={{fontSize:13,color:'var(--text-muted)'}}>{action.desc}</p>
+        {/* Stats */}
+        <div className="admin-stats-grid">
+          {statCards.map((s) => (
+            <div key={s.label} className={`admin-stat-card accent-${s.color}`}>
+              <div className="admin-stat-top">
+                <span className="admin-stat-label">{s.label}</span>
+                {s.pulse ? <span className="admin-stat-pulse-dot" /> : <s.icon size={16} className="admin-stat-icon" />}
+              </div>
+              <div className="admin-stat-value">{loading ? "—" : s.value}</div>
+              <div className="admin-stat-note">{s.note}</div>
             </div>
           ))}
         </div>
+
+        {/* Quick actions */}
+        <h2 className="admin-section-title">Command Center</h2>
+        <div className="admin-actions-grid">
+          {adminActions.map((action) => (
+            <div
+              key={action.path}
+              className="admin-action-card"
+              onClick={() => navigate(action.path)}
+              style={{ '--accent': action.color }}
+            >
+              <div className="admin-action-icon" style={{ background: action.color + '22', border: `1px solid ${action.color}44` }}>
+                {action.icon}
+              </div>
+              <h3>{action.label}</h3>
+              <p>{action.desc}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Pending payments preview */}
+        {pending.length > 0 && (
+          <>
+            <div className="admin-section-title-row">
+              <h2 className="admin-section-title">Awaiting Verification</h2>
+              <span className="admin-view-all" onClick={() => navigate("/admin/payments")}>
+                View All <FiArrowRight size={13} />
+              </span>
+            </div>
+            <div className="admin-pending-list">
+              {pending.slice(0, 5).map((p) => (
+                <div key={p._id} className="admin-pending-row" onClick={() => navigate("/admin/payments")}>
+                  <div>
+                    <div className="apr-name">{p.player_name}</div>
+                    <div className="apr-tournament">{p.tournament_name}</div>
+                  </div>
+                  <div className="apr-fee">₹{p.entry_fee}</div>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
       </div>
     </div>
   )

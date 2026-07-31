@@ -2,7 +2,7 @@
   min-height: 100vh;
   background: var(--bg-dark);
   padding: 40px 24px 60px;
-  max-width: 720px;
+  max-width: 760px;
   margin: 0 auto;
 }
 
@@ -12,17 +12,18 @@
   padding: 80px 0;
 }
 
-.profile-card {
+/* ---------------- Hero ---------------- */
+.profile-hero {
+  position: relative;
   background: var(--grad-card);
   border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 32px 24px;
+  border-radius: 20px;
+  padding: 44px 24px 36px;
   text-align: center;
-  position: relative;
   overflow: hidden;
 }
 
-.profile-card::before {
+.profile-hero::before {
   content: '';
   position: absolute;
   top: 0; left: 0; right: 0;
@@ -30,33 +31,77 @@
   background: var(--grad-purple);
 }
 
+.profile-hero-glow {
+  position: absolute;
+  top: -40%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 420px; height: 420px;
+  background: radial-gradient(circle, rgba(212,175,55,0.14) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.profile-avatar-wrap {
+  position: relative;
+  width: 92px;
+  height: 92px;
+  margin: 0 auto 18px;
+}
+
+.profile-avatar-ring {
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 2px dashed var(--border-glow);
+  animation: spin 14s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
 .profile-avatar {
-  width: 76px;
-  height: 76px;
-  margin: 0 auto 16px;
+  position: relative;
+  z-index: 1;
+  width: 92px;
+  height: 92px;
   border-radius: 50%;
   background: var(--grad-purple);
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: var(--font-display);
-  font-size: 30px;
-  font-weight: 700;
-  color: #fff;
+  font-size: 36px;
+  font-weight: 800;
+  color: #241a00;
+  box-shadow: 0 0 30px var(--purple-glow);
 }
 
 .profile-name {
+  position: relative;
   font-family: var(--font-display);
-  font-size: 24px;
+  font-size: 26px;
+  font-weight: 800;
+  text-transform: uppercase;
   color: var(--text-primary);
 }
 
 .profile-email {
+  position: relative;
   color: var(--text-secondary);
   font-size: 14px;
   margin-top: 4px;
+  margin-bottom: 14px;
 }
 
+.badge-admin {
+  background: rgba(245,158,11,0.14);
+  color: var(--gold);
+  border: 1px solid rgba(245,158,11,0.35);
+  border-radius: 999px;
+  padding: 4px 14px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* ---------------- Stats ---------------- */
 .profile-stats-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -68,14 +113,21 @@
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: 12px;
-  padding: 18px 12px;
+  padding: 20px 12px;
   text-align: center;
 }
+
+.profile-stat-icon {
+  color: var(--purple);
+  margin-bottom: 8px;
+}
+.profile-stat-icon.gold { color: var(--gold); }
+.profile-stat-icon.cyan { color: var(--cyan-light); }
 
 .profile-stat-value {
   font-family: var(--font-display);
   font-size: 26px;
-  font-weight: 700;
+  font-weight: 800;
   color: var(--text-primary);
 }
 
@@ -84,29 +136,50 @@
 
 .profile-stat-label {
   margin-top: 4px;
-  font-size: 12px;
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
   color: var(--text-secondary);
 }
 
+/* ---------------- Account details ---------------- */
 .profile-details-card {
   margin-top: 20px;
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: 16px;
-  padding: 24px;
+  padding: 26px;
+  position: relative;
+  overflow: hidden;
+}
+.profile-details-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--grad-purple);
 }
 
 .profile-details-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 
 .profile-details-header h2 {
   font-family: var(--font-display);
-  font-size: 18px;
+  font-size: 17px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
   color: var(--text-primary);
+}
+
+.profile-details-header .btn-joined {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .profile-details-list {
@@ -118,7 +191,7 @@
 .profile-detail-row {
   display: flex;
   justify-content: space-between;
-  padding: 10px 0;
+  padding: 12px 0;
   border-bottom: 1px solid var(--border);
   font-size: 14px;
 }

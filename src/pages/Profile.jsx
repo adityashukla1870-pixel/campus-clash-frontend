@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { FiAward, FiTarget, FiZap, FiEdit2 } from "react-icons/fi"
 import Navbar from "../components/Navbar"
 import API from "../api/axios"
 import "./Profile.css"
@@ -53,40 +54,53 @@ function Profile() {
   }
 
   const initials = (profile.name || "?").trim().slice(0, 1).toUpperCase()
+  const isAdmin = profile.role === "admin"
 
   return (
     <>
       <Navbar />
       <div className="profile-page">
-        <div className="profile-card">
-          <div className="profile-avatar">{initials}</div>
+        {/* Hero */}
+        <div className="profile-hero">
+          <div className="profile-hero-glow" aria-hidden="true" />
+          <div className="profile-avatar-wrap">
+            <div className="profile-avatar-ring" />
+            <div className="profile-avatar">{initials}</div>
+          </div>
           <h1 className="profile-name">{profile.name}</h1>
           <p className="profile-email">{profile.email}</p>
-          <span className="badge badge-purple" style={{ marginTop: 8 }}>
-            {profile.role === "admin" ? "🛡️ Admin" : "🎮 Player"}
+          <span className={`badge ${isAdmin ? 'badge-admin' : 'badge-purple'}`}>
+            {isAdmin ? "🛡️ Admin" : "🎮 Player"}
           </span>
         </div>
 
+        {/* Stats */}
         <div className="profile-stats-grid">
-          <div className="profile-stat-card">
+          <div className="profile-stat-card hover-lift">
+            <FiZap className="profile-stat-icon" />
             <div className="profile-stat-value">{profile.stats?.tournaments_joined ?? 0}</div>
             <div className="profile-stat-label">Tournaments Joined</div>
           </div>
-          <div className="profile-stat-card">
+          <div className="profile-stat-card hover-lift">
+            <FiAward className="profile-stat-icon gold" />
             <div className="profile-stat-value gold">{profile.stats?.wins ?? 0}</div>
             <div className="profile-stat-label">Wins</div>
           </div>
-          <div className="profile-stat-card">
+          <div className="profile-stat-card hover-lift">
+            <FiTarget className="profile-stat-icon cyan" />
             <div className="profile-stat-value cyan">₹{profile.stats?.prize_won ?? 0}</div>
             <div className="profile-stat-label">Prize Won</div>
           </div>
         </div>
 
+        {/* Account details */}
         <div className="profile-details-card">
           <div className="profile-details-header">
             <h2>Account Details</h2>
             {!editing && (
-              <button className="btn-joined" onClick={() => setEditing(true)}>Edit</button>
+              <button className="btn-joined" onClick={() => setEditing(true)}>
+                <FiEdit2 size={13} /> Edit
+              </button>
             )}
           </div>
 
@@ -128,7 +142,7 @@ function Profile() {
               {error && <p style={{ color: "var(--red)", fontSize: 13 }}>{error}</p>}
 
               <div style={{ display: "flex", gap: 10 }}>
-                <button type="submit" className="btn-primary" disabled={saving}>
+                <button type="submit" className="btn-primary chamfer-sm" disabled={saving}>
                   {saving ? "Saving..." : "Save Changes"}
                 </button>
                 <button
