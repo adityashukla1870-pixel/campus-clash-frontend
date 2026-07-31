@@ -1,6 +1,12 @@
 import { useEffect, useState } from "react"
+import { FiAward } from "react-icons/fi"
 import Navbar from "../components/Navbar"
 import API from "../api/axios"
+import "./Leaderboard.css"
+
+function initials(name) {
+  return (name || "?").trim().slice(0, 1).toUpperCase()
+}
 
 function Leaderboard() {
   const [rows, setRows] = useState([])
@@ -13,57 +19,88 @@ function Leaderboard() {
       .finally(() => setLoading(false))
   }, [])
 
-  const pageStyle = { minHeight:'100vh', background:'var(--bg-dark)', padding:'110px 24px 60px' }
-  const innerStyle = { maxWidth: 760, margin:'0 auto' }
-
-  const medal = (rank) => {
-    if (rank === 0) return "🥇"
-    if (rank === 1) return "🥈"
-    if (rank === 2) return "🥉"
-    return `#${rank + 1}`
-  }
+  // Only build the fancy 3-column podium once there are actually 3+ ranked
+  // players — otherwise just fall through to the plain list below.
+  const hasPodium = rows.length >= 3
+  const podium = hasPodium ? rows.slice(0, 3) : []
+  const rest = hasPodium ? rows.slice(3) : rows
 
   return (
     <>
       <Navbar />
-      <div style={pageStyle}>
-        <div style={innerStyle}>
-          <h1 style={{fontFamily:'var(--font-display)',fontSize:28,fontWeight:700,marginBottom:6}}>🏆 Leaderboard</h1>
-          <p style={{color:'var(--text-secondary)',fontSize:14,marginBottom:32}}>Top players ranked by tournament wins.</p>
+      <div className="lb-page">
+        <div className="lb-inner">
+          <div className="lb-header">
+            <h1>🏆 Campus Rankings</h1>
+            <p>Top players ranked by tournament wins.</p>
+          </div>
 
           {loading ? (
-            <div style={{color:'var(--text-secondary)',textAlign:'center',padding:40}}>Loading...</div>
+            <div className="lb-loading">Loading...</div>
           ) : rows.length === 0 ? (
-            <div style={{textAlign:'center',padding:'60px 24px',color:'var(--text-muted)'}}>
-              <div style={{fontSize:48,marginBottom:16}}>🎯</div>
+            <div className="lb-empty">
+              <div className="lb-empty-icon">🎯</div>
               <p>No completed tournaments yet — be the first champion!</p>
             </div>
           ) : (
-            <div style={{background:'var(--bg-card)', border:'1px solid var(--border)', borderRadius:16, overflow:'hidden'}}>
-              {rows.map((r, i) => (
-                <div key={r.user_id} style={{
-                  display:'flex', alignItems:'center', gap:16, padding:'16px 20px',
-                  borderBottom: i < rows.length - 1 ? '1px solid var(--border)' : 'none',
-                  background: i < 3 ? 'var(--purple-glow)' : 'transparent',
-                }}>
-                  <div style={{width:40, fontSize: i < 3 ? 22 : 15, fontWeight:700, color: i < 3 ? 'var(--gold)' : 'var(--text-secondary)', textAlign:'center'}}>
-                    {medal(i)}
-                  </div>
-                  <div style={{flex:1}}>
-                    <div style={{fontWeight:600, fontSize:15}}>{r.name}</div>
-                    {r.college && <div style={{fontSize:12, color:'var(--text-muted)'}}>{r.college}</div>}
-                  </div>
-                  <div style={{textAlign:'right'}}>
-                    <div style={{fontWeight:700, color:'var(--cyan)'}}>{r.wins} 🏆</div>
-                    <div style={{fontSize:12, color:'var(--gold)'}}>₹{r.prize_won} won</div>
-                  </div>
+            <>
+              {hasPodium && (
+                <div className="lb-podium">
+                  {/* Rank 2 */}
+                  <PodiumCard entry={podium[1]} rank={2} tier="silver" />
+                  {/* Rank 1 */}
+                  <PodiumCard entry={podium[0]} rank={1} tier="gold" />
+                  {/* Rank 3 */}
+                  <PodiumCard entry={podium[2]} rank={3} tier="bronze" />
                 </div>
-              ))}
-            </div>
+              )}
+
+              {rest.length > 0 && (
+                <div className="lb-table">
+                  <div className="lb-table-head">
+                    <span>Rank</span>
+                    <span>Player</span>
+                    <span className="lb-col-right">Wins</span>
+                    <span className="lb-col-right">Prize Won</span>
+                  </div>
+                  {rest.map((r, i) => (
+                    <div key={r.user_id} className="lb-table-row">
+                      <span className="lb-rank">#{i + 4}</span>
+                      <span className="lb-player">
+                        <span className="lb-avatar">{initials(r.name)}</span>
+                        <span>
+                          <span className="lb-player-name">{r.name}</span>
+                          {r.college && <span className="lb-player-college">{r.college}</span>}
+                        </span>
+                      </span>
+                      <span className="lb-col-right lb-wins"><FiAward size={13} /> {r.wins}</span>
+                      <span className="lb-col-right lb-prize">₹{r.prize_won}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
     </>
+  )
+}
+
+function PodiumCard({ entry, rank, tier }) {
+  if (!entry) return <div className="lb-podium-slot empty" />
+  return (
+    <div className={`lb-podium-slot rank-${rank}`}>
+      {rank === 1 && <div className="lb-crown">👑</div>}
+      <div className={`lb-podium-card tier-${tier}`}>
+        <div className={`lb-podium-avatar tier-${tier}`}>{initials(entry.name)}</div>
+        <div className="lb-podium-rank">#{rank}</div>
+        <h3 className="lb-podium-name">{entry.name}</h3>
+        {entry.college && <p className="lb-podium-college">{entry.college}</p>}
+        <div className={`lb-podium-pts tier-${tier}`}>{entry.wins} WIN{entry.wins === 1 ? '' : 'S'}</div>
+        <div className="lb-podium-prize">₹{entry.prize_won} won</div>
+      </div>
+    </div>
   )
 }
 
