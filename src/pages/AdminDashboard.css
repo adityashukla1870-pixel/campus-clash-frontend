@@ -18,7 +18,14 @@
   border-bottom: 1px solid var(--border);
 }
 
+.admin-dash-header-icon-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
 .admin-dash-header-icon {
+  position: relative;
+  z-index: 1;
   width: 52px;
   height: 52px;
   background: var(--grad-purple);

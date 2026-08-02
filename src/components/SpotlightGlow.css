@@ -1,0 +1,30 @@
+.spotlight-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: var(--spotlight-size, 320px);
+  height: var(--spotlight-size, 320px);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.spotlight-radial {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+}
+
+.spotlight-particles {
+  position: absolute;
+  inset: 0;
+}
+
+.spotlight-particle {
+  position: absolute;
+  border-radius: 50%;
+  animation-name: floatSlow;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  opacity: 0.85;
+}

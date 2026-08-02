@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { FiUsers, FiZap, FiDollarSign, FiClock, FiArrowRight } from "react-icons/fi"
 import AdminTopBar from "../components/AdminTopBar"
+import SpotlightGlow from "../components/SpotlightGlow"
 import API from "../api/axios"
 import "./AdminDashboard.css"
 
@@ -47,7 +48,10 @@ function AdminDashboard() {
         <AdminTopBar showBack={false} />
 
         <div className="admin-dash-header">
-          <div className="admin-dash-header-icon">⚔️</div>
+          <div className="admin-dash-header-icon-wrap">
+            <SpotlightGlow size={140} color="gold" />
+            <div className="admin-dash-header-icon">⚔️</div>
+          </div>
           <div>
             <h1>Admin Dashboard</h1>
             <p>Campus Clash — Control Panel</p>
