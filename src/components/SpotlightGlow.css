@@ -58,6 +58,19 @@
   overflow: hidden;
 }
 
+.spotlight-fullpage .spotlight-radial-ambient {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 130vw;
+  height: 130vw;
+  max-width: 1400px;
+  max-height: 1400px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  opacity: 0.35;
+}
+
 .spotlight-fullpage .spotlight-radial-a {
   position: absolute;
   top: -10%;

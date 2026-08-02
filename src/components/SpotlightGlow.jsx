@@ -77,6 +77,10 @@ function SpotlightGlow({ particles, size = 320, color = "purple", pulse = true, 
       {fullpage ? (
         <>
           <div
+            className="spotlight-radial spotlight-radial-ambient"
+            style={{ background: `radial-gradient(circle, ${glowVar} 0%, transparent 75%)` }}
+          />
+          <div
             className={`spotlight-radial spotlight-radial-a${pulse ? ' spotlight-pulse' : ''}`}
             style={{ background: `radial-gradient(circle, ${glowVar} 0%, transparent 65%)` }}
           />
