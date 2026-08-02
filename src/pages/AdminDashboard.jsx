@@ -44,14 +44,12 @@ function AdminDashboard() {
 
   return (
     <div className="admin-dash-page">
+      <SpotlightGlow size={1100} color="gold" />
       <div className="admin-dash-inner">
         <AdminTopBar showBack={false} />
 
         <div className="admin-dash-header">
-          <div className="admin-dash-header-icon-wrap">
-            <SpotlightGlow size={140} color="gold" />
-            <div className="admin-dash-header-icon">⚔️</div>
-          </div>
+          <div className="admin-dash-header-icon">⚔️</div>
           <div>
             <h1>Admin Dashboard</h1>
             <p>Campus Clash — Control Panel</p>
