@@ -15,6 +15,15 @@
   border-radius: 50%;
 }
 
+.spotlight-pulse {
+  animation: spotlightPulse 6s ease-in-out infinite;
+}
+
+@keyframes spotlightPulse {
+  0%, 100% { opacity: 0.75; transform: scale(1); }
+  50%      { opacity: 1;    transform: scale(1.08); }
+}
+
 .spotlight-particles {
   position: absolute;
   inset: 0;
