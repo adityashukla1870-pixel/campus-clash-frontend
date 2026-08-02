@@ -1,7 +1,7 @@
 .community-page {
   min-height: 100vh;
   background: var(--bg-dark);
-  padding: 100px 6% 40px;
+  padding: 40px 6% 40px;
   display: flex;
   flex-direction: column;
   max-width: 1100px;
@@ -75,38 +75,79 @@
 }
 
 .channel-sidebar {
-  width: 190px;
+  width: 220px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  gap: 4px;
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: 16px;
-  padding: 10px;
+  padding: 8px;
   height: fit-content;
+  overflow: hidden;
+}
+
+.channel-sidebar-label {
+  font-family: var(--font-label);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: 10px 12px 8px;
 }
 
 .channel-btn {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   background: transparent;
   border: none;
   color: var(--text-secondary);
   font-size: 13.5px;
   font-weight: 600;
-  padding: 9px 10px;
+  padding: 8px 12px 8px 14px;
   border-radius: 10px;
   cursor: pointer;
   text-align: left;
-  transition: background 0.15s, color 0.15s;
+  transition: background 0.15s, color 0.15s, transform 0.15s;
+  width: 100%;
 }
-.channel-btn:hover { background: var(--bg-surface); color: var(--text-primary); }
+.channel-btn:hover { background: var(--bg-surface); color: var(--text-primary); transform: translateX(2px); }
 .channel-btn.active { background: var(--purple-glow); color: var(--purple-light); }
-.channel-icon { font-size: 15px; }
-.channel-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.channel-lock { font-size: 11px; opacity: 0.7; }
+
+.channel-btn.active::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 22%; bottom: 22%;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--grad-purple);
+  box-shadow: 0 0 8px var(--purple-glow);
+}
+
+.channel-icon {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  background: var(--bg-surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+}
+.channel-btn.active .channel-icon { background: rgba(212,175,55,0.16); }
+
+.channel-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.channel-lock { flex-shrink: 0; font-size: 11px; opacity: 0.7; }
 
 .chat-panel {
   display: flex;

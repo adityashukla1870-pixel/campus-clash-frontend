@@ -386,6 +386,7 @@ function Community() {
 
         <div className="community-layout">
           <div className="channel-sidebar">
+            <div className="channel-sidebar-label">Channels</div>
             {channels.map(c => (
               <button
                 key={c.key}
