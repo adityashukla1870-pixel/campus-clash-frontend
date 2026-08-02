@@ -44,7 +44,7 @@ function AdminDashboard() {
 
   return (
     <div className="admin-dash-page">
-      <SpotlightGlow size={1100} color="gold" />
+      <SpotlightGlow fullpage color="gold" />
       <div className="admin-dash-inner">
         <AdminTopBar showBack={false} />
 

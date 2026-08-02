@@ -1,3 +1,4 @@
+/* ---------------- Circle mode ---------------- */
 .spotlight-glow {
   position: absolute;
   top: 50%;
@@ -18,10 +19,14 @@
 .spotlight-pulse {
   animation: spotlightPulse 6s ease-in-out infinite;
 }
+.spotlight-pulse-delayed {
+  animation: spotlightPulse 6s ease-in-out infinite;
+  animation-delay: 3s;
+}
 
 @keyframes spotlightPulse {
   0%, 100% { opacity: 0.75; transform: scale(1); }
-  50%      { opacity: 1;    transform: scale(1.08); }
+  50%      { opacity: 1;    transform: scale(1.1); }
 }
 
 .spotlight-particles {
@@ -35,5 +40,46 @@
   animation-name: floatSlow;
   animation-timing-function: ease-in-out;
   animation-iteration-count: infinite;
-  opacity: 0.85;
+  opacity: 0.9;
+}
+
+/* ---------------- Fullpage mode ---------------- */
+/* Fixed to the viewport (not the scrolling page), so it stays a
+   consistent, strong ambient presence no matter how tall the page is
+   or how far the user scrolls. */
+.spotlight-glow.spotlight-fullpage {
+  position: fixed;
+  inset: 0;
+  top: 0; left: 0;
+  width: 100vw;
+  height: 100vh;
+  transform: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.spotlight-fullpage .spotlight-radial-a {
+  position: absolute;
+  top: -10%;
+  left: 15%;
+  width: 70vw;
+  height: 70vw;
+  max-width: 900px;
+  max-height: 900px;
+  border-radius: 50%;
+}
+
+.spotlight-fullpage .spotlight-radial-b {
+  position: absolute;
+  bottom: -15%;
+  right: 5%;
+  width: 60vw;
+  height: 60vw;
+  max-width: 750px;
+  max-height: 750px;
+  border-radius: 50%;
+}
+
+.spotlight-fullpage .spotlight-particle {
+  filter: blur(0.5px);
 }
