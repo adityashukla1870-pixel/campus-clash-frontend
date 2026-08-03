@@ -59,6 +59,15 @@ const FULLPAGE_PARTICLES = [
   { top: '30%', left: '35%', size: 5, delay: '4.4s', dur: '9.2s', tone: 'primary' },
   { top: '58%', left: '60%', size: 7, delay: '2.9s', dur: '7.8s', tone: 'secondary' },
   { top: '85%', left: '68%', size: 5, delay: '0.4s', dur: '8.3s', tone: 'primary' },
+  { top: '3%',  left: '30%', size: 5, delay: '1.9s', dur: '8.6s', tone: 'secondary' },
+  { top: '15%', left: '70%', size: 6, delay: '3.1s', dur: '7.2s', tone: 'primary' },
+  { top: '35%', left: '3%',  size: 5, delay: '0.3s', dur: '9.8s', tone: 'secondary' },
+  { top: '52%', left: '38%', size: 6, delay: '2.6s', dur: '8.1s', tone: 'primary' },
+  { top: '68%', left: '78%', size: 5, delay: '4.8s', dur: '7.9s', tone: 'secondary' },
+  { top: '95%', left: '15%', size: 6, delay: '1.4s', dur: '9.3s', tone: 'primary' },
+  { top: '25%', left: '48%', size: 5, delay: '3.9s', dur: '8.4s', tone: 'secondary' },
+  { top: '72%', left: '28%', size: 7, delay: '0.9s', dur: '7.6s', tone: 'primary' },
+  { top: '5%',  left: '82%', size: 5, delay: '2.2s', dur: '9.7s', tone: 'secondary' },
 ]
 
 function SpotlightGlow({ particles, size = 320, color = "purple", pulse = true, fullpage = false }) {
