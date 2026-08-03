@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import Navbar from "../components/Navbar"
+import SpotlightGlow from "../components/SpotlightGlow"
 import API from "../api/axios"
 import "./Dashboard.css"
 
@@ -61,6 +62,7 @@ function Dashboard() {
     <>
       <Navbar />
       <div className="dashboard-page">
+        <SpotlightGlow fullpage color="gold" />
         <div className="dashboard-inner">
 
           <div className="dash-welcome glass-panel chamfer">
