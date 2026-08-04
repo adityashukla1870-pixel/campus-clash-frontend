@@ -252,7 +252,7 @@ function TournamentDetails() {
                   <h2><FiCreditCard size={17} /> Payment Details</h2>
                   <div className="upi-row">
                     <span>UPI ID</span>
-                    <strong>campus@upi</strong>
+                    <strong>7052759580@ptyes</strong>
                   </div>
                   <div className="upi-row">
                     <span>Amount to pay</span>
