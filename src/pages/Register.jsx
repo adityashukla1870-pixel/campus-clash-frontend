@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { FiUser, FiMail, FiBookOpen, FiLock, FiShield } from "react-icons/fi"
+import { FiUser, FiMail, FiBookOpen, FiLock, FiShield, FiHash } from "react-icons/fi"
 import API from "../api/axios"
 import { isAuthenticated, getHomeRoute } from "../utils/auth"
 import logo from "../assets/logo.png"
@@ -12,6 +12,7 @@ function Register() {
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [college, setCollege] = useState("")
+  const [gameUid, setGameUid] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [agreed, setAgreed] = useState(false)
@@ -24,11 +25,11 @@ function Register() {
   }, [navigate])
 
   const passwordsMatch = !confirmPassword || password === confirmPassword
-  const canSubmit = name && email && college && password && confirmPassword && passwordsMatch && agreed
+  const canSubmit = name && email && college && gameUid && password && confirmPassword && passwordsMatch && agreed
 
   const handleRegister = async (e) => {
     e.preventDefault()
-    if (!name || !email || !password || !college) {
+    if (!name || !email || !password || !college || !gameUid) {
       alert("Please fill all fields")
       return
     }
@@ -42,7 +43,7 @@ function Register() {
     }
     setLoading(true)
     try {
-      const res = await API.post("/auth/register", { name, email, password, college })
+      const res = await API.post("/auth/register", { name, email, password, college, game_uid: gameUid })
       alert(res.data.message || "Registration Successful")
       navigate("/login")
     } catch (err) {
@@ -135,6 +136,22 @@ function Register() {
                   placeholder="Your college or university"
                   value={college}
                   onChange={(e) => setCollege(e.target.value)}
+                />
+                <span className="ghost-input-underline" />
+              </div>
+            </div>
+
+            <div className="field-group-ghost">
+              <label className="uppercase-label" htmlFor="reg-gameuid">Game UID</label>
+              <div className="ghost-input-wrap icon-input">
+                <FiHash className="ghost-input-icon" />
+                <input
+                  id="reg-gameuid"
+                  type="text"
+                  className="ghost-input"
+                  placeholder="Your in-game ID (BGMI/Free Fire/etc.)"
+                  value={gameUid}
+                  onChange={(e) => setGameUid(e.target.value)}
                 />
                 <span className="ghost-input-underline" />
               </div>
