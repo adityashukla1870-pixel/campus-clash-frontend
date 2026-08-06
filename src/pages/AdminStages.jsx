@@ -83,6 +83,11 @@ function PodCard({ pod, isSquad, stageId, onChanged }) {
     setBusy(true)
     try {
       await API.post(`/stages/matches/${matchId}/results`, { results })
+      setResultDrafts(prev => {
+        const next = { ...prev }
+        delete next[matchId]
+        return next
+      })
       load()
     } catch (err) {
       alert(err.response?.data?.error || "Failed to submit results")
@@ -108,20 +113,35 @@ function PodCard({ pod, isSquad, stageId, onChanged }) {
     setRoomDrafts(prev => ({ ...prev, [matchId]: { ...prev[matchId], [field]: value } }))
   }
 
-  const setPlacement = (regId, value) => {
-    setResultDrafts(prev => ({ ...prev, [regId]: { ...prev[regId], placement: value } }))
-  }
-
-  const setTeamKills = (regId, value) => {
-    setResultDrafts(prev => ({ ...prev, [regId]: { ...prev[regId], kills: value } }))
-  }
-
-  const setPlayerKills = (regId, playerName, value) => {
+  const setPlacement = (matchId, regId, value) => {
     setResultDrafts(prev => ({
       ...prev,
-      [regId]: {
-        ...prev[regId],
-        playerKills: { ...prev[regId]?.playerKills, [playerName]: value }
+      [matchId]: {
+        ...prev[matchId],
+        [regId]: { ...prev[matchId]?.[regId], placement: value }
+      }
+    }))
+  }
+
+  const setTeamKills = (matchId, regId, value) => {
+    setResultDrafts(prev => ({
+      ...prev,
+      [matchId]: {
+        ...prev[matchId],
+        [regId]: { ...prev[matchId]?.[regId], kills: value }
+      }
+    }))
+  }
+
+  const setPlayerKills = (matchId, regId, playerName, value) => {
+    setResultDrafts(prev => ({
+      ...prev,
+      [matchId]: {
+        ...prev[matchId],
+        [regId]: {
+          ...prev[matchId]?.[regId],
+          playerKills: { ...prev[matchId]?.[regId]?.playerKills, [playerName]: value }
+        }
       }
     }))
   }
@@ -216,15 +236,16 @@ function PodCard({ pod, isSquad, stageId, onChanged }) {
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 8 }}>
                 {pod.participants.map(p => {
                   const roster = isSquad ? [{ name: p.name }, ...(p.team_members || [])] : []
+                  const teamDraft = resultDrafts[m.id]?.[p.registration_id] || {}
                   return (
                     <div key={p.registration_id} style={{ background: 'var(--bg-surface)', borderRadius: 8, padding: 8 }}>
                       <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginBottom: isSquad ? 6 : 0 }}>
                         <span style={{ flex: 1, fontSize: 13, fontWeight: 600 }}>{p.name}</span>
-                        <input type="number" placeholder="Rank" style={{ width: 60 }}
-                          onChange={e => setPlacement(p.registration_id, e.target.value)} />
+                        <input type="number" placeholder="Rank" style={{ width: 60 }} value={teamDraft.placement || ""}
+                          onChange={e => setPlacement(m.id, p.registration_id, e.target.value)} />
                         {!isSquad && (
-                          <input type="number" placeholder="Kills" style={{ width: 60 }}
-                            onChange={e => setTeamKills(p.registration_id, e.target.value)} />
+                          <input type="number" placeholder="Kills" style={{ width: 60 }} value={teamDraft.kills || ""}
+                            onChange={e => setTeamKills(m.id, p.registration_id, e.target.value)} />
                         )}
                       </div>
                       {isSquad && (
@@ -232,8 +253,8 @@ function PodCard({ pod, isSquad, stageId, onChanged }) {
                           {roster.map(mem => (
                             <div key={mem.name} style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
                               <span style={{ flex: 1, fontSize: 12, color: 'var(--text-secondary)' }}>{mem.name}</span>
-                              <input type="number" placeholder="Kills" style={{ width: 60 }}
-                                onChange={e => setPlayerKills(p.registration_id, mem.name, e.target.value)} />
+                              <input type="number" placeholder="Kills" style={{ width: 60 }} value={teamDraft.playerKills?.[mem.name] || ""}
+                                onChange={e => setPlayerKills(m.id, p.registration_id, mem.name, e.target.value)} />
                             </div>
                           ))}
                         </div>
