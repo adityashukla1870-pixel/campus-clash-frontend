@@ -30,14 +30,45 @@ API.interceptors.request.use(
 // Response Interceptor
 API.interceptors.response.use(
   (response) => response,
-
   (error) => {
 
-    if (error.response?.status === 401) {
+    const originalRequest = error.config;
 
-      localStorage.removeItem("token");
+    if (error.response?.status === 401 && !originalRequest._retry) {
 
-      window.location.href = "/";
+      const refreshToken = localStorage.getItem("refreshToken");
+
+      if (!refreshToken) {
+        localStorage.removeItem("token");
+        window.location.href = "/";
+        return Promise.reject(error);
+      }
+
+      originalRequest._retry = true;
+
+      return API.post("/auth/refresh", {}, {
+        headers: { Authorization: `Bearer ${refreshToken}` }
+      })
+        .then((res) => {
+          const newToken = res.data?.token;
+          if (newToken) {
+            localStorage.setItem("token", newToken);
+            API.defaults.headers.common["Authorization"] = `Bearer ${newToken}`;
+            originalRequest.headers["Authorization"] = `Bearer ${newToken}`;
+            return API(originalRequest);
+          }
+          // fallback: clear and redirect
+          localStorage.removeItem("token");
+          localStorage.removeItem("refreshToken");
+          window.location.href = "/";
+          return Promise.reject(error);
+        })
+        .catch((err) => {
+          localStorage.removeItem("token");
+          localStorage.removeItem("refreshToken");
+          window.location.href = "/";
+          return Promise.reject(err);
+        });
 
     }
 

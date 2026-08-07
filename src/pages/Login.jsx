@@ -28,6 +28,9 @@ function Login() {
       const data = res.data
       if (data.token) {
         localStorage.setItem("token", data.token)
+        if (data.refresh) {
+          localStorage.setItem("refreshToken", data.refresh)
+        }
         if (remember) {
           localStorage.setItem(REMEMBER_KEY, email)
         } else {
