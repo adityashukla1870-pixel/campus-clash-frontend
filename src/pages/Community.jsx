@@ -1,7 +1,19 @@
 import { useEffect, useRef, useState } from "react"
 import { io } from "socket.io-client"
 import { jwtDecode } from "jwt-decode"
-import { FiBookmark, FiHash, FiLock, FiMessageCircle, FiUsers } from "react-icons/fi"
+import {
+  FiBookmark,
+  FiCornerUpLeft,
+  FiFlag,
+  FiHash,
+  FiLock,
+  FiMessageCircle,
+  FiMoreHorizontal,
+  FiShieldOff,
+  FiTrash2,
+  FiUsers,
+  FiVolumeX,
+} from "react-icons/fi"
 import Navbar from "../components/Navbar"
 import API from "../api/axios"
 import { getRole } from "../utils/auth"
@@ -94,6 +106,7 @@ function Community() {
 
   const [showReports, setShowReports] = useState(false)
   const [reports, setReports] = useState([])
+  const [actionMenuId, setActionMenuId] = useState(null)
 
   const [lfgGame, setLfgGame] = useState("")
   const [lfgRank, setLfgRank] = useState("")
@@ -586,31 +599,57 @@ function Community() {
                         )}
 
                         {!m.deleted && hoveredId === m.id && (
-                          <div className="msg-toolbar">
-                            {QUICK_EMOJIS.map(e => (
-                              <button key={e} className="toolbar-btn" onClick={() => toggleReaction(m.id, e)}>{e}</button>
-                            ))}
-                            <button className="toolbar-btn" onClick={() => setReplyingTo({ id: m.id, name: m.name, message: m.message })} title="Reply">↪</button>
-                            {m.user_id === myUserId && !m.image_url && (
-                              <button className="toolbar-btn" onClick={() => startEdit(m)} title="Edit">✏️</button>
-                            )}
-                            {(m.user_id === myUserId || role === "admin") && (
-                              <button className="toolbar-btn" onClick={() => deleteMessage(m.id)} title="Delete">🗑</button>
-                            )}
-                            {m.user_id !== myUserId && (
-                              <button className="toolbar-btn" onClick={() => setReportTarget(m.id)} title="Report">🚩</button>
-                            )}
-                            {role === "admin" && (
-                              <>
-                                <button className="toolbar-btn" onClick={() => togglePin(m.id)} title="Pin">📌</button>
-                                {m.user_id !== myUserId && (
-                                  <>
-                                    <button className="toolbar-btn" onClick={() => setMuteTarget({ user_id: m.user_id, name: m.name })} title="Mute">🔇</button>
-                                    <button className="toolbar-btn" onClick={() => banUser(m.user_id)} title="Ban">🚫</button>
-                                  </>
-                                )}
-                              </>
-                            )}
+                          <div className={`msg-toolbar ${actionMenuId === m.id ? "menu-open" : ""}`}>
+                            <div className="reaction-strip">
+                              {QUICK_EMOJIS.map(e => (
+                                <button key={e} className="toolbar-btn reaction-btn" onClick={() => toggleReaction(m.id, e)} title={`React with ${e}`}>
+                                  {e}
+                                </button>
+                              ))}
+                            </div>
+
+                            <div className="action-strip">
+                              <button className="toolbar-btn action-btn" onClick={() => setReplyingTo({ id: m.id, name: m.name, message: m.message })} title="Reply">
+                                <FiCornerUpLeft />
+                              </button>
+                              {m.user_id === myUserId && !m.image_url && (
+                                <button className="toolbar-btn action-btn" onClick={() => startEdit(m)} title="Edit">
+                                  ✏️
+                                </button>
+                              )}
+                              {(m.user_id === myUserId || role === "admin") && (
+                                <button className="toolbar-btn action-btn danger" onClick={() => deleteMessage(m.id)} title="Delete">
+                                  <FiTrash2 />
+                                </button>
+                              )}
+                              {m.user_id !== myUserId && (
+                                <button className="toolbar-btn action-btn warn" onClick={() => setReportTarget(m.id)} title="Report">
+                                  <FiFlag />
+                                </button>
+                              )}
+                              {role === "admin" && (
+                                <>
+                                  <button className="toolbar-btn action-btn" onClick={() => togglePin(m.id)} title="Pin">📌</button>
+                                  {m.user_id !== myUserId && (
+                                    <>
+                                      <button className="toolbar-btn action-btn" onClick={() => setMuteTarget({ user_id: m.user_id, name: m.name })} title="Mute">
+                                        <FiVolumeX />
+                                      </button>
+                                      <button className="toolbar-btn action-btn danger" onClick={() => banUser(m.user_id)} title="Ban">
+                                        <FiShieldOff />
+                                      </button>
+                                    </>
+                                  )}
+                                </>
+                              )}
+                              <button
+                                className="toolbar-btn action-btn more-btn"
+                                onClick={() => setActionMenuId(actionMenuId === m.id ? null : m.id)}
+                                title="More actions"
+                              >
+                                <FiMoreHorizontal />
+                              </button>
+                            </div>
                           </div>
                         )}
                       </div>
