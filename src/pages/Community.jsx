@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react"
 import { io } from "socket.io-client"
 import { jwtDecode } from "jwt-decode"
+import { FiBookmark, FiHash, FiLock, FiMessageCircle, FiUsers } from "react-icons/fi"
 import Navbar from "../components/Navbar"
 import API from "../api/axios"
 import { getRole } from "../utils/auth"
@@ -9,6 +10,14 @@ import "./Community.css"
 const ACCENTS = ["#a855f7", "#22d3ee", "#f59e0b", "#f472b6", "#4ade80", "#818cf8"]
 const QUICK_EMOJIS = ["👍", "🔥", "😂", "❤️", "😮", "👀"]
 const GAMES = ["BGMI", "Free Fire", "Valorant", "COD Mobile", "Other"]
+
+function historyPayload(data) {
+  if (Array.isArray(data)) return { messages: data, hasMore: false }
+  return {
+    messages: Array.isArray(data?.messages) ? data.messages : [],
+    hasMore: Boolean(data?.has_more),
+  }
+}
 
 function colorForUser(userId) {
   if (!userId) return ACCENTS[0]
@@ -175,8 +184,9 @@ function Community() {
     }
 
     API.get(`/chat/history/${activeChannel}`).then(res => {
-      setMessages(res.data.messages || [])
-      setHasMore(res.data.has_more)
+      const payload = historyPayload(res.data)
+      setMessages(payload.messages)
+      setHasMore(payload.hasMore)
     }).catch(() => {})
   }, [activeChannel, connected])
 
@@ -185,6 +195,7 @@ function Community() {
   }, [messages])
 
   const activeChannelMeta = channels.find(c => c.key === activeChannel)
+  const cannotPost = Boolean(activeChannelMeta?.admin_only_post && role !== "admin")
 
   // ---------------- ACTIONS ----------------
 
@@ -282,8 +293,9 @@ function Community() {
     try {
       const oldestId = messages[0].id
       const res = await API.get(`/chat/history/${activeChannel}`, { params: { before: oldestId } })
-      setMessages(prev => [...(res.data.messages || []), ...prev])
-      setHasMore(res.data.has_more)
+      const payload = historyPayload(res.data)
+      setMessages(prev => [...payload.messages, ...prev])
+      setHasMore(payload.hasMore)
     } catch {
       // ignore
     } finally {
@@ -373,7 +385,7 @@ function Community() {
             <h1>💬 Community</h1>
             <p># {activeChannelMeta?.name || activeChannel} — {activeChannelMeta?.description || "hang out with fellow players"}</p>
           </div>
-          <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+          <div className="community-header-actions">
             {role === "admin" && (
               <button className="reports-btn" onClick={openReports}>🚩 Reports</button>
             )}
@@ -386,7 +398,13 @@ function Community() {
 
         <div className="community-layout">
           <div className="channel-sidebar">
-            <div className="channel-sidebar-label">Channels</div>
+            <div className="channel-sidebar-top">
+              <div>
+                <span className="uppercase-label">Discover</span>
+                <div className="channel-sidebar-label">Channels</div>
+              </div>
+              <span className="channel-count">{channels.length}</span>
+            </div>
             {channels.map(c => (
               <button
                 key={c.key}
@@ -398,10 +416,27 @@ function Community() {
                 {c.admin_only_post && <span className="channel-lock" title="Admin-only posting">🔒</span>}
               </button>
             ))}
+            <div className="channel-sidebar-footer">
+              <FiUsers aria-hidden="true" />
+              <span><b>{online}</b> player{online === 1 ? "" : "s"} online</span>
+            </div>
           </div>
 
           <div className="chat-panel">
-            <div className="pinned-bar" onClick={togglePinnedPanel}>
+            <header className="chat-panel-header">
+              <div className="chat-channel-title">
+                <span className="chat-channel-icon"><FiHash aria-hidden="true" /></span>
+                <div>
+                  <h2>{activeChannelMeta?.name || activeChannel}</h2>
+                  <p>{activeChannelMeta?.description || "Hang out with fellow players"}</p>
+                </div>
+              </div>
+              <button className="pinned-bar" type="button" onClick={togglePinnedPanel} aria-expanded={showPinned}>
+                <FiBookmark aria-hidden="true" /> {showPinned ? "Hide pins" : "Pinned"}
+              </button>
+            </header>
+
+            <div className="pinned-bar-legacy" onClick={togglePinnedPanel}>
               📌 {showPinned ? "Hide pinned messages" : "View pinned messages"}
             </div>
 
@@ -566,7 +601,12 @@ function Community() {
               </div>
             )}
 
-            {activeChannel === "lfg" ? (
+            {cannotPost ? (
+              <div className="chat-read-only">
+                <FiLock aria-hidden="true" />
+                <span>This channel is for official Campus Clash announcements.</span>
+              </div>
+            ) : activeChannel === "lfg" ? (
               <div className="lfg-composer">
                 <select value={lfgGame} onChange={e => setLfgGame(e.target.value)}>
                   <option value="">Select game</option>
@@ -612,6 +652,44 @@ function Community() {
               </div>
             )}
           </div>
+
+          <aside className="community-rail" aria-label="Community activity">
+            <section className="community-rail-card community-live-card">
+              <div className="community-rail-heading">
+                <span className="uppercase-label">Live now</span>
+                <span className={`rail-connection ${connected ? "live" : ""}`}>
+                  <span /> {connected ? "Live" : "Connecting"}
+                </span>
+              </div>
+              <div className="community-online-value">{online}</div>
+              <p>player{online === 1 ? "" : "s"} connected to the community.</p>
+              {onlineMembers.length > 0 && (
+                <div className="community-member-list">
+                  {onlineMembers.slice(0, 5).map(member => (
+                    <div className="community-member" key={member.user_id}>
+                      <span className="community-member-avatar" style={{ background: colorForUser(member.user_id) }}>
+                        {initials(member.name)}
+                      </span>
+                      <span>{member.name}</span>
+                      {member.role === "admin" && <span className="community-member-role">Staff</span>}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </section>
+
+            <section className="community-rail-card">
+              <div className="community-rail-heading">
+                <span className="uppercase-label">Team etiquette</span>
+                <FiMessageCircle aria-hidden="true" />
+              </div>
+              <ul className="community-guidelines">
+                <li>Share tactics, squads, and tournament talk.</li>
+                <li>Use replies to keep conversations easy to follow.</li>
+                <li>Report messages that cross the line.</li>
+              </ul>
+            </section>
+          </aside>
         </div>
       </div>
 
