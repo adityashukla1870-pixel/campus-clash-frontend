@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom"
 import Navbar from "../components/Navbar"
 import SpotlightGlow from "../components/SpotlightGlow"
 import API from "../api/axios"
+import { SkeletonCardGrid, SkeletonProfile, SkeletonLeaderboard, SkeletonCard, SkeletonButton } from "../components/Skeleton"
 import "./Dashboard.css"
 
 function Dashboard() {
@@ -51,7 +52,22 @@ function Dashboard() {
         <Navbar />
         <div className="dashboard-page">
           <div className="dashboard-inner">
-            <div className="dash-loading">Loading dashboard...</div>
+            <SkeletonProfile style={{ marginBottom: 24 }} />
+            <div className="dash-stats-grid" style={{ marginBottom: 24 }}>
+              <SkeletonCard height={80} />
+              <SkeletonCard height={80} />
+              <SkeletonCard height={80} />
+              <SkeletonCard height={80} />
+            </div>
+            <div className="dash-two-col" style={{ gap: 24 }}>
+              <SkeletonCard height={300} />
+              <SkeletonCard height={300} />
+            </div>
+            <div className="dash-quicklinks" style={{ display: 'flex', gap: 12, marginTop: 24 }}>
+              <SkeletonButton width={160} height={48} />
+              <SkeletonButton width={160} height={48} />
+              <SkeletonButton width={160} height={48} />
+            </div>
           </div>
         </div>
       </>

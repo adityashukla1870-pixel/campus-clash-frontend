@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import API from "../api/axios"
 import AdminTopBar from "../components/AdminTopBar"
+import { SkeletonText, SkeletonTable, SkeletonBlock, SkeletonCard } from "../components/Skeleton"
 
 function PodCard({ pod, isSquad, stageId, onChanged }) {
   const [detail, setDetail] = useState(null)
@@ -362,11 +363,12 @@ function AdminStages() {
   const [advanceCount, setAdvanceCount] = useState("")
   const [isFinal, setIsFinal] = useState(false)
   const [busy, setBusy] = useState(false)
+  const [initialLoading, setInitialLoading] = useState(true)
 
   useEffect(() => {
     API.get("/tournament/all").then(res => {
       setTournaments((res.data || []).filter(t => t.format === "full"))
-    })
+    }).catch(console.error).finally(() => setInitialLoading(false))
   }, [])
 
   const loadStages = (id) => {
@@ -412,68 +414,80 @@ function AdminStages() {
     <div style={{ minHeight: '100vh', background: 'var(--bg-dark)', padding: '40px 24px 60px' }}>
       <div style={{ maxWidth: 820, margin: '0 auto' }}>
         <AdminTopBar />
-        <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 28, fontWeight: 700, marginBottom: 6 }}>🎯 Manage Stages</h1>
-        <p style={{ color: 'var(--text-secondary)', fontSize: 14, marginBottom: 28 }}>
-          Groups, brackets, and finals — with parallel pods and a points-based leaderboard.
-        </p>
-
-        <div className="field-group" style={{ marginBottom: 24 }}>
-          <label>Select Tournament</label>
-          <select value={selected} onChange={e => setSelected(e.target.value)}>
-            <option value="">-- Choose a Full Tournament --</option>
-            {tournaments.map(t => <option key={t.id} value={t.id}>{t.name} ({t.game})</option>)}
-          </select>
-          {tournaments.length === 0 && (
-            <p style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 8 }}>
-              No "Full Tournament" format events found — create one from Create Tournament first.
-            </p>
-          )}
-        </div>
-
-        {selected && (
+        {initialLoading ? (
           <>
-            {[...stages].reverse().map(s => (
-              <StageSection key={s.id} stageSummary={s} isSquad={isSquad} onChanged={() => loadStages(selected)} />
-            ))}
+            <SkeletonText width="180px" height={28} style={{ marginBottom: 6 }} />
+            <SkeletonText width="300px" height={14} style={{ marginBottom: 28 }} />
+            <SkeletonBlock height={200} style={{ borderRadius: 16, marginBottom: 24 }} />
+            <SkeletonTable rows={4} cols={4} />
+            <SkeletonCard height={200} style={{ marginTop: 20 }} />
+          </>
+        ) : (
+          <>
+            <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 28, fontWeight: 700, marginBottom: 6 }}>🎯 Manage Stages</h1>
+            <p style={{ color: 'var(--text-secondary)', fontSize: 14, marginBottom: 28 }}>
+              Groups, brackets, and finals — with parallel pods and a points-based leaderboard.
+            </p>
 
-            {!hasActiveStage && tournament?.status !== "completed" && (
-              <div style={{ background: 'var(--bg-card)', border: '1px dashed var(--border)', borderRadius: 16, padding: 24 }}>
-                <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 17, marginBottom: 14 }}>
-                  {stages.length === 0 ? "Start the first stage" : "Start the next stage"}
-                </h3>
-                <div className="field-group" style={{ marginBottom: 14 }}>
-                  <label>Stage Name</label>
-                  <input placeholder="e.g. Group Stage, Semifinals, Grand Finals" value={newStageName}
-                    onChange={e => setNewStageName(e.target.value)} />
-                </div>
-                <div style={{ display: 'flex', gap: 14, alignItems: 'flex-end', flexWrap: 'wrap' }}>
-                  <div className="field-group" style={{ marginBottom: 0 }}>
-                    <label>Number of groups (pods)</label>
-                    <input type="number" min="1" value={podCount} onChange={e => setPodCount(e.target.value)} style={{ width: 90 }} />
-                  </div>
-                  {!isFinal && (
-                    <div className="field-group" style={{ marginBottom: 0 }}>
-                      <label>Teams advancing per group</label>
-                      <input type="number" placeholder="e.g. 4" value={advanceCount}
-                        onChange={e => setAdvanceCount(e.target.value)} style={{ width: 100 }} />
-                    </div>
-                  )}
-                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14, color: 'var(--text-secondary)', paddingBottom: 10 }}>
-                    <input type="checkbox" checked={isFinal} onChange={e => setIsFinal(e.target.checked)} />
-                    This is the final stage
-                  </label>
-                </div>
-                <p style={{ fontSize: 12, color: 'var(--text-muted)', margin: '8px 0' }}>
-                  Tip: for a knockout bracket round, set groups = number of matchups and teams advancing = 1 per group.
+            <div className="field-group" style={{ marginBottom: 24 }}>
+              <label>Select Tournament</label>
+              <select value={selected} onChange={e => setSelected(e.target.value)}>
+                <option value="">-- Choose a Full Tournament --</option>
+                {tournaments.map(t => <option key={t.id} value={t.id}>{t.name} ({t.game})</option>)}
+              </select>
+              {tournaments.length === 0 && (
+                <p style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 8 }}>
+                  No "Full Tournament" format events found — create one from Create Tournament first.
                 </p>
-                <button className="btn-primary" style={{ marginTop: 6 }} disabled={busy} onClick={createStage}>
-                  🚀 Start Stage
-                </button>
-              </div>
-            )}
+              )}
+            </div>
 
-            {tournament?.status === "completed" && (
-              <div style={{ textAlign: 'center', color: 'var(--green)', padding: 20 }}>🏆 Tournament completed!</div>
+            {selected && (
+              <>
+                {[...stages].reverse().map(s => (
+                  <StageSection key={s.id} stageSummary={s} isSquad={isSquad} onChanged={() => loadStages(selected)} />
+                ))}
+
+                {!hasActiveStage && tournament?.status !== "completed" && (
+                  <div style={{ background: 'var(--bg-card)', border: '1px dashed var(--border)', borderRadius: 16, padding: 24 }}>
+                    <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 17, marginBottom: 14 }}>
+                      {stages.length === 0 ? "Start the first stage" : "Start the next stage"}
+                    </h3>
+                    <div className="field-group" style={{ marginBottom: 14 }}>
+                      <label>Stage Name</label>
+                      <input placeholder="e.g. Group Stage, Semifinals, Grand Finals" value={newStageName}
+                        onChange={e => setNewStageName(e.target.value)} />
+                    </div>
+                    <div style={{ display: 'flex', gap: 14, alignItems: 'flex-end', flexWrap: 'wrap' }}>
+                      <div className="field-group" style={{ marginBottom: 0 }}>
+                        <label>Number of groups (pods)</label>
+                        <input type="number" min="1" value={podCount} onChange={e => setPodCount(e.target.value)} style={{ width: 90 }} />
+                      </div>
+                      {!isFinal && (
+                        <div className="field-group" style={{ marginBottom: 0 }}>
+                          <label>Teams advancing per group</label>
+                          <input type="number" placeholder="e.g. 4" value={advanceCount}
+                            onChange={e => setAdvanceCount(e.target.value)} style={{ width: 100 }} />
+                        </div>
+                      )}
+                      <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14, color: 'var(--text-secondary)', paddingBottom: 10 }}>
+                        <input type="checkbox" checked={isFinal} onChange={e => setIsFinal(e.target.checked)} />
+                        This is the final stage
+                      </label>
+                    </div>
+                    <p style={{ fontSize: 12, color: 'var(--text-muted)', margin: '8px 0' }}>
+                      Tip: for a knockout bracket round, set groups = number of matchups and teams advancing = 1 per group.
+                    </p>
+                    <button className="btn-primary" style={{ marginTop: 6 }} disabled={busy} onClick={createStage}>
+                      🚀 Start Stage
+                    </button>
+                  </div>
+                )}
+
+                {tournament?.status === "completed" && (
+                  <div style={{ textAlign: 'center', color: 'var(--green)', padding: 20 }}>🏆 Tournament completed!</div>
+                )}
+              </>
             )}
           </>
         )}

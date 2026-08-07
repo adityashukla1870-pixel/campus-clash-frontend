@@ -5,6 +5,7 @@ import { FiSearch, FiZap } from "react-icons/fi"
 import Navbar from "../components/Navbar"
 import API from "../api/axios"
 import { resolveImageUrl } from "../utils/media"
+import { SkeletonCardGrid, SkeletonTable, SkeletonText, SkeletonBadge, SkeletonBlock } from "../components/Skeleton"
 import "./Tournament.css"
 
 const GAME_ICONS = { BGMI: "🎮", "Free Fire": "🔥", Valorant: "🎯", "Call of Duty Mobile": "🪖" }
@@ -16,6 +17,7 @@ function Tournament() {
   const [search, setSearch] = useState("")
   const [gameFilter, setGameFilter] = useState("all")
   const [statusFilter, setStatusFilter] = useState("all")
+  const [loading, setLoading] = useState(true)
   const location = useLocation()
 
   useEffect(() => {
@@ -32,9 +34,30 @@ function Tournament() {
         const data = res.data
         setTournaments(Array.isArray(data) ? data : [])
       })
+      .finally(() => setLoading(false))
   }, [location.pathname])
 
   const gameOptions = [...new Set(tournaments.map(t => t.game).filter(Boolean))]
+
+  if (loading) {
+    return (
+      <>
+        <Navbar />
+        <div className="tournaments-page">
+          <div className="tournaments-header">
+            <div className="tournaments-header-left">
+              <SkeletonText width="180px" height={28} />
+              <SkeletonText width="300px" height={16} />
+            </div>
+            <SkeletonBadge width={100} />
+          </div>
+          <SkeletonBlock height={280} style={{ borderRadius: 16, marginBottom: 24 }} />
+          <SkeletonTable rows={2} cols={3} style={{ marginBottom: 24 }} />
+          <SkeletonCardGrid count={6} />
+        </div>
+      </>
+    )
+  }
 
   const filteredTournaments = tournaments.filter((t) => {
     const matchesSearch = t.name?.toLowerCase().includes(search.toLowerCase())

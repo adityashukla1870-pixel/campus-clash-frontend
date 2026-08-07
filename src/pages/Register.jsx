@@ -4,6 +4,7 @@ import { FiUser, FiMail, FiBookOpen, FiLock, FiShield, FiHash } from "react-icon
 import API from "../api/axios"
 import { isAuthenticated, getHomeRoute } from "../utils/auth"
 import logo from "../assets/logo.png"
+import { SkeletonBlock } from "../components/Skeleton"
 import "./Login.css"
 import "./Register.css"
 
@@ -17,11 +18,13 @@ function Register() {
   const [confirmPassword, setConfirmPassword] = useState("")
   const [agreed, setAgreed] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [initialCheck, setInitialCheck] = useState(true)
 
   useEffect(() => {
     if (isAuthenticated()) {
       navigate(getHomeRoute(), { replace: true })
     }
+    setInitialCheck(false)
   }, [navigate])
 
   const passwordsMatch = !confirmPassword || password === confirmPassword
@@ -51,6 +54,14 @@ function Register() {
     } finally {
       setLoading(false)
     }
+  }
+
+  if (initialCheck) {
+    return (
+      <div className="login-page">
+        <SkeletonBlock height={200} style={{ borderRadius: 16, maxWidth: 500, margin: '100px auto' }} />
+      </div>
+    )
   }
 
   return (

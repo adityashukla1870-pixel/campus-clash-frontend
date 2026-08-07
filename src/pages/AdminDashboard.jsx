@@ -4,6 +4,7 @@ import { FiUsers, FiZap, FiDollarSign, FiClock, FiArrowRight } from "react-icons
 import AdminTopBar from "../components/AdminTopBar"
 import SpotlightGlow from "../components/SpotlightGlow"
 import API from "../api/axios"
+import { SkeletonCardGrid, SkeletonTable, SkeletonCircle, SkeletonText } from "../components/Skeleton"
 import "./AdminDashboard.css"
 
 const adminActions = [
@@ -48,67 +49,85 @@ function AdminDashboard() {
       <div className="admin-dash-inner">
         <AdminTopBar showBack={false} />
 
-        <div className="admin-dash-header">
-          <div className="admin-dash-header-icon">⚔️</div>
-          <div>
-            <h1>Admin Dashboard</h1>
-            <p>Campus Clash — Control Panel</p>
-          </div>
-        </div>
-
-        {/* Stats */}
-        <div className="admin-stats-grid">
-          {statCards.map((s) => (
-            <div key={s.label} className={`admin-stat-card accent-${s.color}`}>
-              <div className="admin-stat-top">
-                <span className="admin-stat-label">{s.label}</span>
-                {s.pulse ? <span className="admin-stat-pulse-dot" /> : <s.icon size={16} className="admin-stat-icon" />}
-              </div>
-              <div className="admin-stat-value">{loading ? "—" : s.value}</div>
-              <div className="admin-stat-note">{s.note}</div>
-            </div>
-          ))}
-        </div>
-
-        {/* Quick actions */}
-        <h2 className="admin-section-title">Command Center</h2>
-        <div className="admin-actions-grid">
-          {adminActions.map((action) => (
-            <div
-              key={action.path}
-              className="admin-action-card"
-              onClick={() => navigate(action.path)}
-              style={{ '--accent': action.color }}
-            >
-              <div className="admin-action-icon" style={{ background: action.color + '22', border: `1px solid ${action.color}44` }}>
-                {action.icon}
-              </div>
-              <h3>{action.label}</h3>
-              <p>{action.desc}</p>
-            </div>
-          ))}
-        </div>
-
-        {/* Pending payments preview */}
-        {pending.length > 0 && (
+        {loading ? (
           <>
-            <div className="admin-section-title-row">
-              <h2 className="admin-section-title">Awaiting Verification</h2>
-              <span className="admin-view-all" onClick={() => navigate("/admin/payments")}>
-                View All <FiArrowRight size={13} />
-              </span>
+            <div className="admin-dash-header" style={{ marginBottom: 24 }}>
+              <SkeletonCircle size={48} />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginLeft: 16 }}>
+                <SkeletonText width="180px" height={28} />
+                <SkeletonText width="200px" height={16} />
+              </div>
             </div>
-            <div className="admin-pending-list">
-              {pending.slice(0, 5).map((p) => (
-                <div key={p._id} className="admin-pending-row" onClick={() => navigate("/admin/payments")}>
-                  <div>
-                    <div className="apr-name">{p.player_name}</div>
-                    <div className="apr-tournament">{p.tournament_name}</div>
+            <SkeletonCardGrid count={4} style={{ marginBottom: 32 }} />
+            <SkeletonText width="150px" height={14} style={{ marginBottom: 8 }} />
+            <SkeletonText width="280px" height={24} style={{ marginBottom: 24 }} />
+            <SkeletonCardGrid count={6} />
+          </>
+        ) : (
+          <>
+            <div className="admin-dash-header">
+              <div className="admin-dash-header-icon">⚔️</div>
+              <div>
+                <h1>Admin Dashboard</h1>
+                <p>Campus Clash — Control Panel</p>
+              </div>
+            </div>
+
+            {/* Stats */}
+            <div className="admin-stats-grid">
+              {statCards.map((s) => (
+                <div key={s.label} className={`admin-stat-card accent-${s.color}`}>
+                  <div className="admin-stat-top">
+                    <span className="admin-stat-label">{s.label}</span>
+                    {s.pulse ? <span className="admin-stat-pulse-dot" /> : <s.icon size={16} className="admin-stat-icon" />}
                   </div>
-                  <div className="apr-fee">₹{p.entry_fee}</div>
+                  <div className="admin-stat-value">{s.value}</div>
+                  <div className="admin-stat-note">{s.note}</div>
                 </div>
               ))}
             </div>
+
+            {/* Quick actions */}
+            <h2 className="admin-section-title">Command Center</h2>
+            <div className="admin-actions-grid">
+              {adminActions.map((action) => (
+                <div
+                  key={action.path}
+                  className="admin-action-card"
+                  onClick={() => navigate(action.path)}
+                  style={{ '--accent': action.color }}
+                >
+                  <div className="admin-action-icon" style={{ background: action.color + '22', border: `1px solid ${action.color}44` }}>
+                    {action.icon}
+                  </div>
+                  <h3>{action.label}</h3>
+                  <p>{action.desc}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Pending payments preview */}
+            {pending.length > 0 && (
+              <>
+                <div className="admin-section-title-row">
+                  <h2 className="admin-section-title">Awaiting Verification</h2>
+                  <span className="admin-view-all" onClick={() => navigate("/admin/payments")}>
+                    View All <FiArrowRight size={13} />
+                  </span>
+                </div>
+                <div className="admin-pending-list">
+                  {pending.slice(0, 5).map((p) => (
+                    <div key={p._id} className="admin-pending-row" onClick={() => navigate("/admin/payments")}>
+                      <div>
+                        <div className="apr-name">{p.player_name}</div>
+                        <div className="apr-tournament">{p.tournament_name}</div>
+                      </div>
+                      <div className="apr-fee">₹{p.entry_fee}</div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
           </>
         )}
       </div>

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import Navbar from "../components/Navbar"
 import API from "../api/axios"
+import { SkeletonRoom, SkeletonText } from "../components/Skeleton"
 
 function TournamentRoom() {
   const { id } = useParams()
@@ -70,9 +71,14 @@ function TournamentRoom() {
       <>
         <Navbar />
         <div style={roomPageStyle}>
-          <div style={{color:'var(--text-secondary)'}}>
-            {isFullFormat ? "Redirecting to standings..." : "Loading room details..."}
-          </div>
+          {isFullFormat ? (
+            <SkeletonText width="200px" height={16} />
+          ) : (
+            <>
+              <SkeletonRoom />
+              <SkeletonText width="250px" height={16} style={{ marginTop: 16 }} />
+            </>
+          )}
         </div>
       </>
     )
