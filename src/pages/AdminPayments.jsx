@@ -27,6 +27,16 @@ function AdminPayments() {
     setPayments(prev => prev.filter(p => p._id !== id))
   }
 
+  const pageStyle = {
+    minHeight:'100vh', background:'var(--bg-dark)', padding:'40px 24px',
+  }
+  const innerStyle = { maxWidth:800, margin:'0 auto' }
+  const cardStyle = {
+    background:'var(--bg-card)', border:'1px solid var(--border)',
+    borderRadius:16, padding:24, marginBottom:16,
+    display:'flex', gap:24, flexWrap:'wrap',
+  }
+
   if (loading) {
     return (
       <div style={pageStyle}>
@@ -40,16 +50,6 @@ function AdminPayments() {
         </div>
       </div>
     )
-  }
-
-  const pageStyle = {
-    minHeight:'100vh', background:'var(--bg-dark)', padding:'40px 24px',
-  }
-  const innerStyle = { maxWidth:800, margin:'0 auto' }
-  const cardStyle = {
-    background:'var(--bg-card)', border:'1px solid var(--border)',
-    borderRadius:16, padding:24, marginBottom:16,
-    display:'flex', gap:24, flexWrap:'wrap',
   }
 
   return (
