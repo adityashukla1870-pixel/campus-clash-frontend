@@ -10,6 +10,7 @@ function AdminWinner() {
   const [participants, setParticipants] = useState([])
   const [selectedWinner, setSelectedWinner] = useState("")
   const [loading, setLoading] = useState(false)
+  const [selectedTournamentData, setSelectedTournamentData] = useState(null)
 
   useEffect(() => {
     API.get("/tournament/all").then(res => setTournaments(res.data)).catch(console.error)
@@ -18,6 +19,7 @@ function AdminWinner() {
   useEffect(() => {
     if (!selectedTournament) return
     API.get(`/tournament/participants/${selectedTournament}`).then(res => setParticipants(res.data)).catch(console.error)
+    API.get(`/tournament/${selectedTournament}`).then(res => setSelectedTournamentData(res.data)).catch(() => setSelectedTournamentData(null))
   }, [selectedTournament])
 
   const handleSubmit = async () => {
@@ -58,6 +60,13 @@ function AdminWinner() {
                 {participants.map(p => <option key={p.user_id} value={p.user_id}>{p.name}</option>)}
               </select>
             </div>
+            {selectedTournamentData && (
+              <div style={{background:'var(--bg-surface)',border:'1px solid var(--border)',borderRadius:12,padding:14,fontSize:13,color:'var(--text-secondary)'}}>
+                <div><strong>Format:</strong> {selectedTournamentData.format === 'full' ? 'Full tournament / stages' : 'Quick match'}</div>
+                <div><strong>Status:</strong> {selectedTournamentData.status}</div>
+                {selectedTournamentData.winner_name && <div><strong>Current champion:</strong> {selectedTournamentData.winner_name}</div>}
+              </div>
+            )}
             {selectedWinner && (
               <div style={{background:'var(--green-bg)',border:'1px solid #22c55e44',borderRadius:12,padding:16,textAlign:'center'}}>
                 <div style={{fontSize:28,marginBottom:6}}>🏆</div>

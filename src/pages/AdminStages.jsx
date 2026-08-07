@@ -361,6 +361,7 @@ function AdminStages() {
   const [podCount, setPodCount] = useState("1")
   const [advanceCount, setAdvanceCount] = useState("")
   const [isFinal, setIsFinal] = useState(false)
+  const [seedStrategy, setSeedStrategy] = useState("random")
   const [busy, setBusy] = useState(false)
 
   useEffect(() => {
@@ -391,7 +392,8 @@ function AdminStages() {
         name: newStageName,
         pod_count: Number(podCount) || 1,
         advance_count: isFinal ? null : Number(advanceCount) || null,
-        is_final: isFinal
+        is_final: isFinal,
+        seed_strategy: seedStrategy
       })
       setNewStageName("")
       setAdvanceCount("")
@@ -447,6 +449,13 @@ function AdminStages() {
                     onChange={e => setNewStageName(e.target.value)} />
                 </div>
                 <div style={{ display: 'flex', gap: 14, alignItems: 'flex-end', flexWrap: 'wrap' }}>
+                  <div className="field-group" style={{ marginBottom: 0 }}>
+                    <label>Seed style</label>
+                    <select value={seedStrategy} onChange={e => setSeedStrategy(e.target.value)} style={{ width: 140 }}>
+                      <option value="random">Random draw</option>
+                      <option value="snake">Snake seeding</option>
+                    </select>
+                  </div>
                   <div className="field-group" style={{ marginBottom: 0 }}>
                     <label>Number of groups (pods)</label>
                     <input type="number" min="1" value={podCount} onChange={e => setPodCount(e.target.value)} style={{ width: 90 }} />
