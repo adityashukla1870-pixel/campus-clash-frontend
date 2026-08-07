@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import Navbar from "../components/Navbar"
 import API from "../api/axios"
+import { SkeletonTable, SkeletonText, SkeletonBlock, SkeletonButton } from "../components/Skeleton"
 import "./StageStandings.css"
 
 function PodView({ podSummary, advanceCount }) {
@@ -132,12 +133,40 @@ function StageStandings() {
   const [stats, setStats] = useState(null)
   const [tab, setTab] = useState("stages")
   const [statTab, setStatTab] = useState("overall")
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    API.get(`/tournament/${id}`).then(res => setTournament(res.data)).catch(() => {})
-    API.get(`/stages/tournament/${id}`).then(res => setStages(res.data)).catch(() => {})
-    API.get(`/stages/tournament/${id}/stats`).then(res => setStats(res.data)).catch(() => {})
+    Promise.all([
+      API.get(`/tournament/${id}`),
+      API.get(`/stages/tournament/${id}`),
+      API.get(`/stages/tournament/${id}/stats`),
+    ])
+      .then(([tRes, sRes, stRes]) => {
+        setTournament(tRes.data)
+        setStages(Array.isArray(sRes.data) ? sRes.data : [])
+        setStats(stRes.data)
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false))
   }, [id])
+
+  if (loading) {
+    return (
+      <>
+        <Navbar />
+        <div className="standings-page">
+          <SkeletonText width="150px" height={14} style={{ marginBottom: 8 }} />
+          <SkeletonText width="300px" height={28} style={{ marginBottom: 16 }} />
+          <div className="page-tabs" style={{ marginBottom: 24 }}>
+            <SkeletonButton width={100} height={40} style={{ marginRight: 12 }} />
+            <SkeletonButton width={140} height={40} />
+          </div>
+          <SkeletonTable rows={6} cols={5} />
+          <SkeletonBlock height={120} style={{ borderRadius: 16, marginTop: 24 }} />
+        </div>
+      </>
+    )
+  }
 
   const statTabs = [
     { key: "overall", label: "🏆 Overall" },

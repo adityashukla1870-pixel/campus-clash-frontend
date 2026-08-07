@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom"
 import API from "../api/axios"
 import { isAuthenticated, getHomeRoute } from "../utils/auth"
 import logo from "../assets/logo.png"
+import { SkeletonText, SkeletonBlock } from "../components/Skeleton"
 import "./Login.css"
 
 const REMEMBER_KEY = "cc_remember_email"
@@ -13,11 +14,13 @@ function Login() {
   const [password, setPassword] = useState("")
   const [remember, setRemember] = useState(() => !!localStorage.getItem(REMEMBER_KEY))
   const [loading, setLoading] = useState(false)
+  const [initialCheck, setInitialCheck] = useState(true)
 
   useEffect(() => {
     if (isAuthenticated()) {
       navigate(getHomeRoute(), { replace: true })
     }
+    setInitialCheck(false)
   }, [navigate])
 
   const handleLogin = async (e) => {
@@ -43,6 +46,14 @@ function Login() {
     } finally {
       setLoading(false)
     }
+  }
+
+  if (initialCheck) {
+    return (
+      <div className="login-page">
+        <SkeletonBlock height={200} style={{ borderRadius: 16, maxWidth: 500, margin: '100px auto' }} />
+      </div>
+    )
   }
 
   return (

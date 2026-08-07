@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import Navbar from "../components/Navbar"
 import API from "../api/axios"
+import { SkeletonBracket, SkeletonText } from "../components/Skeleton"
 
 function Bracket() {
   const { id } = useParams()
@@ -27,7 +28,13 @@ function Bracket() {
     return (
       <>
         <Navbar />
-        <div style={pageStyle}><div style={{color:'var(--text-secondary)',textAlign:'center'}}>Loading bracket...</div></div>
+        <div style={pageStyle}>
+          <div style={innerStyle}>
+            <SkeletonText width="150px" height={14} style={{ marginBottom: 8 }} />
+            <SkeletonText width="300px" height={28} style={{ marginBottom: 24 }} />
+            <SkeletonBracket />
+          </div>
+        </div>
       </>
     )
   }

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import API from "../api/axios"
 import AdminTopBar from "../components/AdminTopBar"
+import { SkeletonText, SkeletonBracket, SkeletonBlock } from "../components/Skeleton"
 
 function AdminBracket() {
   const navigate = useNavigate()
@@ -10,13 +11,14 @@ function AdminBracket() {
   const [rounds, setRounds] = useState(null)
   const [loading, setLoading] = useState(false)
   const [generating, setGenerating] = useState(false)
+  const [initialLoading, setInitialLoading] = useState(true)
 
   useEffect(() => {
     API.get("/tournament/all").then(res => {
       // Multi-stage ("full" format) tournaments are managed from "Manage Stages" —
       // the knockout bracket tool only applies to single-match "quick" tournaments.
       setTournaments((res.data || []).filter(t => t.format !== "full"))
-    }).catch(console.error)
+    }).catch(console.error).finally(() => setInitialLoading(false))
   }, [])
 
   useEffect(() => {
@@ -75,65 +77,76 @@ function AdminBracket() {
     <div style={pageStyle}>
       <div style={innerStyle}>
         <AdminTopBar />
-        <h1 style={{fontFamily:'var(--font-display)',fontSize:28,fontWeight:700,marginBottom:6}}>🏆 Bracket Manager</h1>
-        <p style={{color:'var(--text-secondary)',fontSize:14,marginBottom:32}}>Generate the bracket and report match winners round by round.</p>
+        {initialLoading ? (
+          <>
+            <SkeletonText width="180px" height={28} style={{ marginBottom: 6 }} />
+            <SkeletonText width="300px" height={14} style={{ marginBottom: 32 }} />
+            <SkeletonBlock height={200} style={{ borderRadius: 20, marginBottom: 24 }} />
+            <SkeletonBracket />
+          </>
+        ) : (
+          <>
+            <h1 style={{fontFamily:'var(--font-display)',fontSize:28,fontWeight:700,marginBottom:6}}>🏆 Bracket Manager</h1>
+            <p style={{color:'var(--text-secondary)',fontSize:14,marginBottom:32}}>Generate the bracket and report match winners round by round.</p>
 
-        <div style={{background:'var(--bg-card)',border:'1px solid var(--border)',borderRadius:20,padding:32,marginBottom:24}}>
-          <div className="field-group" style={{marginBottom: rounds ? 20 : 0}}>
-            <label>Tournament</label>
-            <select value={selectedId} onChange={e => setSelectedId(e.target.value)}>
-              <option value="">Select tournament...</option>
-              {tournaments.map(t => <option key={t.id} value={t.id}>{t.name}{t.has_bracket ? " (bracket generated)" : ""}</option>)}
-            </select>
-            <p style={{fontSize:12,color:'var(--text-muted)',marginTop:8}}>
-              Only "Quick Match" tournaments show up here. Multi-stage tournaments are managed from "Manage Stages".
-            </p>
-          </div>
+            <div style={{background:'var(--bg-card)',border:'1px solid var(--border)',borderRadius:20,padding:32,marginBottom:24}}>
+              <div className="field-group" style={{marginBottom: rounds ? 20 : 0}}>
+                <label>Tournament</label>
+                <select value={selectedId} onChange={e => setSelectedId(e.target.value)}>
+                  <option value="">Select tournament...</option>
+                  {tournaments.map(t => <option key={t.id} value={t.id}>{t.name}{t.has_bracket ? " (bracket generated)" : ""}</option>)}
+                </select>
+                <p style={{fontSize:12,color:'var(--text-muted)',marginTop:8}}>
+                  Only "Quick Match" tournaments show up here. Multi-stage tournaments are managed from "Manage Stages".
+                </p>
+              </div>
 
-          {selectedId && !rounds && (
-            <button className="btn-primary" style={{marginTop:20}} onClick={handleGenerate} disabled={generating}>
-              {generating ? "Generating..." : "⚡ Generate Bracket"}
-            </button>
-          )}
+              {selectedId && !rounds && (
+                <button className="btn-primary" style={{marginTop:20}} onClick={handleGenerate} disabled={generating}>
+                  {generating ? "Generating..." : "⚡ Generate Bracket"}
+                </button>
+              )}
 
-          {selectedId && rounds && (
-            <button className="btn-secondary" onClick={handleGenerate} disabled={generating}>
-              {generating ? "Regenerating..." : "🔄 Regenerate Bracket"}
-            </button>
-          )}
-        </div>
+              {selectedId && rounds && (
+                <button className="btn-secondary" onClick={handleGenerate} disabled={generating}>
+                  {generating ? "Regenerating..." : "🔄 Regenerate Bracket"}
+                </button>
+              )}
+            </div>
 
-        {rounds && (
-          <div style={{display:'flex', gap:24, overflowX:'auto', paddingBottom:16}}>
-            {rounds.map((round, ridx) => (
-              <div key={ridx} style={{minWidth:260, flexShrink:0}}>
-                <div style={{fontFamily:'var(--font-display)',fontWeight:700,fontSize:16,marginBottom:14,color:'var(--purple-light)'}}>
-                  {ridx === rounds.length - 1 ? "🏁 Final" : `Round ${ridx + 1}`}
-                </div>
-                {round.map((match, midx) => (
-                  <div key={match.match_id} style={{background:'var(--bg-card)',border:'1px solid var(--border)',borderRadius:12,padding:12,marginBottom:16}}>
-                    <div
-                      style={{...slotStyle(match.winner && match.a && match.winner.registration_id === match.a.registration_id), cursor: match.a && !match.winner ? 'pointer':'default'}}
-                      onClick={() => match.a && !match.winner && handleReportWinner(ridx, midx, "a")}
-                    >
-                      <span>{match.a ? match.a.name : "TBD"}</span>
-                      {match.a && !match.winner && <span style={{fontSize:11,opacity:0.6}}>tap to win</span>}
+            {rounds && (
+              <div style={{display:'flex', gap:24, overflowX:'auto', paddingBottom:16}}>
+                {rounds.map((round, ridx) => (
+                  <div key={ridx} style={{minWidth:260, flexShrink:0}}>
+                    <div style={{fontFamily:'var(--font-display)',fontWeight:700,fontSize:16,marginBottom:14,color:'var(--purple-light)'}}>
+                      {ridx === rounds.length - 1 ? "🏁 Final" : `Round ${ridx + 1}`}
                     </div>
-                    <div
-                      style={{...slotStyle(match.winner && match.b && match.winner.registration_id === match.b.registration_id), cursor: match.b && !match.winner ? 'pointer':'default'}}
-                      onClick={() => match.b && !match.winner && handleReportWinner(ridx, midx, "b")}
-                    >
-                      <span>{match.b ? match.b.name : "TBD"}</span>
-                      {match.b && !match.winner && <span style={{fontSize:11,opacity:0.6}}>tap to win</span>}
-                    </div>
+                    {round.map((match, midx) => (
+                      <div key={match.match_id} style={{background:'var(--bg-card)',border:'1px solid var(--border)',borderRadius:12,padding:12,marginBottom:16}}>
+                        <div
+                          style={{...slotStyle(match.winner && match.a && match.winner.registration_id === match.a.registration_id), cursor: match.a && !match.winner ? 'pointer':'default'}}
+                          onClick={() => match.a && !match.winner && handleReportWinner(ridx, midx, "a")}
+                        >
+                          <span>{match.a ? match.a.name : "TBD"}</span>
+                          {match.a && !match.winner && <span style={{fontSize:11,opacity:0.6}}>tap to win</span>}
+                        </div>
+                        <div
+                          style={{...slotStyle(match.winner && match.b && match.winner.registration_id === match.b.registration_id), cursor: match.b && !match.winner ? 'pointer':'default'}}
+                          onClick={() => match.b && !match.winner && handleReportWinner(ridx, midx, "b")}
+                        >
+                          <span>{match.b ? match.b.name : "TBD"}</span>
+                          {match.b && !match.winner && <span style={{fontSize:11,opacity:0.6}}>tap to win</span>}
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 ))}
               </div>
-            ))}
-          </div>
-        )}
+            )}
 
-        {loading && <p style={{color:'var(--text-secondary)',marginTop:16}}>Updating...</p>}
+            {loading && <p style={{color:'var(--text-secondary)',marginTop:16}}>Updating...</p>}
+          </>
+        )}
       </div>
     </div>
   )

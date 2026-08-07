@@ -5,6 +5,7 @@ import { FiBookmark, FiHash, FiLock, FiMessageCircle, FiUsers } from "react-icon
 import Navbar from "../components/Navbar"
 import API from "../api/axios"
 import { getRole } from "../utils/auth"
+import { SkeletonText, SkeletonBlock, SkeletonChat, SkeletonCard } from "../components/Skeleton"
 import "./Community.css"
 
 const ACCENTS = ["#a855f7", "#22d3ee", "#f59e0b", "#f472b6", "#4ade80", "#818cf8"]
@@ -65,6 +66,7 @@ function Community() {
   const [messages, setMessages] = useState([])
   const [hasMore, setHasMore] = useState(false)
   const [loadingOlder, setLoadingOlder] = useState(false)
+  const [loading, setLoading] = useState(true)
 
   const [showPinned, setShowPinned] = useState(false)
   const [pinnedMessages, setPinnedMessages] = useState([])
@@ -113,7 +115,10 @@ function Community() {
 
   // Load channel list once
   useEffect(() => {
-    API.get("/chat/channels").then(res => setChannels(res.data || [])).catch(() => {})
+    API.get("/chat/channels")
+      .then(res => setChannels(res.data || []))
+      .catch(() => {})
+      .finally(() => setLoading(false))
   }, [])
 
   // Socket lifecycle — connect once
@@ -196,6 +201,42 @@ function Community() {
 
   const activeChannelMeta = channels.find(c => c.key === activeChannel)
   const cannotPost = Boolean(activeChannelMeta?.admin_only_post && role !== "admin")
+
+  if (loading) {
+    return (
+      <>
+        <Navbar />
+        <div className="community-page">
+          <div className="community-header">
+            <SkeletonText width="150px" height={28} style={{ marginBottom: 8 }} />
+            <SkeletonText width="300px" height={16} style={{ marginBottom: 16 }} />
+            <SkeletonBlock height={48} style={{ borderRadius: 999 }} />
+          </div>
+          <div className="community-layout">
+            <div className="channel-sidebar">
+              <div className="channel-sidebar-top">
+                <SkeletonText width="80px" height={14} style={{ marginBottom: 4 }} />
+                <SkeletonText width="100px" height={20} />
+                <SkeletonBlock height={32} style={{ borderRadius: 999, width: 50 }} />
+              </div>
+              {Array.from({ length: 5 }).map((_, i) => (
+                <SkeletonBlock key={i} height={56} style={{ borderRadius: 12, margin: '8px 12px', background: 'var(--bg-surface)' }} />
+              ))}
+              <SkeletonBlock height={60} style={{ margin: '16px', borderRadius: 12 }} />
+            </div>
+            <div className="chat-panel">
+              <SkeletonCard height={200} />
+              <SkeletonChat messages={10} />
+            </div>
+            <aside className="community-rail">
+              <SkeletonCard height={200} />
+              <SkeletonCard height={180} style={{ marginTop: 16 }} />
+            </aside>
+          </div>
+        </div>
+      </>
+    )
+  }
 
   // ---------------- ACTIONS ----------------
 

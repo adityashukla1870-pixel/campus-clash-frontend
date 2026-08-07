@@ -3,15 +3,18 @@ import { useNavigate } from "react-router-dom"
 import API from "../api/axios"
 import { resolveImageUrl } from "../utils/media"
 import AdminTopBar from "../components/AdminTopBar"
+import { SkeletonTable, SkeletonText, SkeletonBlock } from "../components/Skeleton"
 
 function AdminPayments() {
   const navigate = useNavigate()
   const [payments, setPayments] = useState([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     API.get("/tournament/admin/pending-payments")
       .then(res => setPayments(res.data))
       .catch(console.error)
+      .finally(() => setLoading(false))
   }, [])
 
   const approve = async (id) => {
@@ -22,6 +25,21 @@ function AdminPayments() {
   const reject = async (id) => {
     await API.post(`/tournament/admin/reject/${id}`)
     setPayments(prev => prev.filter(p => p._id !== id))
+  }
+
+  if (loading) {
+    return (
+      <div style={pageStyle}>
+        <div style={innerStyle}>
+          <div style={{display:'flex',alignItems:'center',gap:16,marginBottom:32}}>
+            <AdminTopBar />
+          </div>
+          <SkeletonText width="200px" height={28} style={{ marginBottom: 6 }} />
+          <SkeletonText width="300px" height={14} style={{ marginBottom: 32 }} />
+          <SkeletonTable rows={5} cols={6} />
+        </div>
+      </div>
+    )
   }
 
   const pageStyle = {

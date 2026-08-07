@@ -2,19 +2,39 @@ import { useEffect, useState } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
 import Navbar from "../components/Navbar"
 import API from "../api/axios"
+import { SkeletonCard, SkeletonText } from "../components/Skeleton"
 import "./MyTournament.css"
 
 function MyTournaments() {
   const navigate = useNavigate()
   const location = useLocation()
   const [tournaments, setTournaments] = useState([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const token = localStorage.getItem("token")
     if (!token) { navigate("/"); return }
     API.get("/tournament/my-tournaments")
       .then(res => setTournaments(Array.isArray(res.data) ? res.data : []))
+      .finally(() => setLoading(false))
   }, [location.pathname])
+
+  if (loading) {
+    return (
+      <>
+        <Navbar />
+        <div className="mytournaments-page">
+          <div className="mytournaments-inner">
+            <SkeletonText width="200px" height={14} style={{ marginBottom: 8 }} />
+            <SkeletonText width="250px" height={32} style={{ marginBottom: 16 }} />
+            <SkeletonCard />
+            <SkeletonCard />
+            <SkeletonCard />
+          </div>
+        </div>
+      </>
+    )
+  }
 
   const statusChip = (status) => {
     if (status === "completed") return <span className="chip-completed">Completed 🏁</span>

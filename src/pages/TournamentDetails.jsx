@@ -5,6 +5,7 @@ import { FiUpload, FiUsers, FiTarget, FiCreditCard, FiBarChart2, FiCheckCircle }
 import Navbar from "../components/Navbar"
 import API from "../api/axios"
 import { resolveImageUrl } from "../utils/media"
+import { SkeletonBlock, SkeletonText, SkeletonCard, SkeletonForm, SkeletonRoom, SkeletonBadge } from "../components/Skeleton"
 import "./TournamentDetails.css"
 
 const UPI_ID = "7052759580@ptyes"
@@ -96,8 +97,29 @@ function TournamentDetails() {
     return (
       <>
         <Navbar />
-        <div style={{ paddingTop: 120, textAlign: "center", color: "var(--text-secondary)" }}>
-          Loading tournament...
+        <div className="details-page">
+          <div className="details-inner">
+            <SkeletonBlock height={200} style={{ borderRadius: 16, marginBottom: 24 }} />
+            <div className="details-header">
+              <SkeletonText width="150px" height={14} style={{ marginBottom: 8 }} />
+              <SkeletonText width="300px" height={32} style={{ marginBottom: 16 }} />
+              <div className="details-badges" style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                <SkeletonBadge width={80} />
+                <SkeletonBadge width={120} />
+                <SkeletonBadge width={160} />
+              </div>
+            </div>
+            <div className="details-layout" style={{ display: 'grid', gridTemplateColumns: '1fr 350px', gap: 24, marginTop: 24 }}>
+              <div className="details-main">
+                <SkeletonCard height={280} />
+                <SkeletonForm fields={4} style={{ marginTop: 20 }} />
+              </div>
+              <div className="details-sidebar">
+                <SkeletonRoom />
+                <SkeletonCard height={200} style={{ marginTop: 20 }} />
+              </div>
+            </div>
+          </div>
         </div>
       </>
     )

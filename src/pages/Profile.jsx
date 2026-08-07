@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { FiAward, FiTarget, FiZap, FiEdit2 } from "react-icons/fi"
 import Navbar from "../components/Navbar"
 import API from "../api/axios"
+import { SkeletonProfile, SkeletonCardGrid, SkeletonBlock } from "../components/Skeleton"
 import "./Profile.css"
 
 function Profile() {
@@ -48,7 +49,11 @@ function Profile() {
     return (
       <>
         <Navbar />
-        <div className="profile-page"><div className="profile-loading">Loading profile...</div></div>
+        <div className="profile-page">
+          <SkeletonProfile />
+          <SkeletonCardGrid count={3} style={{ marginTop: 24 }} />
+          <SkeletonBlock height={200} style={{ borderRadius: 16, marginTop: 24 }} />
+        </div>
       </>
     )
   }

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react"
 import { FiAward, FiDollarSign, FiTarget, FiTrendingUp, FiUsers } from "react-icons/fi"
 import Navbar from "../components/Navbar"
 import API from "../api/axios"
+import { SkeletonLeaderboard, SkeletonText, SkeletonBlock } from "../components/Skeleton"
 import "./Leaderboard.css"
 
 function initials(name) {
@@ -64,7 +65,12 @@ function Leaderboard() {
           </header>
 
           {loading ? (
-            <div className="lb-loading" role="status">Loading the standings…</div>
+            <>
+              <SkeletonText width="180px" height={14} style={{ marginBottom: 8 }} />
+              <SkeletonText width="300px" height={32} style={{ marginBottom: 24 }} />
+              <SkeletonBlock height={140} style={{ borderRadius: 16, marginBottom: 24 }} />
+              <SkeletonLeaderboard rows={8} />
+            </>
           ) : rows.length === 0 ? (
             <section className="lb-empty glass-panel chamfer" aria-labelledby="empty-title">
               <div className="lb-empty-icon"><FiTarget aria-hidden="true" /></div>
