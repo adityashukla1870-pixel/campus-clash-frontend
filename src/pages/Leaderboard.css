@@ -396,9 +396,18 @@
   .lb-page { padding: 24px 16px 50px; }
   .lb-summary { grid-template-columns: 1fr; }
   .lb-podium { gap: 4px; }
-  .lb-podium-block.rank-1 { width: 130px; height: 140px; }
-  .lb-podium-block.rank-2 { width: 120px; height: 100px; }
-  .lb-podium-block.rank-3 { width: 110px; height: 70px; }
+  .lb-podium-container { padding: 40px 16px 0; }
+  .lb-podium-block-wrapper.rank-1 .lb-podium-block { width: 120px; height: 140px; }
+  .lb-podium-block-wrapper.rank-2 .lb-podium-block { width: 110px; height: 100px; }
+  .lb-podium-block-wrapper.rank-3 .lb-podium-block { width: 100px; height: 70px; }
+  .lb-podium-block-wrapper.rank-1 .lb-podium-watermark { font-size: 72px; }
+  .lb-podium-block-wrapper.rank-2 .lb-podium-watermark,
+  .lb-podium-block-wrapper.rank-3 .lb-podium-watermark { font-size: 56px; }
+  .lb-podium-avatar-initials { width: 56px; height: 56px; font-size: 20px; }
+  .lb-podium-name { font-size: 11px; max-width: 100px; }
+  .lb-podium-points { font-size: 11px; padding: 3px 10px; }
+  .lb-standings-header { flex-direction: column; gap: 12px; align-items: stretch; }
+  .lb-standings-controls { justify-content: space-between; }
   .lb-table-head,
   .lb-table-row { grid-template-columns: 48px minmax(0, 1fr) 75px; gap: 10px; padding-right: 18px; padding-left: 18px; }
   .lb-table-head span:last-child,
@@ -407,12 +416,19 @@
 
 @media (max-width: 540px) {
   .lb-inner { gap: 24px; }
-  .lb-section-heading { align-items: start; flex-direction: column; gap: 4px; }
-  .lb-standings-header { flex-direction: column; gap: 12px; align-items: stretch; }
-  .lb-standings-controls { justify-content: space-between; }
-  .lb-podium { flex-direction: column; align-items: center; gap: 16px; }
-  .lb-podium-block-wrapper { flex-direction: row; gap: 16px; }
-  .lb-podium-player-info { margin-bottom: 0; }
+  .lb-podium { gap: 2px; }
+  .lb-podium-container { padding: 32px 12px 0; }
+  .lb-podium-block-wrapper.rank-1 .lb-podium-block { width: 100px; height: 120px; }
+  .lb-podium-block-wrapper.rank-2 .lb-podium-block { width: 90px; height: 85px; }
+  .lb-podium-block-wrapper.rank-3 .lb-podium-block { width: 85px; height: 60px; }
+  .lb-podium-block-wrapper.rank-1 .lb-podium-watermark { font-size: 60px; }
+  .lb-podium-block-wrapper.rank-2 .lb-podium-watermark,
+  .lb-podium-block-wrapper.rank-3 .lb-podium-watermark { font-size: 48px; }
+  .lb-podium-avatar-initials { width: 48px; height: 48px; font-size: 18px; }
+  .lb-podium-rank-badge { width: 18px; height: 18px; font-size: 9px; }
+  .lb-podium-name { font-size: 10px; max-width: 80px; }
+  .lb-podium-points { font-size: 10px; padding: 3px 8px; gap: 4px; }
+  .lb-podium-player-info { gap: 6px; margin-bottom: 8px; }
   .lb-table-head,
   .lb-table-row { grid-template-columns: 40px minmax(0, 1fr) 62px; padding-right: 14px; padding-left: 14px; }
   .lb-table-head { min-height: 38px; }
