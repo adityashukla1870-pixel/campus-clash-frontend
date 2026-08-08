@@ -257,3 +257,47 @@
   transition: color 0.2s;
 }
 .auth-divider span:hover { color: var(--purple-light); }
+
+.auth-divider-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.auth-divider-line {
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.auth-divider-text {
+  font-family: var(--font-label);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.google-signin-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.google-signin-loading {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.google-signin-btn {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.google-signin-btn iframe {
+  width: 100% !important;
+  max-width: 300px !important;
+}

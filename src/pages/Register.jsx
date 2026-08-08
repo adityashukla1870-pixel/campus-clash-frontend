@@ -5,6 +5,7 @@ import API from "../api/axios"
 import { isAuthenticated, getHomeRoute } from "../utils/auth"
 import logo from "../assets/logo.png"
 import { SkeletonBlock } from "../components/Skeleton"
+import GoogleSignIn from "../components/GoogleSignIn"
 import "./Login.css"
 import "./Register.css"
 
@@ -218,6 +219,14 @@ function Register() {
               {loading ? "Creating account..." : "Create Account"}
             </button>
           </form>
+
+          <div className="auth-divider-row">
+            <span className="auth-divider-line" />
+            <span className="auth-divider-text">OR</span>
+            <span className="auth-divider-line" />
+          </div>
+
+          <GoogleSignIn />
 
           <div className="auth-divider">
             Already have an account?

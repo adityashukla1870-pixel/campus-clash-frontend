@@ -4,6 +4,7 @@ import API from "../api/axios"
 import { isAuthenticated, getHomeRoute } from "../utils/auth"
 import logo from "../assets/logo.png"
 import { SkeletonText, SkeletonBlock } from "../components/Skeleton"
+import GoogleSignIn from "../components/GoogleSignIn"
 import "./Login.css"
 
 const REMEMBER_KEY = "cc_remember_email"
@@ -136,6 +137,14 @@ function Login() {
               {loading ? "Signing in..." : "Login"}
             </button>
           </form>
+
+          <div className="auth-divider-row">
+            <span className="auth-divider-line" />
+            <span className="auth-divider-text">OR</span>
+            <span className="auth-divider-line" />
+          </div>
+
+          <GoogleSignIn />
 
           <div className="auth-divider">
             New to the arena?
