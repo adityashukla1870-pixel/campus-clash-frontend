@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
+import { motion } from "framer-motion"
 import { FiAward, FiDollarSign, FiTarget, FiTrendingUp, FiUsers } from "react-icons/fi"
 import Navbar from "../components/Navbar"
 import API from "../api/axios"
@@ -61,13 +62,23 @@ function Leaderboard() {
       <Navbar />
       <main className="lb-page">
         <div className="lb-inner">
-          <header className="lb-hero">
+          <motion.header
+            className="lb-hero"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
             <span className="uppercase-label">Campus Clash rankings</span>
             <h1>Make your <span>mark.</span></h1>
             <p>Verified tournament champions, ranked by titles earned and prize winnings.</p>
-          </header>
+          </motion.header>
 
-          <div className="lb-summary">
+          <motion.div
+            className="lb-summary"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.15 }}
+          >
             <div className="lb-summary-stat">
               <span className="lb-summary-icon" aria-hidden="true"><FiUsers /></span>
               <div>
@@ -89,7 +100,7 @@ function Leaderboard() {
                 <span className="lb-summary-label">Prizes awarded</span>
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {loading ? (
             <>
@@ -109,24 +120,40 @@ function Leaderboard() {
             <>
               {hasPodium && (
                 <section className="lb-featured" aria-labelledby="podium-title">
-                  <div className="lb-section-heading">
+                  <motion.div
+                    className="lb-section-heading"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.5, delay: 0.3 }}
+                  >
                     <div>
                       <span className="uppercase-label">Top three</span>
                       <h2 id="podium-title">Champion podium</h2>
                     </div>
-                  </div>
-                  <div className="lb-podium-container">
+                  </motion.div>
+                  <motion.div
+                    className="lb-podium-container"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.6, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                  >
                     <div className="lb-podium">
-                      <PodiumBlock player={podium[1]} rank={2} />
-                      <PodiumBlock player={podium[0]} rank={1} />
-                      <PodiumBlock player={podium[2]} rank={3} />
+                      <PodiumBlock player={podium[1]} rank={2} delay={0.6} />
+                      <PodiumBlock player={podium[0]} rank={1} delay={0.3} />
+                      <PodiumBlock player={podium[2]} rank={3} delay={0.8} />
                     </div>
-                  </div>
+                  </motion.div>
                 </section>
               )}
 
               {filteredRows.length > 0 && (
-                <section className="lb-standings" aria-labelledby="standings-title">
+                <motion.section
+                  className="lb-standings"
+                  aria-labelledby="standings-title"
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 1.0 }}
+                >
                   <div className="lb-standings-header">
                     <div>
                       <span className="uppercase-label">Full rankings</span>
@@ -151,7 +178,14 @@ function Leaderboard() {
                       <span className="lb-col-right" role="columnheader">Prize won</span>
                     </div>
                     {filteredRows.map((row, index) => (
-                      <div key={row.user_id} className="lb-table-row" role="row">
+                      <motion.div
+                        key={row.user_id}
+                        className="lb-table-row"
+                        role="row"
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.4, delay: 1.1 + index * 0.05 }}
+                      >
                         <span className="lb-rank" role="cell">{rankLabel(index + (hasPodium ? 4 : 1))}</span>
                         <span className="lb-player" role="cell">
                           <span className="lb-avatar" aria-hidden="true">{initials(row.name)}</span>
@@ -162,10 +196,10 @@ function Leaderboard() {
                         </span>
                         <span className="lb-col-right lb-wins" role="cell"><FiAward aria-hidden="true" /> {row.wins}</span>
                         <span className="lb-col-right lb-prize" role="cell">{formatPrize(row.prize_won)}</span>
-                      </div>
+                      </motion.div>
                     ))}
                   </div>
-                </section>
+                </motion.section>
               )}
             </>
           )}
@@ -175,31 +209,83 @@ function Leaderboard() {
   )
 }
 
-function PodiumBlock({ player, rank }) {
+function PodiumBlock({ player, rank, delay = 0 }) {
   if (!player) return null
 
   const tierClass = rank === 1 ? "gold" : rank === 2 ? "silver" : "bronze"
   const points = player.wins * 100
+  const blockHeight = rank === 1 ? 180 : rank === 2 ? 120 : 90
 
   return (
     <div className={`lb-podium-block-wrapper rank-${rank}`}>
-      <div className="lb-podium-player-info">
-        <div className={`lb-podium-avatar tier-${tierClass}`}>
+      <motion.div
+        className="lb-podium-player-info"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: delay + 0.4, ease: [0.16, 1, 0.3, 1] }}
+      >
+        <motion.div
+          className={`lb-podium-avatar tier-${tierClass}`}
+          initial={{ scale: 0, rotate: -180 }}
+          animate={{ scale: 1, rotate: 0 }}
+          transition={{
+            type: "spring",
+            stiffness: 200,
+            damping: 15,
+            delay: delay + 0.2,
+          }}
+          whileHover={{ scale: 1.1 }}
+        >
           <span className="lb-podium-avatar-initials">{initials(player.name)}</span>
-          <span className="lb-podium-rank-badge">{rank}</span>
-        </div>
+          <motion.span
+            className="lb-podium-rank-badge"
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", stiffness: 300, damping: 15, delay: delay + 0.5 }}
+          >
+            {rank}
+          </motion.span>
+        </motion.div>
         <span className="lb-podium-name">{player.name}</span>
-        <div className="lb-podium-points">
+        <motion.div
+          className="lb-podium-points"
+          initial={{ opacity: 0, scale: 0.5 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ type: "spring", stiffness: 200, damping: 15, delay: delay + 0.6 }}
+        >
           <span className="lb-podium-points-arrow">↑</span>
           <span>{points}</span>
-        </div>
-      </div>
-      <div className={`lb-podium-block tier-${tierClass}`}>
+        </motion.div>
+      </motion.div>
+      <motion.div
+        className={`lb-podium-block tier-${tierClass}`}
+        initial={{ height: 0, opacity: 0 }}
+        animate={{ height: blockHeight, opacity: 1 }}
+        transition={{
+          duration: 0.7,
+          delay,
+          ease: [0.16, 1, 0.3, 1],
+        }}
+        whileHover={{
+          boxShadow: rank === 1
+            ? "0 -3px 0 0 rgba(212,175,55,0.5), inset 0 1px 0 rgba(212,175,55,0.3)"
+            : rank === 2
+            ? "0 -3px 0 0 rgba(203,213,225,0.5), inset 0 1px 0 rgba(203,213,225,0.3)"
+            : "0 -3px 0 0 rgba(205,127,50,0.5), inset 0 1px 0 rgba(205,127,50,0.3)",
+        }}
+      >
         <div className="lb-podium-block-accent" />
         <div className="lb-podium-block-shadow-left" />
         <div className="lb-podium-block-shadow-right" />
-        <span className="lb-podium-watermark">{rank}</span>
-      </div>
+        <motion.span
+          className="lb-podium-watermark"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1.2, delay: delay + 0.3 }}
+        >
+          {rank}
+        </motion.span>
+      </motion.div>
     </div>
   )
 }
