@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { FiAward, FiDollarSign, FiTarget, FiTrendingUp, FiUsers } from "react-icons/fi"
 import Navbar from "../components/Navbar"
 import API from "../api/axios"
@@ -24,6 +24,7 @@ function rankLabel(rank) {
 function Leaderboard() {
   const [rows, setRows] = useState([])
   const [loading, setLoading] = useState(true)
+  const [searchQuery, setSearchQuery] = useState("")
 
   useEffect(() => {
     API.get("/tournament/leaderboard")
@@ -42,27 +43,53 @@ function Leaderboard() {
   const podium = hasPodium ? rows.slice(0, 3) : []
   const rest = hasPodium ? rows.slice(3) : rows
 
+  const filteredRows = useMemo(() => {
+    if (!searchQuery.trim()) return rest
+    const q = searchQuery.toLowerCase()
+    return rest.filter(row =>
+      row.name?.toLowerCase().includes(q) ||
+      row.college?.toLowerCase().includes(q)
+    )
+  }, [rest, searchQuery])
+
+  const handleSearch = useCallback((e) => {
+    setSearchQuery(e.target.value)
+  }, [])
+
   return (
     <>
       <Navbar />
       <main className="lb-page">
         <div className="lb-inner">
-          <header className="lb-hero glass-panel chamfer">
-            <div className="lb-hero-copy">
-              <span className="uppercase-label">Campus Clash rankings</span>
-              <h1>Make your <span>mark.</span></h1>
-              <p>Verified tournament champions, ranked by titles earned and prize winnings.</p>
-            </div>
-            <div className="lb-hero-note">
-              <FiTrendingUp aria-hidden="true" />
-              <span>Updated after every completed final</span>
-            </div>
-            <div className="lb-summary" aria-label="Leaderboard summary">
-              <SummaryStat icon={<FiUsers />} label="Ranked players" value={summary.champions} />
-              <SummaryStat icon={<FiAward />} label="Titles claimed" value={summary.titles} />
-              <SummaryStat icon={<FiDollarSign />} label="Prizes awarded" value={formatPrize(summary.prizes)} />
-            </div>
+          <header className="lb-hero">
+            <span className="uppercase-label">Campus Clash rankings</span>
+            <h1>Make your <span>mark.</span></h1>
+            <p>Verified tournament champions, ranked by titles earned and prize winnings.</p>
           </header>
+
+          <div className="lb-summary">
+            <div className="lb-summary-stat">
+              <span className="lb-summary-icon" aria-hidden="true"><FiUsers /></span>
+              <div>
+                <span className="lb-summary-value">{summary.champions}</span>
+                <span className="lb-summary-label">Ranked players</span>
+              </div>
+            </div>
+            <div className="lb-summary-stat">
+              <span className="lb-summary-icon" aria-hidden="true"><FiAward /></span>
+              <div>
+                <span className="lb-summary-value">{summary.titles}</span>
+                <span className="lb-summary-label">Titles claimed</span>
+              </div>
+            </div>
+            <div className="lb-summary-stat">
+              <span className="lb-summary-icon" aria-hidden="true"><FiDollarSign /></span>
+              <div>
+                <span className="lb-summary-value">{formatPrize(summary.prizes)}</span>
+                <span className="lb-summary-label">Prizes awarded</span>
+              </div>
+            </div>
+          </div>
 
           {loading ? (
             <>
@@ -72,7 +99,7 @@ function Leaderboard() {
               <SkeletonLeaderboard rows={8} />
             </>
           ) : rows.length === 0 ? (
-            <section className="lb-empty glass-panel chamfer" aria-labelledby="empty-title">
+            <section className="lb-empty" aria-labelledby="empty-title">
               <div className="lb-empty-icon"><FiTarget aria-hidden="true" /></div>
               <span className="uppercase-label">The arena is ready</span>
               <h2 id="empty-title">No champions yet</h2>
@@ -87,24 +114,34 @@ function Leaderboard() {
                       <span className="uppercase-label">Top three</span>
                       <h2 id="podium-title">Champion podium</h2>
                     </div>
-                    <span className="lb-section-count">Elite standings</span>
                   </div>
-                  <div className="lb-podium">
-                    <PodiumCard entry={podium[1]} rank={2} tier="silver" />
-                    <PodiumCard entry={podium[0]} rank={1} tier="gold" />
-                    <PodiumCard entry={podium[2]} rank={3} tier="bronze" />
+                  <div className="lb-podium-container">
+                    <div className="lb-podium">
+                      <PodiumBlock player={podium[1]} rank={2} />
+                      <PodiumBlock player={podium[0]} rank={1} />
+                      <PodiumBlock player={podium[2]} rank={3} />
+                    </div>
                   </div>
                 </section>
               )}
 
-              {rest.length > 0 && (
-                <section className="lb-standings glass-panel chamfer" aria-labelledby="standings-title">
-                  <div className="lb-section-heading lb-standings-heading">
+              {filteredRows.length > 0 && (
+                <section className="lb-standings" aria-labelledby="standings-title">
+                  <div className="lb-standings-header">
                     <div>
                       <span className="uppercase-label">Full rankings</span>
                       <h2 id="standings-title">The chase continues</h2>
                     </div>
-                    <span className="lb-section-count">{rest.length} player{rest.length === 1 ? "" : "s"}</span>
+                    <div className="lb-standings-controls">
+                      <input
+                        className="lb-search"
+                        type="text"
+                        placeholder="Search player..."
+                        value={searchQuery}
+                        onChange={handleSearch}
+                      />
+                      <span className="lb-section-count">{filteredRows.length} player{filteredRows.length !== 1 ? "s" : ""}</span>
+                    </div>
                   </div>
                   <div className="lb-table" role="table" aria-label="Campus Clash player rankings">
                     <div className="lb-table-head" role="row">
@@ -113,14 +150,14 @@ function Leaderboard() {
                       <span className="lb-col-right" role="columnheader">Titles</span>
                       <span className="lb-col-right" role="columnheader">Prize won</span>
                     </div>
-                    {rest.map((row, index) => (
+                    {filteredRows.map((row, index) => (
                       <div key={row.user_id} className="lb-table-row" role="row">
                         <span className="lb-rank" role="cell">{rankLabel(index + (hasPodium ? 4 : 1))}</span>
                         <span className="lb-player" role="cell">
                           <span className="lb-avatar" aria-hidden="true">{initials(row.name)}</span>
                           <span className="lb-player-details">
                             <span className="lb-player-name">{row.name}</span>
-                            <span className="lb-player-college">{row.college || "Campus Clash player"}</span>
+                            <span className="lb-player-college">{row.college || "Campus Clash"}</span>
                           </span>
                         </span>
                         <span className="lb-col-right lb-wins" role="cell"><FiAward aria-hidden="true" /> {row.wins}</span>
@@ -138,36 +175,32 @@ function Leaderboard() {
   )
 }
 
-function SummaryStat({ icon, label, value }) {
-  return (
-    <div className="lb-summary-stat">
-      <span className="lb-summary-icon" aria-hidden="true">{icon}</span>
-      <span>
-        <span className="lb-summary-value">{value}</span>
-        <span className="lb-summary-label">{label}</span>
-      </span>
-    </div>
-  )
-}
+function PodiumBlock({ player, rank }) {
+  if (!player) return null
 
-function PodiumCard({ entry, rank, tier }) {
-  if (!entry) return null
+  const tierClass = rank === 1 ? "gold" : rank === 2 ? "silver" : "bronze"
+  const points = player.wins * 100
 
   return (
-    <article className={`lb-podium-slot rank-${rank}`}>
-      {rank === 1 && <span className="lb-crown" aria-label="Current number one"><FiAward /></span>}
-      <div className={`lb-podium-card tier-${tier}`}>
-        <span className={`lb-podium-avatar tier-${tier}`} aria-hidden="true">{initials(entry.name)}</span>
-        <span className="lb-podium-rank">Rank {rankLabel(rank)}</span>
-        <h3 className="lb-podium-name">{entry.name}</h3>
-        <p className="lb-podium-college">{entry.college || "Campus Clash player"}</p>
-        <div className="lb-podium-divider" />
-        <div className="lb-podium-stats">
-          <span><FiAward aria-hidden="true" /> {entry.wins} title{entry.wins === 1 ? "" : "s"}</span>
-          <strong>{formatPrize(entry.prize_won)}</strong>
+    <div className={`lb-podium-block-wrapper rank-${rank}`}>
+      <div className="lb-podium-player-info">
+        <div className={`lb-podium-avatar tier-${tierClass}`}>
+          <span className="lb-podium-avatar-initials">{initials(player.name)}</span>
+          <span className="lb-podium-rank-badge">{rank}</span>
+        </div>
+        <span className="lb-podium-name">{player.name}</span>
+        <div className="lb-podium-points">
+          <span className="lb-podium-points-arrow">↑</span>
+          <span>{points}</span>
         </div>
       </div>
-    </article>
+      <div className={`lb-podium-block tier-${tierClass}`}>
+        <div className="lb-podium-block-accent" />
+        <div className="lb-podium-block-shadow-left" />
+        <div className="lb-podium-block-shadow-right" />
+        <span className="lb-podium-watermark">{rank}</span>
+      </div>
+    </div>
   )
 }
 
