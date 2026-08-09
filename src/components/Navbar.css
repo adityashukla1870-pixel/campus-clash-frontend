@@ -142,14 +142,14 @@
 /* ---------- Mobile: collapse to a horizontal bottom bar ---------- */
 @media (max-width: 767px) {
   .sidebar {
-    top: auto; bottom: 0; left: 0; right: 0;
-    width: 100%;
-    height: 64px;
+    top: auto; bottom: 20px; left: 8px; right: 8px;
+    width: auto;
+    height: 60px;
     flex-direction: row;
     align-items: center;
     padding: 0 6px;
-    border-right: none;
-    border-top: 1px solid var(--border);
+    border-radius: 16px;
+    border: 1px solid var(--border);
     overflow-x: auto;
     overflow-y: hidden;
   }
