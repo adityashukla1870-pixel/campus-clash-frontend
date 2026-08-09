@@ -16,6 +16,8 @@ function AdminCreateTournament() {
   const [format, setFormat] = useState("quick")
   const [pointsTable, setPointsTable] = useState({ "1": 10, "2": 6, "3": 5, "4": 4, "5": 3, "6": 2, "7": 2, "8": 1, "9": 1 })
   const [killPoint, setKillPoint] = useState("1")
+  const [structure, setStructure] = useState("group_playoff")
+  const [seedStrategy, setSeedStrategy] = useState("random")
   const [bannerImage, setBannerImage] = useState(null)
   const [bannerPreview, setBannerPreview] = useState(null)
   const [loading, setLoading] = useState(false)
@@ -39,6 +41,8 @@ function AdminCreateTournament() {
       formData.append("mode", mode)
       formData.append("team_size", mode === "squad" ? Number(teamSize) : 1)
       formData.append("format", format)
+      formData.append("structure", structure)
+      formData.append("seed_strategy", seedStrategy)
       if (format === "full") {
         formData.append("points_table", JSON.stringify(pointsTable))
         formData.append("kill_point_value", Number(killPoint))
@@ -136,6 +140,19 @@ function AdminCreateTournament() {
 
             {format === 'full' && (
               <div className="field-group">
+                <label>Stage Structure</label>
+                <select value={structure} onChange={e => setStructure(e.target.value)}>
+                  <option value="group_playoff">Groups → Playoffs → Finals</option>
+                  <option value="single_elimination">Single elimination</option>
+                </select>
+                <p style={{fontSize:12, color:'var(--text-muted)', marginTop:8}}>
+                  Choose the overall competition flow. Grouped stages are better for campus qualifiers, while single-elimination is great for playoffs.
+                </p>
+                <label style={{ marginTop: 12 }}>Seed Strategy</label>
+                <select value={seedStrategy} onChange={e => setSeedStrategy(e.target.value)}>
+                  <option value="random">Random draw</option>
+                  <option value="snake">Snake seeding</option>
+                </select>
                 <label>Placement Points (per match)</label>
                 <div style={{display:'grid', gridTemplateColumns:'repeat(3, 1fr)', gap:8, marginBottom:10}}>
                   {Object.keys(pointsTable).map(place => (

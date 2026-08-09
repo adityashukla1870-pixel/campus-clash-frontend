@@ -362,6 +362,7 @@ function AdminStages() {
   const [podCount, setPodCount] = useState("1")
   const [advanceCount, setAdvanceCount] = useState("")
   const [isFinal, setIsFinal] = useState(false)
+  const [seedStrategy, setSeedStrategy] = useState("random")
   const [busy, setBusy] = useState(false)
   const [initialLoading, setInitialLoading] = useState(true)
 
@@ -393,7 +394,8 @@ function AdminStages() {
         name: newStageName,
         pod_count: Number(podCount) || 1,
         advance_count: isFinal ? null : Number(advanceCount) || null,
-        is_final: isFinal
+        is_final: isFinal,
+        seed_strategy: seedStrategy
       })
       setNewStageName("")
       setAdvanceCount("")
