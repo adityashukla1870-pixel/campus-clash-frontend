@@ -29,7 +29,21 @@ function Navbar() {
   const isActive = (path) => location.pathname === path ? "nav-link active" : "nav-link"
 
   return (
-    <div className="sidebar">
+    <>
+      {token && (
+        <div className="mobile-topbar">
+          <div className="mobile-topbar-left" onClick={() => navigate("/profile")}>
+            <FiUser size={18} />
+          </div>
+          <div className="mobile-topbar-right">
+            <NotificationBell />
+            <div className="mobile-exit-btn" onClick={handleLogout}>
+              <FiLogOut size={16} />
+            </div>
+          </div>
+        </div>
+      )}
+      <div className="sidebar">
       <div
         className="logo"
         onClick={() => { token ? navigate("/dashboard") : navigate("/") }}
@@ -82,13 +96,14 @@ function Navbar() {
 
       {token && (
         <div className="sidebar-footer">
-          <NotificationBell />
+          <NotificationBell className="sidebar-notif" />
           <span className="nav-link nav-link-danger" onClick={handleLogout}>
             <FiLogOut size={18} /><span className="nav-label">Logout</span>
           </span>
         </div>
       )}
     </div>
+    </>
   )
 }
 
