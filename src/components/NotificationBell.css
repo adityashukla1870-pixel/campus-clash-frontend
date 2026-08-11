@@ -117,8 +117,28 @@
 
 @media (max-width: 640px) {
   .notif-dropdown {
-    left: 68px;
-    bottom: 70px;
-    width: 300px;
+    left: 16px;
+    right: 16px;
+    bottom: auto;
+    top: 56px;
+    width: auto;
+  }
+}
+
+@media (max-width: 767px) {
+  .notif-bell {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(8, 7, 10, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--border);
+  }
+
+  .notif-bell:hover {
+    border-color: var(--border-glow);
+    color: var(--purple-light);
+    background: rgba(8, 7, 10, 0.85);
   }
 }
