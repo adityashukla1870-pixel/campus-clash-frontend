@@ -242,6 +242,91 @@
 }
 
 /* Quick links */
+.dash-info-panel,
+.dash-how-section {
+  padding: 24px;
+}
+
+.dash-info-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 18px;
+}
+
+.dash-info-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 18px;
+}
+
+.dash-info-icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.06);
+  color: var(--purple-light);
+  font-size: 18px;
+}
+
+.dash-info-card h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.dash-info-card p {
+  margin: 8px 0 0;
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.dash-how-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.dash-how-step {
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dash-how-step-number {
+  color: var(--purple-light);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.dash-how-step h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.dash-how-step p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.dash-info-copy {
+  color: var(--text-secondary);
+  font-size: 13px;
+  margin-top: 6px;
+  max-width: 560px;
+}
+
 .dash-quicklinks {
   display: flex;
   gap: 14px;

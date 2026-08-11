@@ -1,10 +1,52 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
+import { FaShieldAlt, FaWallet, FaUsers, FaGamepad, FaTrophy } from "react-icons/fa"
 import Navbar from "../components/Navbar"
 import SpotlightGlow from "../components/SpotlightGlow"
 import API from "../api/axios"
 import { SkeletonCardGrid, SkeletonProfile, SkeletonLeaderboard, SkeletonCard, SkeletonButton } from "../components/Skeleton"
 import "./Dashboard.css"
+
+const DASH_OVERVIEW = [
+  {
+    icon: <FaShieldAlt />,
+    title: "Verified Tournaments",
+    desc: "Every match is supervised, with fair play checks and fast dispute handling.",
+  },
+  {
+    icon: <FaWallet />,
+    title: "Instant Rewards",
+    desc: "Prize money is credited quickly when you win, so your earnings stay in motion.",
+  },
+  {
+    icon: <FaUsers />,
+    title: "Campus Community",
+    desc: "Join players from your college and compete against rival teams across India.",
+  },
+]
+
+const DASH_HOW_IT_WORKS = [
+  {
+    number: "01",
+    title: "Find a Match",
+    desc: "Browse live and upcoming tournaments tailored to your game and skill level.",
+  },
+  {
+    number: "02",
+    title: "Reserve Your Spot",
+    desc: "Register for the bracket and lock in your room ID before the start time.",
+  },
+  {
+    number: "03",
+    title: "Compete Live",
+    desc: "Play the match, track your score, and compare results through the dashboard.",
+  },
+  {
+    number: "04",
+    title: "Claim Rewards",
+    desc: "Win tournaments to level up your rank and collect cash prizes instantly.",
+  },
+]
 
 function Dashboard() {
   const navigate = useNavigate()
@@ -179,6 +221,44 @@ function Dashboard() {
                   ))
                 )}
               </div>
+            </div>
+          </div>
+
+          <div className="dash-info-panel glass-panel">
+            <div className="dash-section-head">
+              <div>
+                <h2>Platform Snapshot</h2>
+                <p className="dash-info-copy">A quick look at what Campus Clash does for your competitive journey.</p>
+              </div>
+            </div>
+            <div className="dash-info-grid">
+              {DASH_OVERVIEW.map((item, index) => (
+                <div key={index} className="dash-info-card chamfer-sm hover-lift">
+                  <div className="dash-info-icon">{item.icon}</div>
+                  <div>
+                    <h3>{item.title}</h3>
+                    <p>{item.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="dash-how-section glass-panel">
+            <div className="dash-section-head">
+              <div>
+                <h2>How it works</h2>
+                <p className="dash-info-copy">Use your dashboard to track every step from signup to victory.</p>
+              </div>
+            </div>
+            <div className="dash-how-grid">
+              {DASH_HOW_IT_WORKS.map((step) => (
+                <div key={step.number} className="dash-how-step chamfer-sm hover-lift">
+                  <span className="dash-how-step-number">{step.number}</span>
+                  <h3>{step.title}</h3>
+                  <p>{step.desc}</p>
+                </div>
+              ))}
             </div>
           </div>
 
