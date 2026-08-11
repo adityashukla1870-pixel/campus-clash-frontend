@@ -29,7 +29,21 @@ function Navbar() {
   const isActive = (path) => location.pathname === path ? "nav-link active" : "nav-link"
 
   return (
-    <div className="sidebar">
+    <>
+      {token && (
+        <div className="mobile-topbar">
+          <div className="mobile-topbar-left" onClick={() => navigate("/profile")}>
+            <FiUser size={18} />
+          </div>
+          <div className="mobile-topbar-right">
+            <NotificationBell />
+            <div className="mobile-exit-btn" onClick={handleLogout}>
+              <FiLogOut size={16} />
+            </div>
+          </div>
+        </div>
+      )}
+      <div className="sidebar">
       <div
         className="logo"
         onClick={() => { token ? navigate("/dashboard") : navigate("/") }}
@@ -45,6 +59,9 @@ function Navbar() {
             <span className={isActive("/dashboard")} onClick={() => navigate("/dashboard")}>
               <FiHome size={18} /><span className="nav-label">Dashboard</span>
             </span>
+            <span className={isActive("/community")} onClick={() => navigate("/community")}>
+              <FiMessageCircle size={18} /><span className="nav-label">Community</span>
+            </span>
             <span className={isActive("/tournaments")} onClick={() => navigate("/tournaments")}>
               <FiGrid size={18} /><span className="nav-label">Tournaments</span>
             </span>
@@ -54,12 +71,9 @@ function Navbar() {
             <span className={isActive("/leaderboard")} onClick={() => navigate("/leaderboard")}>
               <FiTrendingUp size={18} /><span className="nav-label">Leaderboard</span>
             </span>
-            <span className={isActive("/community")} onClick={() => navigate("/community")}>
-              <FiMessageCircle size={18} /><span className="nav-label">Community</span>
-            </span>
 
             <span className="nav-section-label">Account</span>
-            <span className={isActive("/profile")} onClick={() => navigate("/profile")}>
+            <span className={`${isActive("/profile")} nav-link-profile`} onClick={() => navigate("/profile")}>
               <FiUser size={18} /><span className="nav-label">Profile</span>
             </span>
             {role === "admin" && (
@@ -82,13 +96,14 @@ function Navbar() {
 
       {token && (
         <div className="sidebar-footer">
-          <NotificationBell />
+          <NotificationBell className="sidebar-notif" />
           <span className="nav-link nav-link-danger" onClick={handleLogout}>
             <FiLogOut size={18} /><span className="nav-label">Logout</span>
           </span>
         </div>
       )}
     </div>
+    </>
   )
 }
 
