@@ -127,8 +127,8 @@
 
 @media (max-width: 767px) {
   .notif-bell {
-    width: 38px;
-    height: 38px;
+    width: 48px;
+    height: 48px;
     border-radius: 50%;
     background: rgba(8, 7, 10, 0.85);
     backdrop-filter: blur(12px);

@@ -59,6 +59,9 @@ function Navbar() {
             <span className={isActive("/dashboard")} onClick={() => navigate("/dashboard")}>
               <FiHome size={18} /><span className="nav-label">Dashboard</span>
             </span>
+            <span className={isActive("/community")} onClick={() => navigate("/community")}>
+              <FiMessageCircle size={18} /><span className="nav-label">Community</span>
+            </span>
             <span className={isActive("/tournaments")} onClick={() => navigate("/tournaments")}>
               <FiGrid size={18} /><span className="nav-label">Tournaments</span>
             </span>
@@ -68,12 +71,9 @@ function Navbar() {
             <span className={isActive("/leaderboard")} onClick={() => navigate("/leaderboard")}>
               <FiTrendingUp size={18} /><span className="nav-label">Leaderboard</span>
             </span>
-            <span className={isActive("/community")} onClick={() => navigate("/community")}>
-              <FiMessageCircle size={18} /><span className="nav-label">Community</span>
-            </span>
 
             <span className="nav-section-label">Account</span>
-            <span className={isActive("/profile")} onClick={() => navigate("/profile")}>
+            <span className={`${isActive("/profile")} nav-link-profile`} onClick={() => navigate("/profile")}>
               <FiUser size={18} /><span className="nav-label">Profile</span>
             </span>
             {role === "admin" && (
