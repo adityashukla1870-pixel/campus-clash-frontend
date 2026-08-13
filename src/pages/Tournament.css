@@ -343,6 +343,30 @@
 }
 .card-stat .stat-value.prize { color: var(--gold); }
 
+.card-prize-breakdown {
+  display: flex;
+  gap: 8px;
+  margin-top: -10px;
+  margin-bottom: 20px;
+}
+.prize-chip {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 8px;
+}
+.prize-chip-medal { font-size: 13px; }
+.prize-chip-amount {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--gold);
+}
+
 .player-bar {
   margin-bottom: 20px;
 }

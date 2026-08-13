@@ -188,6 +188,24 @@ function TournamentDetails() {
                 </div>
               </div>
 
+              {/* Prize breakdown — how the pool splits across placements */}
+              {tournament.prize_breakdown?.length > 0 && (
+                <div className="section-card">
+                  <h2>🏆 Prize Breakdown</h2>
+                  <p className="section-subtext">How the ₹{tournament.prize_pool} pool is split across placements.</p>
+                  <div className="scoring-grid">
+                    {tournament.prize_breakdown.map((row) => (
+                      <div className="scoring-chip" key={row.rank}>
+                        <div className="scoring-chip-rank">
+                          {row.rank === "1" ? "🥇 #1" : row.rank === "2" ? "🥈 #2" : row.rank === "3" ? "🥉 #3" : `#${row.rank}`}
+                        </div>
+                        <div className="scoring-chip-pts">₹{row.amount.toLocaleString()}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Scoring system — visible to users so they know the rules before joining */}
               {tournament.points_table && (
                 <div className="section-card">
