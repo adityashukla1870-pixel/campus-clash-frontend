@@ -43,6 +43,11 @@ function Navbar() {
           </div>
         </div>
       )}
+      {token && (
+        <div className="desktop-topbar-right" onClick={() => navigate("/profile")} title="Profile">
+          <FiUser size={18} />
+        </div>
+      )}
       <div className="sidebar">
       <div
         className="logo"
