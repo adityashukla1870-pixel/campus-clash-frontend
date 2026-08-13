@@ -72,14 +72,13 @@ function Navbar() {
               <FiTrendingUp size={18} /><span className="nav-label">Leaderboard</span>
             </span>
 
-            <span className="nav-section-label">Account</span>
-            <span className={`${isActive("/profile")} nav-link-profile`} onClick={() => navigate("/profile")}>
-              <FiUser size={18} /><span className="nav-label">Profile</span>
-            </span>
             {role === "admin" && (
-              <span className={`${isActive("/admin")} nav-link-admin`} onClick={() => navigate("/admin")}>
-                <FiShield size={18} /><span className="nav-label">Admin Panel</span>
-              </span>
+              <>
+                <span className="nav-section-label">Account</span>
+                <span className={`${isActive("/admin")} nav-link-admin`} onClick={() => navigate("/admin")}>
+                  <FiShield size={18} /><span className="nav-label">Admin Panel</span>
+                </span>
+              </>
             )}
           </>
         ) : (
