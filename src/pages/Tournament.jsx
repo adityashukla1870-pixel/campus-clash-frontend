@@ -253,11 +253,11 @@ function Tournament() {
                       </button>
                     )}
                     <button
-                      className={alreadyJoined ? 'btn-joined' : isFull ? 'btn-full' : 'btn-join'}
-                      onClick={() => !alreadyJoined && !isFull && navigate(`/tournament/${t.id}`)}
-                      disabled={alreadyJoined || isFull}
+                      className={alreadyJoined ? 'btn-joined' : isFull || t.registration_open === false ? 'btn-full' : 'btn-join'}
+                      onClick={() => !alreadyJoined && !isFull && t.registration_open !== false && navigate(`/tournament/${t.id}`)}
+                      disabled={alreadyJoined || isFull || t.registration_open === false}
                     >
-                      {alreadyJoined ? '✅ Registered' : isFull ? '🔒 Full' : '⚔️ Join Now'}
+                      {alreadyJoined ? '✅ Registered' : isFull ? '🔒 Full' : t.registration_open === false ? '⏱️ Registration Closed' : '⚔️ Join Now'}
                     </button>
                   </div>
                 </div>

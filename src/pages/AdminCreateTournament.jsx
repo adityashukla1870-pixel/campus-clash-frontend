@@ -7,7 +7,8 @@ function AdminCreateTournament() {
   const navigate = useNavigate()
   const [name, setName] = useState("")
   const [entryFee, setEntryFee] = useState("")
-  const [date, setDate] = useState("")
+  const [registrationEndTime, setRegistrationEndTime] = useState("")
+  const [scheduledTime, setScheduledTime] = useState("")
   const [maxPlayers, setMaxPlayers] = useState("")
   const [game, setGame] = useState("")
   const [prizePool, setPrizePool] = useState("")
@@ -55,6 +56,10 @@ function AdminCreateTournament() {
       alert(`Prize distribution must add up to 100% (currently ${prizeTotalPercent}%)`)
       return
     }
+    if (!registrationEndTime) {
+      alert("Set when registration/participation should end")
+      return
+    }
     setLoading(true)
     try {
       const formData = new FormData()
@@ -64,6 +69,8 @@ function AdminCreateTournament() {
       formData.append("prize_pool", Number(prizePool))
       formData.append("prize_distribution", JSON.stringify(prizeDistribution))
       formData.append("max_players", Number(maxPlayers))
+      formData.append("registration_end_time", registrationEndTime)
+      if (scheduledTime) formData.append("scheduled_time", scheduledTime)
       formData.append("mode", mode)
       formData.append("team_size", mode === "squad" ? Number(teamSize) : 1)
       formData.append("format", format)
@@ -279,9 +286,21 @@ function AdminCreateTournament() {
               <label>{mode === 'squad' ? 'Max Teams' : 'Max Players'}</label>
               <input type="number" placeholder="e.g. 100" onChange={e => setMaxPlayers(e.target.value)} />
             </div>
-            <div className="field-group">
-              <label>Tournament Date</label>
-              <input type="datetime-local" onChange={e => setDate(e.target.value)} />
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16}}>
+              <div className="field-group">
+                <label>Registration Ends</label>
+                <input type="datetime-local" onChange={e => setRegistrationEndTime(e.target.value)} />
+                <p style={{fontSize:11, color:'var(--text-muted)', marginTop:6}}>
+                  Participation locks automatically after this — no more joins.
+                </p>
+              </div>
+              <div className="field-group">
+                <label>Tournament Date & Time</label>
+                <input type="datetime-local" onChange={e => setScheduledTime(e.target.value)} />
+                <p style={{fontSize:11, color:'var(--text-muted)', marginTop:6}}>
+                  When the matches are actually played.
+                </p>
+              </div>
             </div>
 
             <button className="btn-primary" style={{width:'100%',justifyContent:'center',marginTop:4}} onClick={handleSubmit} disabled={loading}>
