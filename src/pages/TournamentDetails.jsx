@@ -26,6 +26,7 @@ function TournamentDetails() {
   const [members, setMembers] = useState([])
   const [teamConfirmed, setTeamConfirmed] = useState(false)
   const [teamLoading, setTeamLoading] = useState(false)
+  const [myGroup, setMyGroup] = useState(null)
 
   useEffect(() => {
     API.get(`/tournament/${id}`).then(res => {
@@ -35,9 +36,12 @@ function TournamentDetails() {
         setMembers(Array.from({ length: Math.max(t.team_size - 1, 0) }, () => ({ name: "", game_uid: "" })))
       } else {
         // solo tournaments register immediately to reserve a payment code
-        API.post(`/tournament/register/${id}`, {}).then(r => setPaymentCode(r.data.payment_code))
+        API.post(`/tournament/register/${id}`, {}).then(r => setPaymentCode(r.data.payment_code)).catch(() => {})
       }
     }).catch(console.error)
+
+    // Which group/pod did I land in, if grouping already happened?
+    API.get(`/stages/tournament/${id}/my-group`).then(res => setMyGroup(res.data.group)).catch(() => setMyGroup(null))
   }, [id])
 
   const handleCopy = () => {
@@ -149,6 +153,28 @@ function TournamentDetails() {
             />
           )}
 
+          {myGroup && (
+            <div style={{
+              background: 'linear-gradient(135deg, #7c3aed22, #a855f722)', border: '1px solid var(--purple)',
+              borderRadius: 14, padding: '14px 18px', marginBottom: 20, display: 'flex',
+              alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8,
+            }}>
+              <div>
+                <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.6, color: 'var(--text-muted)', marginBottom: 2 }}>
+                  Your Group — {myGroup.stage_name}
+                </div>
+                <div style={{ fontFamily: 'var(--font-display)', fontSize: 20, fontWeight: 700, color: 'var(--purple-light)' }}>
+                  🏷️ {myGroup.pod_name}
+                </div>
+                {myGroup.teammates?.length > 0 && (
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>
+                    With: {myGroup.teammates.join(", ")}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
           <div className="details-header">
             <div className="details-eyebrow">Tournament Details</div>
             <h1 className="details-title">{tournament.name}</h1>
@@ -187,6 +213,24 @@ function TournamentDetails() {
                   </div>
                 </div>
               </div>
+
+              {/* Prize breakdown — how the pool splits across placements */}
+              {tournament.prize_breakdown?.length > 0 && (
+                <div className="section-card">
+                  <h2>🏆 Prize Breakdown</h2>
+                  <p className="section-subtext">How the ₹{tournament.prize_pool} pool is split across placements.</p>
+                  <div className="scoring-grid">
+                    {tournament.prize_breakdown.map((row) => (
+                      <div className="scoring-chip" key={row.rank}>
+                        <div className="scoring-chip-rank">
+                          {row.rank === "1" ? "🥇 #1" : row.rank === "2" ? "🥈 #2" : row.rank === "3" ? "🥉 #3" : `#${row.rank}`}
+                        </div>
+                        <div className="scoring-chip-pts">₹{row.amount.toLocaleString()}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Scoring system — visible to users so they know the rules before joining */}
               {tournament.points_table && (

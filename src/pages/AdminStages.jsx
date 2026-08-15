@@ -353,6 +353,189 @@ function StageSection({ stageSummary, isSquad, onChanged }) {
   )
 }
 
+function FinalParticipantsPanel({ tournamentId, tournament, onGrouped }) {
+  const [data, setData] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [manualMode, setManualMode] = useState(false)
+  const [groupCount, setGroupCount] = useState(2)
+  const [assignments, setAssignments] = useState({}) // registration_id -> group index
+  const [stageName, setStageName] = useState("Group Stage")
+  const [advanceCount, setAdvanceCount] = useState("")
+  const [podCount, setPodCount] = useState("2")
+  const [seedStrategy, setSeedStrategy] = useState("random")
+  const [busy, setBusy] = useState(false)
+
+  const load = () => {
+    setLoading(true)
+    API.get(`/tournament/admin/${tournamentId}/final-participants`)
+      .then(res => setData(res.data))
+      .catch(console.error)
+      .finally(() => setLoading(false))
+  }
+
+  useEffect(load, [tournamentId])
+
+  const downloadCsv = async () => {
+    try {
+      const res = await API.get(`/tournament/admin/${tournamentId}/final-participants.csv`, { responseType: "blob" })
+      const url = window.URL.createObjectURL(new Blob([res.data]))
+      const a = document.createElement("a")
+      a.href = url
+      a.download = `${(tournament?.name || "tournament").replace(/\s+/g, "_")}_final_list.csv`
+      document.body.appendChild(a)
+      a.click()
+      a.remove()
+      window.URL.revokeObjectURL(url)
+    } catch (err) {
+      alert("Failed to download final list")
+    }
+  }
+
+  const assignGroup = (registrationId, groupIndex) => {
+    setAssignments(prev => ({ ...prev, [registrationId]: groupIndex }))
+  }
+
+  const launchAuto = async () => {
+    if (!stageName.trim()) { alert("Enter a stage name"); return }
+    setBusy(true)
+    try {
+      await API.post(`/stages/${tournamentId}/create`, {
+        name: stageName,
+        pod_count: Number(podCount) || 1,
+        advance_count: Number(advanceCount) || null,
+        is_final: false,
+        seed_strategy: seedStrategy
+      })
+      onGrouped()
+    } catch (err) {
+      alert(err.response?.data?.error || "Failed to launch groups")
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const launchManual = async () => {
+    if (!stageName.trim()) { alert("Enter a stage name"); return }
+    const participants = data?.participants || []
+    const unassigned = participants.filter(p => assignments[p.registration_id] === undefined)
+    if (unassigned.length > 0) {
+      alert(`Assign a group to everyone first — missing: ${unassigned.map(p => p.team_name || p.player_name).join(", ")}`)
+      return
+    }
+    const groups = Array.from({ length: groupCount }, (_, i) =>
+      participants.filter(p => assignments[p.registration_id] === i).map(p => p.registration_id)
+    )
+    setBusy(true)
+    try {
+      await API.post(`/stages/${tournamentId}/create-manual`, {
+        name: stageName,
+        advance_count: Number(advanceCount) || null,
+        is_final: false,
+        groups
+      })
+      onGrouped()
+    } catch (err) {
+      alert(err.response?.data?.error || "Failed to launch groups")
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  if (loading) return <SkeletonBlock height={180} style={{ borderRadius: 16, marginBottom: 24 }} />
+  if (!data) return null
+
+  return (
+    <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 16, padding: 22, marginBottom: 24 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10, marginBottom: 10 }}>
+        <div>
+          <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 18 }}>📋 Final Participant List</h3>
+          <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>
+            {data.count} approved {data.count === 1 ? 'entry' : 'entries'} ·{' '}
+            {data.registration_open
+              ? <span style={{ color: 'var(--gold)' }}>Registration still open</span>
+              : <span style={{ color: 'var(--cyan)' }}>Registration closed — list locked in</span>}
+          </p>
+        </div>
+        <button className="btn-secondary" onClick={downloadCsv} disabled={data.count === 0}>⬇️ Download CSV</button>
+      </div>
+
+      {data.count === 0 ? (
+        <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>No approved participants yet.</p>
+      ) : (
+        <>
+          <div style={{ display: 'flex', gap: 14, alignItems: 'flex-end', flexWrap: 'wrap', margin: '16px 0' }}>
+            <div className="field-group" style={{ marginBottom: 0 }}>
+              <label>Stage Name</label>
+              <input value={stageName} onChange={e => setStageName(e.target.value)} style={{ width: 200 }} />
+            </div>
+            <div className="field-group" style={{ marginBottom: 0 }}>
+              <label>Teams advancing per group</label>
+              <input type="number" placeholder="optional" value={advanceCount} onChange={e => setAdvanceCount(e.target.value)} style={{ width: 140 }} />
+            </div>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14, color: 'var(--text-secondary)', paddingBottom: 10 }}>
+              <input type="checkbox" checked={manualMode} onChange={e => setManualMode(e.target.checked)} />
+              Manually pick groups
+            </label>
+          </div>
+
+          {!manualMode ? (
+            <div style={{ display: 'flex', gap: 14, alignItems: 'flex-end', flexWrap: 'wrap' }}>
+              <div className="field-group" style={{ marginBottom: 0 }}>
+                <label>Number of groups</label>
+                <input type="number" min="1" value={podCount} onChange={e => setPodCount(e.target.value)} style={{ width: 90 }} />
+              </div>
+              <div className="field-group" style={{ marginBottom: 0 }}>
+                <label>Distribution</label>
+                <select value={seedStrategy} onChange={e => setSeedStrategy(e.target.value)} style={{ width: 160 }}>
+                  <option value="random">Random draw</option>
+                  <option value="snake">Snake seeding</option>
+                </select>
+              </div>
+              <button className="btn-primary" disabled={busy} onClick={launchAuto}>🚀 Launch Groups</button>
+            </div>
+          ) : (
+            <div>
+              <div className="field-group" style={{ marginBottom: 14, maxWidth: 160 }}>
+                <label>Number of groups</label>
+                <input type="number" min="1" value={groupCount} onChange={e => setGroupCount(Number(e.target.value) || 1)} />
+              </div>
+              <div style={{ overflowX: 'auto', marginBottom: 14 }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+                  <thead>
+                    <tr style={{ color: 'var(--text-muted)', textAlign: 'left', borderBottom: '1px solid var(--border)' }}>
+                      <th style={{ padding: '6px 8px' }}>Team / Player</th>
+                      <th style={{ padding: '6px 8px' }}>Group</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {data.participants.map(p => (
+                      <tr key={p.registration_id} style={{ borderBottom: '1px solid var(--border)' }}>
+                        <td style={{ padding: '6px 8px' }}>{p.team_name || p.player_name}</td>
+                        <td style={{ padding: '6px 8px' }}>
+                          <select
+                            value={assignments[p.registration_id] ?? ""}
+                            onChange={e => assignGroup(p.registration_id, Number(e.target.value))}
+                          >
+                            <option value="" disabled>Pick group</option>
+                            {Array.from({ length: groupCount }, (_, i) => (
+                              <option key={i} value={i}>Group {String.fromCharCode(65 + i)}</option>
+                            ))}
+                          </select>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <button className="btn-primary" disabled={busy} onClick={launchManual}>🚀 Launch Groups</button>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  )
+}
+
 function AdminStages() {
   const [tournaments, setTournaments] = useState([])
   const [selected, setSelected] = useState("")
@@ -446,14 +629,22 @@ function AdminStages() {
 
             {selected && (
               <>
+                {stages.length === 0 && tournament?.status !== "completed" && (
+                  <FinalParticipantsPanel
+                    tournamentId={selected}
+                    tournament={tournament}
+                    onGrouped={() => { loadStages(selected); API.get(`/tournament/${selected}`).then(res => setTournament(res.data)) }}
+                  />
+                )}
+
                 {[...stages].reverse().map(s => (
                   <StageSection key={s.id} stageSummary={s} isSquad={isSquad} onChanged={() => loadStages(selected)} />
                 ))}
 
-                {!hasActiveStage && tournament?.status !== "completed" && (
+                {!hasActiveStage && stages.length > 0 && tournament?.status !== "completed" && (
                   <div style={{ background: 'var(--bg-card)', border: '1px dashed var(--border)', borderRadius: 16, padding: 24 }}>
                     <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 17, marginBottom: 14 }}>
-                      {stages.length === 0 ? "Start the first stage" : "Start the next stage"}
+                      Start the next stage
                     </h3>
                     <div className="field-group" style={{ marginBottom: 14 }}>
                       <label>Stage Name</label>

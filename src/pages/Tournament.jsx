@@ -216,6 +216,19 @@ function Tournament() {
                     </div>
                   </div>
 
+                  {t.prize_breakdown?.length > 0 && (
+                    <div className="card-prize-breakdown">
+                      {t.prize_breakdown.slice(0, 3).map((row) => (
+                        <div className="prize-chip" key={row.rank}>
+                          <span className="prize-chip-medal">
+                            {row.rank === "1" ? "🥇" : row.rank === "2" ? "🥈" : row.rank === "3" ? "🥉" : `#${row.rank}`}
+                          </span>
+                          <span className="prize-chip-amount">₹{row.amount.toLocaleString()}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
                   <div className="player-bar">
                     <div className="player-bar-top">
                       <span>Players</span>
@@ -240,11 +253,11 @@ function Tournament() {
                       </button>
                     )}
                     <button
-                      className={alreadyJoined ? 'btn-joined' : isFull ? 'btn-full' : 'btn-join'}
-                      onClick={() => !alreadyJoined && !isFull && navigate(`/tournament/${t.id}`)}
-                      disabled={alreadyJoined || isFull}
+                      className={alreadyJoined ? 'btn-joined' : isFull || t.registration_open === false ? 'btn-full' : 'btn-join'}
+                      onClick={() => !alreadyJoined && !isFull && t.registration_open !== false && navigate(`/tournament/${t.id}`)}
+                      disabled={alreadyJoined || isFull || t.registration_open === false}
                     >
-                      {alreadyJoined ? '✅ Registered' : isFull ? '🔒 Full' : '⚔️ Join Now'}
+                      {alreadyJoined ? '✅ Registered' : isFull ? '🔒 Full' : t.registration_open === false ? '⏱️ Registration Closed' : '⚔️ Join Now'}
                     </button>
                   </div>
                 </div>

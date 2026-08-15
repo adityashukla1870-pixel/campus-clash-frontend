@@ -7,10 +7,12 @@ function AdminCreateTournament() {
   const navigate = useNavigate()
   const [name, setName] = useState("")
   const [entryFee, setEntryFee] = useState("")
-  const [date, setDate] = useState("")
+  const [registrationEndTime, setRegistrationEndTime] = useState("")
+  const [scheduledTime, setScheduledTime] = useState("")
   const [maxPlayers, setMaxPlayers] = useState("")
   const [game, setGame] = useState("")
   const [prizePool, setPrizePool] = useState("")
+  const [prizeDistribution, setPrizeDistribution] = useState({ "1": 50, "2": 30, "3": 20 })
   const [mode, setMode] = useState("solo")
   const [teamSize, setTeamSize] = useState("4")
   const [format, setFormat] = useState("quick")
@@ -29,7 +31,35 @@ function AdminCreateTournament() {
     setBannerPreview(URL.createObjectURL(f))
   }
 
+  // ---- Prize distribution helpers ----
+  const prizeTotalPercent = Object.values(prizeDistribution).reduce((sum, v) => sum + Number(v || 0), 0)
+
+  const addPrizeRank = () => {
+    const nextRank = String(Object.keys(prizeDistribution).length + 1)
+    setPrizeDistribution({ ...prizeDistribution, [nextRank]: 0 })
+  }
+  const removePrizeRank = (rank) => {
+    const next = { ...prizeDistribution }
+    delete next[rank]
+    setPrizeDistribution(next)
+  }
+  const updatePrizeRank = (rank, value) => {
+    setPrizeDistribution({ ...prizeDistribution, [rank]: Number(value) })
+  }
+  const amountForRank = (percent) => {
+    const pool = Number(prizePool) || 0
+    return Math.round((pool * Number(percent || 0)) / 100)
+  }
+
   const handleSubmit = async () => {
+    if (Math.round(prizeTotalPercent) !== 100) {
+      alert(`Prize distribution must add up to 100% (currently ${prizeTotalPercent}%)`)
+      return
+    }
+    if (!registrationEndTime) {
+      alert("Set when registration/participation should end")
+      return
+    }
     setLoading(true)
     try {
       const formData = new FormData()
@@ -37,7 +67,10 @@ function AdminCreateTournament() {
       formData.append("game", game)
       formData.append("entry_fee", Number(entryFee))
       formData.append("prize_pool", Number(prizePool))
+      formData.append("prize_distribution", JSON.stringify(prizeDistribution))
       formData.append("max_players", Number(maxPlayers))
+      formData.append("registration_end_time", registrationEndTime)
+      if (scheduledTime) formData.append("scheduled_time", scheduledTime)
       formData.append("mode", mode)
       formData.append("team_size", mode === "squad" ? Number(teamSize) : 1)
       formData.append("format", format)
@@ -189,16 +222,85 @@ function AdminCreateTournament() {
               </div>
               <div className="field-group">
                 <label>Prize Pool (₹)</label>
-                <input type="number" placeholder="0" onChange={e => setPrizePool(e.target.value)} />
+                <input type="number" placeholder="0" value={prizePool} onChange={e => setPrizePool(e.target.value)} />
               </div>
             </div>
+
+            <div className="field-group">
+              <label>
+                Prize Distribution
+                <span style={{
+                  marginLeft: 8, fontWeight: 600, fontSize: 12,
+                  color: Math.round(prizeTotalPercent) === 100 ? 'var(--cyan)' : 'var(--red)'
+                }}>
+                  {prizeTotalPercent}% allocated
+                </span>
+              </label>
+              <p style={{fontSize:12, color:'var(--text-muted)', marginTop:-4, marginBottom:8}}>
+                Split the ₹{prizePool || 0} pool across placements. Percentages must total 100%.
+              </p>
+              <div style={{display:'flex', flexDirection:'column', gap:8}}>
+                {Object.keys(prizeDistribution)
+                  .sort((a, b) => Number(a) - Number(b))
+                  .map(rank => (
+                    <div key={rank} style={{display:'flex', alignItems:'center', gap:8}}>
+                      <span style={{fontSize:12, color:'var(--text-muted)', width:36}}>#{rank}</span>
+                      <input
+                        type="number"
+                        min="0"
+                        max="100"
+                        value={prizeDistribution[rank]}
+                        onChange={e => updatePrizeRank(rank, e.target.value)}
+                        style={{width:80}}
+                      />
+                      <span style={{fontSize:12, color:'var(--text-muted)'}}>%</span>
+                      <span style={{fontSize:13, color:'var(--gold)', fontWeight:600, marginLeft:'auto'}}>
+                        ₹{amountForRank(prizeDistribution[rank]).toLocaleString()}
+                      </span>
+                      {Object.keys(prizeDistribution).length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => removePrizeRank(rank)}
+                          style={{background:'transparent', border:'none', color:'var(--text-muted)', cursor:'pointer', fontSize:16, padding:'0 4px'}}
+                        >
+                          ×
+                        </button>
+                      )}
+                    </div>
+                  ))}
+              </div>
+              <button
+                type="button"
+                onClick={addPrizeRank}
+                style={{
+                  marginTop:10, background:'var(--bg-surface)', border:'1px solid var(--border)',
+                  color:'var(--text-secondary)', borderRadius:8, padding:'6px 12px', fontSize:12,
+                  cursor:'pointer', width:'fit-content',
+                }}
+              >
+                + Add Placement
+              </button>
+            </div>
+
             <div className="field-group">
               <label>{mode === 'squad' ? 'Max Teams' : 'Max Players'}</label>
               <input type="number" placeholder="e.g. 100" onChange={e => setMaxPlayers(e.target.value)} />
             </div>
-            <div className="field-group">
-              <label>Tournament Date</label>
-              <input type="datetime-local" onChange={e => setDate(e.target.value)} />
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16}}>
+              <div className="field-group">
+                <label>Registration Ends</label>
+                <input type="datetime-local" onChange={e => setRegistrationEndTime(e.target.value)} />
+                <p style={{fontSize:11, color:'var(--text-muted)', marginTop:6}}>
+                  Participation locks automatically after this — no more joins.
+                </p>
+              </div>
+              <div className="field-group">
+                <label>Tournament Date & Time</label>
+                <input type="datetime-local" onChange={e => setScheduledTime(e.target.value)} />
+                <p style={{fontSize:11, color:'var(--text-muted)', marginTop:6}}>
+                  When the matches are actually played.
+                </p>
+              </div>
             </div>
 
             <button className="btn-primary" style={{width:'100%',justifyContent:'center',marginTop:4}} onClick={handleSubmit} disabled={loading}>
