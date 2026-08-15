@@ -5,6 +5,7 @@ import Navbar from "../components/Navbar"
 import API from "../api/axios"
 import { useNavigate } from "react-router-dom"
 import { SkeletonProfile, SkeletonCardGrid, SkeletonBlock } from "../components/Skeleton"
+import PerformanceGraph from "../app/components/PerformanceGraph"
 import "./Profile.css"
 
 function Profile() {
@@ -143,6 +144,9 @@ function Profile() {
               <div className="profile-stat-label">Win Rate</div>
             </div>
           </motion.div>
+
+          {/* Performance Graph */}
+          <div className="mb-6"><PerformanceGraph /></div>
 
           {/* Account Details */}
           <motion.div className="profile-details-card" variants={item}>
