@@ -80,8 +80,46 @@
 }
 .details-badge.purple { background: var(--purple-glow); color: var(--purple-light); border-color: var(--border-glow); }
 .details-badge.gold { background: rgba(var(--accent2-rgb), 0.14); color: var(--gold); border-color: rgba(var(--accent2-rgb), 0.35); }
-.details-badge.clickable { cursor: pointer; transition: transform 0.2s; }
-.details-badge.clickable:hover { transform: translateY(-1px); }
+
+/* Standalone "action" badge (e.g. View Standings) — visually distinct solid button
+   so it doesn't get lost among the plain info badges. */
+.details-badge-action {
+  background: var(--gold);
+  color: #1a1200;
+  border-color: var(--gold);
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(var(--accent2-rgb), 0.35);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.details-badge-action:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(var(--accent2-rgb), 0.5);
+}
+.details-badge-action:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+/* --- Registration timer (was unstyled on this page — inherits Tournament.css look) --- */
+.reg-timer {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 10px 0 0;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  background: var(--cyan-glow);
+  color: var(--cyan);
+  border: 1px solid rgba(var(--accent2-rgb), 0.3);
+}
+.reg-timer.reg-timer-closed {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-muted);
+  border-color: var(--border);
+}
 
 /* ---------------- Two-column layout ---------------- */
 .details-layout {

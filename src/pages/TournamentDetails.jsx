@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { QRCodeSVG } from "qrcode.react"
-import { FiUpload, FiUsers, FiTarget, FiCreditCard, FiBarChart2, FiCheckCircle , FiZap} from "react-icons/fi"
+import { FiUpload, FiUsers, FiTarget, FiCreditCard, FiBarChart2, FiCheckCircle, FiZap } from "react-icons/fi"
 import Navbar from "../components/Navbar"
 import API from "../api/axios"
 import { resolveImageUrl } from "../utils/media"
@@ -188,7 +188,13 @@ function TournamentDetails() {
                 {tournament.format === 'full' ? '🏅 Multi-Stage Tournament' : '⚡ Quick Match'}
               </span>
               {tournament.format === "full" && (
-                <span className="details-badge gold clickable" onClick={() => navigate(`/tournament/${id}/standings`)}>
+                <span
+                  className="details-badge details-badge-action"
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => navigate(`/tournament/${id}/standings`)}
+                  onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && navigate(`/tournament/${id}/standings`)}
+                >
                   <FiBarChart2 size={13} /> View Standings
                 </span>
               )}
