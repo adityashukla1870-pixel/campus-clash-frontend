@@ -23,7 +23,7 @@
 .ticker-item {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   font-family: var(--font-display);
   font-size: 18px;
   font-weight: 600;
@@ -31,10 +31,28 @@
   color: var(--text-secondary);
   white-space: nowrap;
   transition: color 0.2s;
+  cursor: default;
 }
 .ticker-item:hover { color: var(--purple-light); }
+.ticker-item:hover .ticker-icon {
+  background: var(--purple-glow);
+  border-color: var(--border-glow);
+  color: var(--purple-light);
+}
 
-.ticker-emoji { font-size: 22px; }
+.ticker-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  font-size: 18px;
+  color: var(--text-muted);
+  transition: background 0.25s, border-color 0.25s, color 0.25s;
+}
 
 @keyframes tickerScroll {
   from { transform: translateX(0); }

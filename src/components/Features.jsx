@@ -1,4 +1,5 @@
 import { FaShieldAlt, FaBolt, FaWallet, FaChartLine, FaUsers, FaHeadset } from "react-icons/fa"
+import { motion } from "framer-motion"
 import Reveal from "./Reveal"
 import { handleTiltMove, handleTiltLeave } from "../utils/tilt"
 import "./Features.css"
@@ -55,7 +56,13 @@ function Features() {
             onMouseMove={(e) => handleTiltMove(e, { maxTilt: 8 })}
             onMouseLeave={handleTiltLeave}
           >
-            <div className="feature-icon">{f.icon}</div>
+            <motion.div
+              className="feature-icon"
+              whileHover={{ rotate: -8, scale: 1.08 }}
+              transition={{ type: "spring", stiffness: 300, damping: 15 }}
+            >
+              {f.icon}
+            </motion.div>
             <h3>{f.title}</h3>
             <p>{f.desc}</p>
           </Reveal>

@@ -43,10 +43,9 @@
   color: var(--purple-light);
   font-size: 22px;
   margin-bottom: 20px;
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), background 0.3s, color 0.3s;
+  transition: background 0.3s, color 0.3s;
 }
 .feature-card:hover .feature-icon {
-  transform: rotate(-8deg) scale(1.08);
   background: var(--grad-purple);
   color: #fff;
 }
