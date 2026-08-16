@@ -6,6 +6,7 @@ import Navbar from "../components/Navbar"
 import API from "../api/axios"
 import { resolveImageUrl } from "../utils/media"
 import { SkeletonBlock, SkeletonText, SkeletonCard, SkeletonForm, SkeletonRoom, SkeletonBadge } from "../components/Skeleton"
+import RegistrationTimer from "../components/RegistrationTimer"
 import "./TournamentDetails.css"
 
 const UPI_ID = "7052759580@ptyes"
@@ -192,6 +193,11 @@ function TournamentDetails() {
                 </span>
               )}
             </div>
+            {tournament.scheduled_time && (
+              <div className="details-scheduled">
+                <FiZap size={12} /> Starts: {new Date(tournament.scheduled_time).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })} at {new Date(tournament.scheduled_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              </div>
+            )}
           </div>
 
           <div className="details-layout">
@@ -213,6 +219,9 @@ function TournamentDetails() {
                   </div>
                 </div>
               </div>
+
+              {/* Registration timer — shows when registration closes */}
+              <RegistrationTimer deadline={tournament.registration_end_time} />
 
               {/* Prize breakdown — how the pool splits across placements */}
               {tournament.prize_breakdown?.length > 0 && (

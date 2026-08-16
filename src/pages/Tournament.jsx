@@ -5,6 +5,7 @@ import { FiSearch, FiZap } from "react-icons/fi"
 import Navbar from "../components/Navbar"
 import API from "../api/axios"
 import { resolveImageUrl } from "../utils/media"
+import RegistrationTimer from "../components/RegistrationTimer"
 import { SkeletonCardGrid, SkeletonTable, SkeletonText, SkeletonBadge, SkeletonBlock } from "../components/Skeleton"
 import "./Tournament.css"
 
@@ -205,6 +206,12 @@ function Tournament() {
                       : 'Single decisive match — winner takes the prize pool.'}
                   </div>
 
+                  {t.scheduled_time && (
+                    <div className="card-scheduled">
+                      <FiZap size={12} /> Starting: {new Date(t.scheduled_time).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })} {new Date(t.scheduled_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </div>
+                  )}
+
                   <div className="card-stats">
                     <div className="card-stat">
                       <div className="stat-label">Prize Pool</div>
@@ -242,6 +249,8 @@ function Tournament() {
                     </div>
                   </div>
 
+                  <RegistrationTimer deadline={t.registration_end_time} />
+
                   <div className="card-actions">
                     {t.has_bracket && t.format !== 'full' && (
                       <button
@@ -252,13 +261,16 @@ function Tournament() {
                         🏆 Bracket
                       </button>
                     )}
-                    <button
-                      className={alreadyJoined ? 'btn-joined' : isFull || t.registration_open === false ? 'btn-full' : 'btn-join'}
-                      onClick={() => !alreadyJoined && !isFull && t.registration_open !== false && navigate(`/tournament/${t.id}`)}
-                      disabled={alreadyJoined || isFull || t.registration_open === false}
-                    >
-                      {alreadyJoined ? '✅ Registered' : isFull ? '🔒 Full' : t.registration_open === false ? '⏱️ Registration Closed' : '⚔️ Join Now'}
-                    </button>
+                    <div style={{display:'flex', gap:8, alignItems:center}}>
+                      <button
+                        className={alreadyJoined ? 'btn-joined' : isFull || t.registration_open === false ? 'btn-full' : 'btn-join'}
+                        onClick={() => !alreadyJoined && !isFull && t.registration_open !== false && navigate(`/tournament/${t.id}`)}
+                        disabled={alreadyJoined || isFull || t.registration_open === false}
+                        style={{flex:1}}
+                      >
+                        {alreadyJoined ? '✅ Registered' : isFull ? '🔒 Full' : t.registration_open === false ? '⏱️ Registration Closed' : '⚔️ Join Now'}
+                      </button>
+                    </div>
                   </div>
                 </div>
               )
