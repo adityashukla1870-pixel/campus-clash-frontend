@@ -4,7 +4,7 @@ import { FiAward, FiDollarSign, FiTarget, FiTrendingUp, FiUsers } from "react-ic
 import Navbar from "../components/Navbar"
 import API from "../api/axios"
 import { SkeletonLeaderboard, SkeletonText, SkeletonBlock } from "../components/Skeleton"
-import { getSelectedAvatarId, resolveAvatarUrl, getCurrentUserId, getPlayerAvatar } from "../data/avatarRepository"
+import { getSelectedAvatarId, resolveAvatarUrl, getCurrentUserId } from "../data/avatarRepository"
 import "./Leaderboard.css"
 
 function initials(name) {
@@ -33,9 +33,8 @@ function playerAvatarUrl(player) {
     if (selectedId) return resolveAvatarUrl(selectedId)
   }
 
-  // Any player: look up from the global player→avatarId registry
-  const avatarId = getPlayerAvatar(player.user_id)
-  if (avatarId) return resolveAvatarUrl(avatarId)
+  // Any player: avatarId is included in the leaderboard API response
+  if (player.avatarId) return resolveAvatarUrl(player.avatarId)
 
   return null
 }
