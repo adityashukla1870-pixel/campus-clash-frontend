@@ -15,8 +15,8 @@
   position: absolute;
   inset: -48px;
   background-image:
-    linear-gradient(rgba(212,175,55,0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(212,175,55,0.05) 1px, transparent 1px);
+    linear-gradient(rgba(var(--accent-rgb), 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(var(--accent-rgb), 0.05) 1px, transparent 1px);
   background-size: 48px 48px;
   pointer-events: none;
   animation: gridDrift 22s linear infinite;
@@ -29,7 +29,7 @@
   top: -20%;
   right: -10%;
   width: 600px; height: 600px;
-  background: radial-gradient(circle, rgba(212,175,55,0.12) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(var(--accent-rgb), 0.12) 0%, transparent 70%);
   pointer-events: none;
   animation: glowPulse 6s ease-in-out infinite;
 }
@@ -52,9 +52,9 @@
   background: linear-gradient(
     100deg,
     transparent 0%,
-    rgba(212,175,55,0.05) 45%,
-    rgba(212,175,55,0.1) 50%,
-    rgba(212,175,55,0.05) 55%,
+    rgba(var(--accent-rgb), 0.05) 45%,
+    rgba(var(--accent-rgb), 0.1) 50%,
+    rgba(var(--accent-rgb), 0.05) 55%,
     transparent 100%
   );
   transform: rotate(8deg);
@@ -180,13 +180,13 @@
   border: 1px solid var(--border);
   padding: 28px;
   position: relative;
-  box-shadow: 0 0 60px rgba(212,175,55,0.12), 0 24px 48px rgba(0,0,0,0.4);
+  box-shadow: 0 0 60px rgba(var(--accent-rgb), 0.12), 0 24px 48px rgba(0,0,0,0.4);
   animation: floatY 6s ease-in-out infinite;
   transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s;
 }
 .preview-card:hover {
   transform: translateY(-6px) scale(1.015);
-  box-shadow: 0 0 80px rgba(212,175,55,0.2), 0 32px 60px rgba(0,0,0,0.45);
+  box-shadow: 0 0 80px rgba(var(--accent-rgb), 0.2), 0 32px 60px rgba(0,0,0,0.45);
 }
 
 .preview-card::before {

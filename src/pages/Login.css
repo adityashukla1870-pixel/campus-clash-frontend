@@ -39,7 +39,7 @@
 .login-brand-radial {
   position: absolute;
   inset: -20%;
-  background: radial-gradient(circle at 50% 45%, rgba(212,175,55,0.16) 0%, rgba(212,175,55,0.04) 35%, transparent 65%);
+  background: radial-gradient(circle at 50% 45%, rgba(var(--accent-rgb), 0.16) 0%, rgba(var(--accent-rgb), 0.04) 35%, transparent 65%);
   pointer-events: none;
 }
 
@@ -72,7 +72,7 @@
 .login-brand-logo {
   width: 180px;
   height: auto;
-  filter: drop-shadow(0 0 40px rgba(212,175,55,0.45));
+  filter: drop-shadow(0 0 40px rgba(var(--accent-rgb), 0.45));
   transition: transform 0.6s cubic-bezier(0.16,1,0.3,1);
 }
 .login-brand-logo:hover { transform: scale(1.05); }
@@ -129,7 +129,7 @@
   justify-content: center;
   padding: 64px 24px;
   background:
-    radial-gradient(circle at 100% 0%, rgba(212,175,55,0.05) 0%, transparent 40%),
+    radial-gradient(circle at 100% 0%, rgba(var(--accent-rgb), 0.05) 0%, transparent 40%),
     var(--bg-dark);
   position: relative;
 }
@@ -230,14 +230,14 @@
   letter-spacing: 0.08em;
   margin-top: 8px;
   background: var(--grad-purple);
-  color: #241a00;
+  color: var(--on-accent-text);
   border: none;
   cursor: pointer;
   transition: transform 0.25s cubic-bezier(0.16,1,0.3,1), box-shadow 0.25s;
 }
 .login-submit-btn:hover:not(:disabled) {
   transform: translateY(-3px);
-  box-shadow: 0 14px 32px -8px rgba(212,175,55,0.55);
+  box-shadow: 0 14px 32px -8px rgba(var(--accent-rgb), 0.55);
 }
 .login-submit-btn:active:not(:disabled) { transform: translateY(-1px); }
 .login-submit-btn:disabled { opacity: 0.6; cursor: default; }

@@ -14,7 +14,7 @@
   transform: translate(-50%, -50%);
   width: 500px;
   height: 500px;
-  background: radial-gradient(circle, rgba(124, 58, 237, 0.15) 0%, transparent 65%);
+  background: radial-gradient(circle, rgba(var(--accent-rgb), 0.15) 0%, transparent 65%);
   pointer-events: none;
 }
 
@@ -57,7 +57,7 @@
 
 .room-waiting {
   background: var(--yellow-bg);
-  border: 1px solid rgba(250, 204, 21, 0.3);
+  border: 1px solid rgba(var(--accent2-rgb), 0.3);
   border-radius: var(--radius-lg);
   padding: var(--space-xl);
 }

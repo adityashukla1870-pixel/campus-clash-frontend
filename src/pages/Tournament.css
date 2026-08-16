@@ -99,7 +99,7 @@
 .game-pill.active {
   background: var(--purple);
   border-color: var(--purple);
-  color: #241a00;
+  color: var(--on-accent-text);
   box-shadow: 0 0 15px var(--purple-glow);
 }
 
@@ -123,7 +123,7 @@
   position: absolute;
   top: -30%; right: -10%;
   width: 480px; height: 480px;
-  background: radial-gradient(circle, rgba(212,175,55,0.18) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(var(--accent-rgb), 0.18) 0%, transparent 70%);
   pointer-events: none;
 }
 
@@ -198,14 +198,14 @@
   text-transform: uppercase;
   letter-spacing: 0.04em;
   background: var(--grad-purple);
-  color: #241a00;
+  color: var(--on-accent-text);
   border: none;
   cursor: pointer;
   transition: transform 0.25s cubic-bezier(0.16,1,0.3,1), box-shadow 0.25s;
 }
 .featured-cta:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 28px -6px rgba(212,175,55,0.5);
+  box-shadow: 0 12px 28px -6px rgba(var(--accent-rgb), 0.5);
 }
 
 @media (max-width: 600px) {

@@ -1,0 +1,98 @@
+/*
+ * Theme overrides — one [data-theme="..."] block per theme.
+ * Adding a new theme = adding a new CSS block here. No JS changes needed.
+ * An invalid/unknown data-theme matches nothing → :root defaults remain.
+ */
+
+/*
+ * Cyber Boy — Deep Navy / Blue / Cyan palette
+ * Palette: #03045E, #0077B6, #00B4D8, #90E0EF, #CAF0F8
+ */
+:root[data-theme="cyber-boy"] {
+  /* Core backgrounds */
+  --bg-dark:       #03045e;
+  --bg-card:       #061233;
+  --bg-surface:    #0d1d35;
+  --border:        #1a3a5c;
+  --border-glow:   #00b4d844;
+
+  /* Primary accent — Royal Blue */
+  --purple:        #0077b6;
+  --purple-light:  #4da8da;
+  --purple-glow:   #0077b633;
+
+  /* Secondary accent — Cyan */
+  --cyan:          #00b4d8;
+  --cyan-light:    #90e0ef;
+  --cyan-glow:     #00b4d822;
+
+  /* Semantic accent RGB (for rgba() usage) */
+  --accent-rgb:      0, 119, 182;
+  --accent2-rgb:     0, 180, 216;
+  --bg-dark-rgb:     3, 4, 94;
+
+  /* Text — cool blue-white */
+  --text-primary:   #e0f2fe;
+  --text-secondary: #b0d4e8;
+  --text-muted:     #5a8aa8;
+
+  /* On-accent text (on blue gradients) */
+  --on-accent-text: #e0f2fe;
+
+  /* Gold alias — maps to cyan for prize/monetary figures */
+  --gold:          #90e0ef;
+
+  /* Gradients */
+  --grad-hero:     linear-gradient(135deg, #03045e 0%, #0a1e50 50%, #03045e 100%);
+  --grad-card:     linear-gradient(145deg, #0d1d35, #061233);
+  --grad-purple:   linear-gradient(135deg, #0077b6, #4da8da);
+  --grad-cyan:     linear-gradient(135deg, #00b4d8, #90e0ef);
+  --grad-prize:    linear-gradient(135deg, #00b4d8, #90e0ef);
+}
+
+/*
+ * Cyber Girl — Lavender / Pink / Blue pastel palette
+ * Palette: #CDB4DB, #FFC8DD, #FFAFCC, #BDE0FE, #A2D2FF
+ * Dark backgrounds with light pastel text for readability.
+ */
+:root[data-theme="cyber-girl"] {
+  /* Core backgrounds — dark purple family */
+  --bg-dark:       #1a0f2e;
+  --bg-card:       #241840;
+  --bg-surface:    #2e2050;
+  --border:        #4a3570;
+  --border-glow:   #ffafcc44;
+
+  /* Primary accent — Lavender */
+  --purple:        #cdb4db;
+  --purple-light:  #e0c8e8;
+  --purple-glow:   #cdb4db33;
+
+  /* Secondary accent — Pink */
+  --cyan:          #ffafcc;
+  --cyan-light:    #ffc8dd;
+  --cyan-glow:     #ffafcc22;
+
+  /* Semantic accent RGB (for rgba() usage) */
+  --accent-rgb:      205, 180, 219;
+  --accent2-rgb:     255, 175, 204;
+  --bg-dark-rgb:     26, 15, 46;
+
+  /* Text — light pastel on dark backgrounds */
+  --text-primary:   #ffc8dd;
+  --text-secondary: #cdb4db;
+  --text-muted:     #9a86b5;
+
+  /* On-accent text (on lavender/pink gradients) */
+  --on-accent-text: #1a0f2e;
+
+  /* Gold alias — maps to pink for prize/monetary figures */
+  --gold:          #ffafcc;
+
+  /* Gradients */
+  --grad-hero:     linear-gradient(135deg, #1a0f2e 0%, #2e1850 50%, #1a0f2e 100%);
+  --grad-card:     linear-gradient(145deg, #2e2050, #241840);
+  --grad-purple:   linear-gradient(135deg, #cdb4db, #e0c8e8);
+  --grad-cyan:     linear-gradient(135deg, #ffafcc, #ffc8dd);
+  --grad-prize:    linear-gradient(135deg, #ffafcc, #ffc8dd);
+}
