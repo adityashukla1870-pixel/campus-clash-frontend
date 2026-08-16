@@ -7,7 +7,7 @@ import API from "../api/axios"
 import { useNavigate } from "react-router-dom"
 import { SkeletonProfile, SkeletonCardGrid, SkeletonBlock } from "../components/Skeleton"
 import PerformanceGraph from "../app/components/PerformanceGraph"
-import { getSelectedAvatarId, setSelectedAvatarId, resolveAvatarUrl, setPlayerAvatar, getCurrentUserId, getAvatarById } from "../data/avatarRepository"
+import { getSelectedAvatarId, setSelectedAvatarId, resolveAvatarUrl, setPlayerAvatar, getCurrentUserId, getAvatarById, initAvatarLibrary } from "../data/avatarRepository"
 import "./Profile.css"
 
 function Profile() {
@@ -38,6 +38,7 @@ function Profile() {
   }
 
   useEffect(() => {
+    initAvatarLibrary()
     loadProfile()
   }, [])
 

@@ -1,4 +1,4 @@
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { FiPlus, FiTrash2, FiEye, FiEyeOff, FiImage } from "react-icons/fi"
 import AdminTopBar from "../components/AdminTopBar"
 import SpotlightGlow from "../components/SpotlightGlow"
@@ -7,58 +7,90 @@ import { KNOWN_THEMES } from "../theme/applyTheme"
 import "./AdminDashboard.css"
 
 function AdminAvatarLibrary() {
-  const [avatars, setAvatars] = useState(() => getAllAvatars())
+  const [avatars, setAvatars] = useState([])
+  const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
   const [name, setName] = useState("")
   const [themeId, setThemeId] = useState("")
   const [preview, setPreview] = useState(null)
+  const [file, setFile] = useState(null)
+  const [saving, setSaving] = useState(false)
   const fileRef = useRef(null)
 
-  const refresh = () => setAvatars(getAllAvatars())
+  const refresh = () => {
+    setAvatars(getAllAvatars())
+  }
+
+  useEffect(() => {
+    // initAvatarLibrary is triggered by getAllAvatars on first call
+    setAvatars(getAllAvatars())
+    setLoading(false)
+  }, [])
 
   const handleFile = (e) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    if (!file.type.startsWith("image/")) {
+    const f = e.target.files?.[0]
+    if (!f) return
+    if (!f.type.startsWith("image/")) {
       alert("Please select an image file.")
       return
     }
-    if (file.size > 5 * 1024 * 1024) {
+    if (f.size > 5 * 1024 * 1024) {
       alert("Image must be under 5 MB.")
       return
     }
+    setFile(f)
     const reader = new FileReader()
     reader.onload = () => setPreview(reader.result)
-    reader.readAsDataURL(file)
+    reader.readAsDataURL(f)
   }
 
-  const handleAdd = () => {
-    if (!name.trim() || !preview) {
+  const handleAdd = async () => {
+    if (!name.trim() || !file) {
       alert("Please provide a name and select an image.")
       return
     }
-    addAvatar({ name: name.trim(), imageUrl: preview, themeId: themeId || null })
-    setName("")
-    setThemeId("")
-    setPreview(null)
-    setShowForm(false)
-    refresh()
+    setSaving(true)
+    try {
+      await addAvatar({ name: name.trim(), image: file, themeId: themeId || null })
+      setName("")
+      setThemeId("")
+      setPreview(null)
+      setFile(null)
+      setShowForm(false)
+      refresh()
+    } catch (err) {
+      alert(err.response?.data?.error || "Upload failed")
+    } finally {
+      setSaving(false)
+    }
   }
 
-  const handleAssignTheme = (id, newThemeId) => {
-    updateAvatar(id, { themeId: newThemeId || null })
-    refresh()
+  const handleAssignTheme = async (id, newThemeId) => {
+    try {
+      await updateAvatar(id, { themeId: newThemeId || null })
+      refresh()
+    } catch {
+      // silently fail
+    }
   }
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (!window.confirm("Delete this avatar?")) return
-    deleteAvatar(id)
-    refresh()
+    try {
+      await deleteAvatar(id)
+      refresh()
+    } catch {
+      // silently fail
+    }
   }
 
-  const handleToggle = (id) => {
-    togglePublish(id)
-    refresh()
+  const handleToggle = async (id) => {
+    try {
+      await togglePublish(id)
+      refresh()
+    } catch {
+      // silently fail
+    }
   }
 
   const publishedCount = avatars.filter((a) => a.status === "published").length
@@ -167,13 +199,13 @@ function AdminAvatarLibrary() {
                 </div>
 
                 <div style={{ display: "flex", gap: 10 }}>
-                  <button onClick={handleAdd} style={{
+                  <button onClick={handleAdd} disabled={saving} style={{
                     padding: "10px 20px", background: "var(--grad-purple)",
                     border: "none", borderRadius: 8, color: "#1a1a00",
                     fontFamily: "var(--font-label)", fontSize: 13, fontWeight: 700,
-                    cursor: "pointer",
-                  }}>Save</button>
-                  <button onClick={() => { setShowForm(false); setPreview(null); setName(""); setThemeId("") }} style={{
+                    cursor: saving ? "wait" : "pointer", opacity: saving ? 0.6 : 1,
+                  }}>{saving ? "Uploading..." : "Save"}</button>
+                  <button onClick={() => { setShowForm(false); setPreview(null); setFile(null); setName(""); setThemeId("") }} style={{
                     padding: "10px 20px", background: "transparent",
                     border: "1px solid var(--border)", borderRadius: 8,
                     color: "var(--text-secondary)", fontSize: 13, cursor: "pointer",
@@ -185,7 +217,11 @@ function AdminAvatarLibrary() {
         )}
 
         {/* Avatar grid */}
-        {avatars.length === 0 ? (
+        {loading ? (
+          <div style={{ textAlign: "center", padding: "48px 16px", color: "var(--text-muted)" }}>
+            <p>Loading avatars...</p>
+          </div>
+        ) : avatars.length === 0 ? (
           <div style={{ textAlign: "center", padding: "48px 16px", color: "var(--text-muted)" }}>
             <FiImage size={36} style={{ marginBottom: 12 }} />
             <p>No avatars yet. Add one to get started.</p>

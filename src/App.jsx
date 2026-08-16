@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
+import { initAvatarLibrary } from "./data/avatarRepository";
 
 import LandingPage from "./pages/LandingPage"
 import Dashboard from "./pages/Dashboard";
@@ -37,6 +38,7 @@ function App() {
   // re-check localStorage fresh, so Login/ProtectedRoute/AdminRoute always
   // reflect the real auth state.
   useEffect(() => {
+    initAvatarLibrary()
     const handlePageShow = (event) => {
       if (event.persisted) {
         window.location.reload();
