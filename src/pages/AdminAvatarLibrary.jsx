@@ -10,7 +10,6 @@ function AdminAvatarLibrary() {
   const [showForm, setShowForm] = useState(false)
   const [name, setName] = useState("")
   const [preview, setPreview] = useState(null)
-  const [newFile, setNewFile] = useState(null)
   const fileRef = useRef(null)
 
   const refresh = () => setAvatars(getAllAvatars())
@@ -26,8 +25,9 @@ function AdminAvatarLibrary() {
       alert("Image must be under 5 MB.")
       return
     }
-    setNewFile(file)
-    setPreview(URL.createObjectURL(file))
+    const reader = new FileReader()
+    reader.onload = () => setPreview(reader.result)
+    reader.readAsDataURL(file)
   }
 
   const handleAdd = () => {
@@ -38,7 +38,6 @@ function AdminAvatarLibrary() {
     addAvatar({ name: name.trim(), imageUrl: preview })
     setName("")
     setPreview(null)
-    setNewFile(null)
     setShowForm(false)
     refresh()
   }
@@ -144,7 +143,7 @@ function AdminAvatarLibrary() {
                     fontFamily: "var(--font-label)", fontSize: 13, fontWeight: 700,
                     cursor: "pointer",
                   }}>Save</button>
-                  <button onClick={() => { setShowForm(false); setPreview(null); setName(""); setNewFile(null) }} style={{
+                  <button onClick={() => { setShowForm(false); setPreview(null); setName("") }} style={{
                     padding: "10px 20px", background: "transparent",
                     border: "1px solid var(--border)", borderRadius: 8,
                     color: "var(--text-secondary)", fontSize: 13, cursor: "pointer",

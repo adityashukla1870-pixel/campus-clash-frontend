@@ -4,7 +4,7 @@ import { FiAward, FiDollarSign, FiTarget, FiTrendingUp, FiUsers } from "react-ic
 import Navbar from "../components/Navbar"
 import API from "../api/axios"
 import { SkeletonLeaderboard, SkeletonText, SkeletonBlock } from "../components/Skeleton"
-import { getSelectedAvatarId, resolveAvatarUrl } from "../data/avatarRepository"
+import { getSelectedAvatarId, resolveAvatarUrl, getCurrentUserId, getPlayerAvatar } from "../data/avatarRepository"
 import "./Leaderboard.css"
 
 function initials(name) {
@@ -23,22 +23,20 @@ function rankLabel(rank) {
   return `${rank < 10 ? "0" : ""}${rank}`
 }
 
-function getCurrentUserId() {
-  try {
-    const token = localStorage.getItem("token")
-    if (!token) return null
-    return JSON.parse(atob(token.split(".")[1])).id || null
-  } catch {
-    return null
-  }
-}
-
 function playerAvatarUrl(player) {
+  if (!player?.user_id) return null
+
+  // Current user: prefer the live per-user selection
   const myId = getCurrentUserId()
-  if (player.user_id === myId) {
-    const selectedId = getSelectedAvatarId()
+  if (myId && player.user_id === myId) {
+    const selectedId = getSelectedAvatarId(myId)
     if (selectedId) return resolveAvatarUrl(selectedId)
   }
+
+  // Any player: look up from the global player→avatarId registry
+  const avatarId = getPlayerAvatar(player.user_id)
+  if (avatarId) return resolveAvatarUrl(avatarId)
+
   return null
 }
 

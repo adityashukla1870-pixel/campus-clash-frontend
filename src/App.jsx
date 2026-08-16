@@ -25,6 +25,7 @@ import AdminWinner from "./pages/AdminWinner"
 import AdminBracket from "./pages/AdminBracket"
 import AdminStages from "./pages/AdminStages"
 import AdminAvatarLibrary from "./pages/AdminAvatarLibrary"
+import ThemeProvider from "./theme/ThemeProvider"
 
 
 function App() {
@@ -47,6 +48,7 @@ function App() {
 
   return (
 
+    <ThemeProvider>
     <Routes>
 
       <Route path="/" element={<LandingPage />} />
@@ -154,6 +156,7 @@ function App() {
 
 
     </Routes>
+    </ThemeProvider>
 
   );
 }

@@ -8,6 +8,7 @@
    ============================================ */
 
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Hanken+Grotesk:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+@import "./theme/themes.css";
 
 :root {
   /* Core palette — warm near-black, not cool navy-black */
@@ -25,6 +26,7 @@
   --cyan-light:    #ffb957;
   --cyan-glow:     #f9a82522;
   --gold:          #f59e0b;  /* money / prize pool figures, unchanged */
+  --on-accent-text: #241a00; /* text on top of accent gradient (avatar initials, etc.) */
 
   /* Status */
   --green:         #22c55e;

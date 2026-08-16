@@ -1,0 +1,27 @@
+/*
+ * Theme overrides — one [data-theme="..."] block per theme.
+ * Adding a new theme = adding a new CSS block here. No JS changes needed.
+ * An invalid/unknown data-theme matches nothing → :root defaults remain.
+ */
+
+[data-theme="cyber-boy"] {
+  --bg-dark:       #05070f;
+  --bg-card:       #10151f;
+  --bg-surface:    #131a26;
+  --border:        #2a3550;
+  --border-glow:   #3ea6ff44;
+
+  --purple:        #2f8fff;  /* Electric Blue — primary accent */
+  --purple-light:  #6fc3ff;
+  --purple-glow:   #2f8fff33;
+  --cyan:          #22d3ee;  /* True Cyan — secondary accent */
+  --cyan-light:    #7de8f5;
+  --cyan-glow:     #22d3ee22;
+
+  --grad-hero:     linear-gradient(135deg, #05070f 0%, #0d1830 50%, #05070f 100%);
+  --grad-card:     linear-gradient(145deg, #131a26, #10151f);
+  --grad-purple:   linear-gradient(135deg, #2f8fff, #6fc3ff);
+  --grad-cyan:     linear-gradient(135deg, #22d3ee, #7de8f5);
+
+  --on-accent-text: #071018;
+}

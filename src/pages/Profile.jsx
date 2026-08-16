@@ -7,7 +7,7 @@ import API from "../api/axios"
 import { useNavigate } from "react-router-dom"
 import { SkeletonProfile, SkeletonCardGrid, SkeletonBlock } from "../components/Skeleton"
 import PerformanceGraph from "../app/components/PerformanceGraph"
-import { getSelectedAvatarId, setSelectedAvatarId, resolveAvatarUrl } from "../data/avatarRepository"
+import { getSelectedAvatarId, setSelectedAvatarId, resolveAvatarUrl, setPlayerAvatar, getCurrentUserId } from "../data/avatarRepository"
 import "./Profile.css"
 
 function Profile() {
@@ -41,6 +41,15 @@ function Profile() {
     loadProfile()
   }, [])
 
+  // Sync current user's selected avatar to the global registry on mount
+  useEffect(() => {
+    const uid = getCurrentUserId()
+    if (uid) {
+      const selectedId = getSelectedAvatarId(uid)
+      if (selectedId) setPlayerAvatar(uid, selectedId)
+    }
+  }, [])
+
   const handleSave = async (e) => {
     e.preventDefault()
     setSaving(true)
@@ -66,6 +75,7 @@ function Profile() {
   const handleAvatarSelect = (avatarId) => {
     setSelectedAvatarId(avatarId)
     setSelectedAvatarState(avatarId)
+    setPlayerAvatar(getCurrentUserId(), avatarId)
   }
 
   if (!profile) {
@@ -81,11 +91,9 @@ function Profile() {
     )
   }
 
-  const initials = (profile.name || "?").trim().slice(0, 1).toUpperCase()
   const isAdmin = profile.role === "admin"
   const completed = tournaments.filter(t => t.status === "completed")
   const wins = completed.filter(t => t.is_winner)
-  const liveOrUpcoming = tournaments.filter(t => t.status === "approved")
   const winRate = completed.length > 0 ? Math.round((wins.length / completed.length) * 100) : 0
 
   const container = {

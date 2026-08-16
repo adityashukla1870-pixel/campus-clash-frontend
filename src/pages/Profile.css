@@ -67,7 +67,7 @@
   font-family: var(--font-display);
   font-size: 36px;
   font-weight: 800;
-  color: #241a00;
+  color: var(--on-accent-text);
   box-shadow: 0 0 30px var(--purple-glow);
   overflow: hidden;
 }
