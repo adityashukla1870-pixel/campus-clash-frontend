@@ -4,6 +4,7 @@ import { FiAward, FiDollarSign, FiTarget, FiTrendingUp, FiUsers } from "react-ic
 import Navbar from "../components/Navbar"
 import API from "../api/axios"
 import { SkeletonLeaderboard, SkeletonText, SkeletonBlock } from "../components/Skeleton"
+import { getSelectedAvatarId, resolveAvatarUrl } from "../data/avatarRepository"
 import "./Leaderboard.css"
 
 function initials(name) {
@@ -20,6 +21,25 @@ function formatPrize(value) {
 
 function rankLabel(rank) {
   return `${rank < 10 ? "0" : ""}${rank}`
+}
+
+function getCurrentUserId() {
+  try {
+    const token = localStorage.getItem("token")
+    if (!token) return null
+    return JSON.parse(atob(token.split(".")[1])).id || null
+  } catch {
+    return null
+  }
+}
+
+function playerAvatarUrl(player) {
+  const myId = getCurrentUserId()
+  if (player.user_id === myId) {
+    const selectedId = getSelectedAvatarId()
+    if (selectedId) return resolveAvatarUrl(selectedId)
+  }
+  return null
 }
 
 function Leaderboard() {
@@ -188,7 +208,13 @@ function Leaderboard() {
                       >
                         <span className="lb-rank" role="cell">{rankLabel(index + (hasPodium ? 4 : 1))}</span>
                         <span className="lb-player" role="cell">
-                          <span className="lb-avatar" aria-hidden="true">{initials(row.name)}</span>
+                          {playerAvatarUrl(row) ? (
+                            <span className="lb-avatar" aria-hidden="true" style={{ padding: 0, overflow: "hidden" }}>
+                              <img src={playerAvatarUrl(row)} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                            </span>
+                          ) : (
+                            <span className="lb-avatar" aria-hidden="true">{initials(row.name)}</span>
+                          )}
                           <span className="lb-player-details">
                             <span className="lb-player-name">{row.name}</span>
                             <span className="lb-player-college">{row.college || "Campus Clash"}</span>
@@ -236,7 +262,13 @@ function PodiumBlock({ player, rank, delay = 0 }) {
           }}
           whileHover={{ scale: 1.1 }}
         >
-          <span className="lb-podium-avatar-initials">{initials(player.name)}</span>
+          {playerAvatarUrl(player) ? (
+            <span className="lb-podium-avatar-initials" style={{ padding: 0 }}>
+              <img src={playerAvatarUrl(player)} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }} />
+            </span>
+          ) : (
+            <span className="lb-podium-avatar-initials">{initials(player.name)}</span>
+          )}
           <motion.span
             className="lb-podium-rank-badge"
             initial={{ scale: 0 }}

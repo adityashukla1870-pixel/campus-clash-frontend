@@ -2,10 +2,12 @@ import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
 import { FiAward, FiTarget, FiZap, FiEdit2, FiUser, FiMail, FiBookOpen, FiHash, FiLogOut, FiShield, FiTrendingUp, FiClock, FiCheckCircle } from "react-icons/fi"
 import Navbar from "../components/Navbar"
+import AvatarSelector from "../components/AvatarSelector"
 import API from "../api/axios"
 import { useNavigate } from "react-router-dom"
 import { SkeletonProfile, SkeletonCardGrid, SkeletonBlock } from "../components/Skeleton"
 import PerformanceGraph from "../app/components/PerformanceGraph"
+import { getSelectedAvatarId, setSelectedAvatarId, resolveAvatarUrl } from "../data/avatarRepository"
 import "./Profile.css"
 
 function Profile() {
@@ -17,6 +19,8 @@ function Profile() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
+  const [selectorOpen, setSelectorOpen] = useState(false)
+  const [selectedAvatarId, setSelectedAvatarState] = useState(() => getSelectedAvatarId())
 
   const loadProfile = () => {
     Promise.all([
@@ -59,6 +63,11 @@ function Profile() {
     navigate("/login")
   }
 
+  const handleAvatarSelect = (avatarId) => {
+    setSelectedAvatarId(avatarId)
+    setSelectedAvatarState(avatarId)
+  }
+
   if (!profile) {
     return (
       <>
@@ -97,16 +106,18 @@ function Profile() {
           {/* Hero */}
           <motion.div className="profile-hero" variants={item}>
             <div className="profile-hero-glow" aria-hidden="true" />
-            <div className="profile-avatar-wrap">
+            <div className="profile-avatar-wrap" onClick={() => setSelectorOpen(true)} style={{ cursor: "pointer" }} title="Change avatar">
               <div className="profile-avatar-ring" />
               <motion.div
                 className="profile-avatar"
                 whileHover={{ scale: 1.05 }}
                 transition={{ type: "spring", stiffness: 300, damping: 15 }}
               >
-                {profile.avatar ? (
-                  <img src={profile.avatar} alt={profile.name} className="profile-avatar-img" />
-                ) : initials}
+                <img
+                  src={resolveAvatarUrl(selectedAvatarId)}
+                  alt={profile.name}
+                  className="profile-avatar-img"
+                />
               </motion.div>
             </div>
             <h1 className="profile-name">{profile.name}</h1>
@@ -284,6 +295,13 @@ function Profile() {
 
         </motion.div>
       </div>
+
+      <AvatarSelector
+        open={selectorOpen}
+        onClose={() => setSelectorOpen(false)}
+        onSelect={handleAvatarSelect}
+        currentId={selectedAvatarId}
+      />
     </>
   )
 }

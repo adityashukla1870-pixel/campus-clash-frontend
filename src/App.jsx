@@ -24,6 +24,7 @@ import AdminCreateTournament from "./pages/AdminCreateTournament"
 import AdminWinner from "./pages/AdminWinner"
 import AdminBracket from "./pages/AdminBracket"
 import AdminStages from "./pages/AdminStages"
+import AdminAvatarLibrary from "./pages/AdminAvatarLibrary"
 
 
 function App() {
@@ -149,6 +150,7 @@ function App() {
       <Route path="/admin/winner" element={<AdminRoute><AdminWinner /></AdminRoute>} />
       <Route path="/admin/bracket" element={<AdminRoute><AdminBracket /></AdminRoute>} />
       <Route path="/admin/stages" element={<AdminRoute><AdminStages /></AdminRoute>} />
+      <Route path="/admin/avatars" element={<AdminRoute><AdminAvatarLibrary /></AdminRoute>} />
 
 
     </Routes>
