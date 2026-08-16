@@ -261,7 +261,7 @@ function Tournament() {
                         🏆 Bracket
                       </button>
                     )}
-                    <div style={{display:'flex', gap:8, alignItems:center}}>
+                    <div style={{display:'flex', gap:8, alignItems:'center'}}>
                       <button
                         className={alreadyJoined ? 'btn-joined' : isFull || t.registration_open === false ? 'btn-full' : 'btn-join'}
                         onClick={() => !alreadyJoined && !isFull && t.registration_open !== false && navigate(`/tournament/${t.id}`)}
