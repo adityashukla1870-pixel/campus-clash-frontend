@@ -7,7 +7,7 @@ import API from "../api/axios"
 import { useNavigate } from "react-router-dom"
 import { SkeletonProfile, SkeletonCardGrid, SkeletonBlock } from "../components/Skeleton"
 import PerformanceGraph from "../app/components/PerformanceGraph"
-import { getSelectedAvatarId, setSelectedAvatarId, resolveAvatarUrl, setPlayerAvatar, getCurrentUserId } from "../data/avatarRepository"
+import { getSelectedAvatarId, setSelectedAvatarId, resolveAvatarUrl, setPlayerAvatar, getCurrentUserId, getAvatarById } from "../data/avatarRepository"
 import "./Profile.css"
 
 function Profile() {
@@ -76,6 +76,12 @@ function Profile() {
     setSelectedAvatarId(avatarId)
     setSelectedAvatarState(avatarId)
     setPlayerAvatar(getCurrentUserId(), avatarId)
+
+    // Notify ThemeProvider so it re-evaluates the active theme
+    const avatar = getAvatarById(avatarId)
+    window.dispatchEvent(new CustomEvent("avatar-theme-changed", {
+      detail: { themeId: avatar?.themeId || null },
+    }))
   }
 
   if (!profile) {

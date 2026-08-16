@@ -2,7 +2,7 @@
   position: fixed;
   top: 0; left: 0; right: 0;
   z-index: 200;
-  background: rgba(8, 7, 10, 0.75);
+  background: rgba(var(--bg-dark-rgb), 0.75);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--border);
@@ -95,7 +95,7 @@
   text-transform: uppercase;
   letter-spacing: 0.03em;
   background: var(--grad-purple);
-  color: #241a00;
+  color: var(--on-accent-text);
   border: none;
   cursor: pointer;
   transition: transform 0.25s cubic-bezier(0.16,1,0.3,1), box-shadow 0.25s;
@@ -103,5 +103,5 @@
 }
 .landing-nav-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 24px -6px rgba(212,175,55,0.45);
+  box-shadow: 0 10px 24px -6px rgba(var(--accent-rgb), 0.45);
 }

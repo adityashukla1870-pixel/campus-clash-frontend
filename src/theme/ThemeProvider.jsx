@@ -1,14 +1,18 @@
 import { useEffect } from "react"
-import API from "../api/axios"
-import { isAuthenticated } from "../utils/auth"
 import { applyTheme } from "./applyTheme"
+import { resolveThemeId } from "../data/avatarRepository"
 
 function ThemeProvider({ children }) {
   useEffect(() => {
-    if (!isAuthenticated()) return
-    API.get("/auth/profile")
-      .then((res) => applyTheme(res.data?.themeId))
-      .catch(() => applyTheme(null))
+    // Resolve theme from the user's selected avatar (localStorage)
+    applyTheme(resolveThemeId())
+
+    // Re-evaluate whenever avatar selection changes (custom event from Profile)
+    const onAvatarChange = (e) => {
+      applyTheme(e.detail?.themeId || null)
+    }
+    window.addEventListener("avatar-theme-changed", onAvatarChange)
+    return () => window.removeEventListener("avatar-theme-changed", onAvatarChange)
   }, [])
 
   return children

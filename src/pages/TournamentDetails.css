@@ -71,7 +71,7 @@
   padding: 6px 14px;
   background: var(--cyan-glow);
   color: var(--cyan);
-  border: 1px solid rgba(249,168,37,0.3);
+  border: 1px solid rgba(var(--accent2-rgb), 0.3);
   border-radius: 999px;
   font-size: 12px;
   font-weight: 600;
@@ -79,7 +79,7 @@
   letter-spacing: 0.04em;
 }
 .details-badge.purple { background: var(--purple-glow); color: var(--purple-light); border-color: var(--border-glow); }
-.details-badge.gold { background: rgba(245,158,11,0.14); color: var(--gold); border-color: rgba(245,158,11,0.35); }
+.details-badge.gold { background: rgba(var(--accent2-rgb), 0.14); color: var(--gold); border-color: rgba(var(--accent2-rgb), 0.35); }
 .details-badge.clickable { cursor: pointer; transition: transform 0.2s; }
 .details-badge.clickable:hover { transform: translateY(-1px); }
 

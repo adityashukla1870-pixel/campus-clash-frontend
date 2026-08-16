@@ -28,6 +28,11 @@
   --gold:          #f59e0b;  /* money / prize pool figures, unchanged */
   --on-accent-text: #241a00; /* text on top of accent gradient (avatar initials, etc.) */
 
+  /* Semantic accent RGB (for use in rgba() where var() can't go) */
+  --accent-rgb:      212, 175, 55;
+  --accent2-rgb:     249, 168, 37;
+  --bg-dark-rgb:     8, 7, 10;
+
   /* Status */
   --green:         #22c55e;
   --yellow:        #facc15;
@@ -242,7 +247,7 @@ body.has-sidebar {
 }
 .badge-live { background: #ef444420; color: #ef4444; border: 1px solid #ef444444; }
 .badge-purple { background: var(--purple-glow); color: var(--purple-light); border: 1px solid var(--border-glow); }
-.badge-cyan { background: var(--cyan-glow); color: var(--cyan); border: 1px solid #b8860b44; }
+.badge-cyan { background: var(--cyan-glow); color: var(--cyan); border: 1px solid rgba(var(--accent2-rgb), 0.27); }
 
 /* Page title */
 .page-title {
@@ -288,13 +293,13 @@ body.has-sidebar {
 /* Status chips */
 .chip-pending  { display:inline-block; padding:4px 12px; border-radius:999px; font-size:12px; font-weight:600; background:var(--yellow-bg); color:var(--yellow); border:1px solid #facc1544; }
 .chip-approved { display:inline-block; padding:4px 12px; border-radius:999px; font-size:12px; font-weight:600; background:var(--green-bg); color:var(--green); border:1px solid #22c55e44; }
-.chip-completed{ display:inline-block; padding:4px 12px; border-radius:999px; font-size:12px; font-weight:600; background:#d4af3720; color:var(--purple-light); border:1px solid var(--border-glow); }
+.chip-completed{ display:inline-block; padding:4px 12px; border-radius:999px; font-size:12px; font-weight:600; background:rgba(var(--accent-rgb), 0.13); color:var(--purple-light); border:1px solid var(--border-glow); }
 
 /* Alert toast-style */
 .alert-info {
   padding: 12px 16px;
   background: var(--cyan-glow);
-  border: 1px solid #b8860b44;
+  border: 1px solid rgba(var(--accent2-rgb), 0.27);
   border-radius: 10px;
   color: var(--cyan-light);
   font-size: 14px;
@@ -395,7 +400,7 @@ body.has-sidebar {
   background: rgba(255, 255, 255, 0.03);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(212, 175, 55, 0.14);
+  border: 1px solid rgba(var(--accent-rgb), 0.14);
 }
 
 /* Chamfered ("snipped") corners — armored/technical look, used instead of

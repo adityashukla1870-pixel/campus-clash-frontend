@@ -118,7 +118,54 @@ const DEFAULT_AVATAR = {
   name: "Campus Clash",
   imageUrl: `data:image/svg+xml,${encodeURIComponent(DEFAULT_SVG)}`,
   status: "published",
+  themeId: null,
 }
+
+// ---------------------------------------------------------------------------
+// Theme-bound seed avatars — auto-injected so every user can select them
+// ---------------------------------------------------------------------------
+
+const CYBER_BOY_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0077B6"/>
+      <stop offset="100%" stop-color="#00B4D8"/>
+    </linearGradient>
+  </defs>
+  <circle cx="60" cy="60" r="60" fill="#03045e"/>
+  <circle cx="60" cy="60" r="56" fill="none" stroke="url(#g)" stroke-width="3"/>
+  <text x="60" y="68" text-anchor="middle" font-family="sans-serif" font-size="42" font-weight="800" fill="#90e0ef">CB</text>
+</svg>`
+
+const CYBER_BOY_AVATAR = {
+  id: "avatar_cyber_boy",
+  name: "Cyber Boy",
+  imageUrl: `data:image/svg+xml,${encodeURIComponent(CYBER_BOY_SVG)}`,
+  status: "published",
+  themeId: "cyber-boy",
+}
+
+const CYBER_GIRL_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#CDB4DB"/>
+      <stop offset="100%" stop-color="#FFAFCC"/>
+    </linearGradient>
+  </defs>
+  <circle cx="60" cy="60" r="60" fill="#1a0f2e"/>
+  <circle cx="60" cy="60" r="56" fill="none" stroke="url(#g)" stroke-width="3"/>
+  <text x="60" y="68" text-anchor="middle" font-family="sans-serif" font-size="42" font-weight="800" fill="#ffc8dd">CG</text>
+</svg>`
+
+const CYBER_GIRL_AVATAR = {
+  id: "avatar_cyber_girl",
+  name: "Cyber Girl",
+  imageUrl: `data:image/svg+xml,${encodeURIComponent(CYBER_GIRL_SVG)}`,
+  status: "published",
+  themeId: "cyber-girl",
+}
+
+const THEME_SEEDS = [CYBER_BOY_AVATAR, CYBER_GIRL_AVATAR]
 
 // ---------------------------------------------------------------------------
 // Seed — ensure at least one avatar exists in the global library
@@ -129,6 +176,23 @@ function ensureSeeded() {
   if (list.length === 0) {
     writeLibrary([DEFAULT_AVATAR])
   }
+  ensureThemeAvatars()
+}
+
+/**
+ * Auto-inject theme-bound avatars (e.g. Cyber Boy) into the library if missing.
+ * This guarantees every user can select them without admin intervention.
+ */
+function ensureThemeAvatars() {
+  const list = readLibrary()
+  let changed = false
+  for (const seed of THEME_SEEDS) {
+    if (!list.some((a) => a.id === seed.id)) {
+      list.push(seed)
+      changed = true
+    }
+  }
+  if (changed) writeLibrary(list)
 }
 
 // ---------------------------------------------------------------------------
@@ -148,13 +212,14 @@ export function getAvatarById(id) {
   return getAllAvatars().find((a) => a.id === id) || null
 }
 
-export function addAvatar({ name, imageUrl }) {
+export function addAvatar({ name, imageUrl, themeId }) {
   const list = readLibrary()
   const avatar = {
     id: generateId(),
     name: name || "Unnamed",
     imageUrl: imageUrl || "",
     status: "published",
+    themeId: themeId || null,
   }
   list.push(avatar)
   writeLibrary(list)
@@ -234,4 +299,16 @@ export function resolveAvatarUrl(avatarId) {
   const avatar = getAvatarById(avatarId)
   if (!avatar) return DEFAULT_AVATAR.imageUrl
   return avatar.imageUrl
+}
+
+/**
+ * Resolve the themeId from the current user's selected avatar.
+ * Flow: selected avatarId → look up avatar in library → return avatar.themeId
+ * Returns null if no avatar selected, avatar deleted, or avatar has no themeId.
+ */
+export function resolveThemeId(userId) {
+  const avatarId = getSelectedAvatarId(userId)
+  if (!avatarId) return null
+  const avatar = getAvatarById(avatarId)
+  return avatar?.themeId || null
 }

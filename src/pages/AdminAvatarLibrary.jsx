@@ -2,13 +2,15 @@ import { useRef, useState } from "react"
 import { FiPlus, FiTrash2, FiEye, FiEyeOff, FiImage } from "react-icons/fi"
 import AdminTopBar from "../components/AdminTopBar"
 import SpotlightGlow from "../components/SpotlightGlow"
-import { getAllAvatars, addAvatar, deleteAvatar, togglePublish } from "../data/avatarRepository"
+import { getAllAvatars, addAvatar, deleteAvatar, togglePublish, updateAvatar } from "../data/avatarRepository"
+import { KNOWN_THEMES } from "../theme/applyTheme"
 import "./AdminDashboard.css"
 
 function AdminAvatarLibrary() {
   const [avatars, setAvatars] = useState(() => getAllAvatars())
   const [showForm, setShowForm] = useState(false)
   const [name, setName] = useState("")
+  const [themeId, setThemeId] = useState("")
   const [preview, setPreview] = useState(null)
   const fileRef = useRef(null)
 
@@ -35,10 +37,16 @@ function AdminAvatarLibrary() {
       alert("Please provide a name and select an image.")
       return
     }
-    addAvatar({ name: name.trim(), imageUrl: preview })
+    addAvatar({ name: name.trim(), imageUrl: preview, themeId: themeId || null })
     setName("")
+    setThemeId("")
     setPreview(null)
     setShowForm(false)
+    refresh()
+  }
+
+  const handleAssignTheme = (id, newThemeId) => {
+    updateAvatar(id, { themeId: newThemeId || null })
     refresh()
   }
 
@@ -136,6 +144,28 @@ function AdminAvatarLibrary() {
                   />
                 </div>
 
+                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  <label style={{
+                    fontFamily: "var(--font-label)", fontSize: 11, fontWeight: 600,
+                    letterSpacing: "0.08em", textTransform: "uppercase",
+                    color: "var(--text-secondary)",
+                  }}>Theme (optional)</label>
+                  <select
+                    value={themeId}
+                    onChange={(e) => setThemeId(e.target.value)}
+                    style={{
+                      padding: "10px 14px", background: "rgba(0,0,0,0.2)",
+                      border: "1px solid var(--border)", borderRadius: 8,
+                      color: "var(--text-primary)", fontSize: 14, outline: "none",
+                    }}
+                  >
+                    <option value="">None</option>
+                    {KNOWN_THEMES.map((t) => (
+                      <option key={t} value={t}>{t}</option>
+                    ))}
+                  </select>
+                </div>
+
                 <div style={{ display: "flex", gap: 10 }}>
                   <button onClick={handleAdd} style={{
                     padding: "10px 20px", background: "var(--grad-purple)",
@@ -143,7 +173,7 @@ function AdminAvatarLibrary() {
                     fontFamily: "var(--font-label)", fontSize: 13, fontWeight: 700,
                     cursor: "pointer",
                   }}>Save</button>
-                  <button onClick={() => { setShowForm(false); setPreview(null); setName("") }} style={{
+                  <button onClick={() => { setShowForm(false); setPreview(null); setName(""); setThemeId("") }} style={{
                     padding: "10px 20px", background: "transparent",
                     border: "1px solid var(--border)", borderRadius: 8,
                     color: "var(--text-secondary)", fontSize: 13, cursor: "pointer",
@@ -194,11 +224,38 @@ function AdminAvatarLibrary() {
 
                 <div style={{
                   fontFamily: "var(--font-display)", fontSize: 13, fontWeight: 700,
-                  color: "var(--text-primary)", marginBottom: 12,
+                  color: "var(--text-primary)", marginBottom: 8,
                   whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
                 }}>
                   {avatar.name}
                 </div>
+
+                {/* Theme badge + selector */}
+                {avatar.themeId && (
+                  <div style={{
+                    fontSize: 10, fontWeight: 700, textTransform: "uppercase",
+                    letterSpacing: "0.06em", padding: "3px 8px", borderRadius: 6,
+                    background: "rgba(0,119,182,0.2)", color: "#4da8da",
+                    border: "1px solid rgba(0,180,216,0.3)", marginBottom: 8,
+                  }}>
+                    {avatar.themeId}
+                  </div>
+                )}
+                <select
+                  value={avatar.themeId || ""}
+                  onChange={(e) => handleAssignTheme(avatar.id, e.target.value)}
+                  style={{
+                    width: "100%", padding: "4px 6px", marginBottom: 10,
+                    background: "rgba(0,0,0,0.2)", border: "1px solid var(--border)",
+                    borderRadius: 6, color: "var(--text-secondary)", fontSize: 10,
+                    outline: "none", cursor: "pointer",
+                  }}
+                >
+                  <option value="">No theme</option>
+                  {KNOWN_THEMES.map((t) => (
+                    <option key={t} value={t}>{t}</option>
+                  ))}
+                </select>
 
                 {/* Actions */}
                 <div style={{ display: "flex", gap: 6, justifyContent: "center" }}>
