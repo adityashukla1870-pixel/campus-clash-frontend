@@ -11,7 +11,11 @@
   },
   "dependencies": {
     "axios": "^1.13.5",
+<<<<<<< HEAD
     "framer-motion": "^13.1.0",
+=======
+    "framer-motion": "^13.0.0",
+>>>>>>> e63450e053f0b706ed297099645f35da29d4127d
     "jwt-decode": "^4.0.0",
     "qrcode.react": "^4.2.0",
     "react": "^19.2.0",
