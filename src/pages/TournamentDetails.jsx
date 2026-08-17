@@ -65,8 +65,8 @@ function TournamentDetails() {
     if (!teamLeader.name.trim()) { alert("Enter the team leader's name"); return }
     if (!teamLeader.game_uid.trim()) { alert("Enter the team leader's game UID"); return }
     if (!teamLeader.contact.trim()) { alert("Enter the team leader's contact number"); return }
-    const incomplete = members.some(m => !m.name.trim())
-    if (incomplete) { alert("Enter names for all teammates"); return }
+    const incomplete = members.some(m => !m.name.trim() || !m.game_uid.trim())
+    if (incomplete) { alert("Enter name and game UID for all teammates"); return }
 
     setTeamLoading(true)
     try {
@@ -339,7 +339,7 @@ function TournamentDetails() {
                         />
                       </div>
                       <div className="field-group">
-                        <label>Game UID (optional)</label>
+                        <label>Teammate {i + 1} Game UID</label>
                         <input
                           type="text"
                           placeholder="In-game ID"
