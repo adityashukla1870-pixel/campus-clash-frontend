@@ -70,7 +70,7 @@ function PodCard({ pod, isSquad, stageId, onChanged }) {
     const results = pod.participants.map(p => {
       const teamDraft = draft[p.registration_id] || {}
       if (isSquad && p.team_members?.length > 0) {
-        const allNames = [{ name: p.team_leader?.name || p.name }, ...p.team_members]
+        const allNames = [{ name: p.name }, ...p.team_members]
         const players = allNames.map(mem => ({
           name: mem.name,
           kills: Number(teamDraft.playerKills?.[mem.name] || 0)
@@ -461,6 +461,10 @@ function FinalParticipantsPanel({ tournamentId, tournament, onGrouped }) {
 
       {data.count === 0 ? (
         <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>No approved participants yet.</p>
+      ) : data.registration_open ? (
+        <p style={{ fontSize: 13, color: 'var(--gold)', marginTop: 14 }}>
+          ⏳ Groups can be launched once registration closes, so every approved entry makes it into the draw.
+        </p>
       ) : (
         <>
           <div style={{ display: 'flex', gap: 14, alignItems: 'flex-end', flexWrap: 'wrap', margin: '16px 0' }}>
