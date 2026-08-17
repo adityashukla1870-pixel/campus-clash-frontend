@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
+import { FiDollarSign, FiCheckCircle, FiXCircle, FiAward } from "react-icons/fi"
 import API from "../api/axios"
 import { resolveImageUrl } from "../utils/media"
 import AdminTopBar from "../components/AdminTopBar"
@@ -58,12 +59,12 @@ function AdminPayments() {
         <div style={{display:'flex',alignItems:'center',gap:16,marginBottom:32}}>
           <AdminTopBar />
         </div>
-        <h1 style={{fontFamily:'var(--font-display)',fontSize:28,fontWeight:700,marginBottom:6}}>💰 Payment Verification</h1>
+        <h1 style={{fontFamily:'var(--font-display)',fontSize:28,fontWeight:700,marginBottom:6}}><FiDollarSign /> Payment Verification</h1>
         <p style={{color:'var(--text-secondary)',fontSize:14,marginBottom:32}}>Review and approve pending tournament payments.</p>
 
         {payments.length === 0 ? (
           <div style={{textAlign:'center',padding:'60px 24px',color:'var(--text-muted)'}}>
-            <div style={{fontSize:48,marginBottom:16}}>✅</div>
+            <div style={{fontSize:48,marginBottom:16}}><FiCheckCircle size={48} /></div>
             <p style={{fontSize:16}}>No pending payments — all clear!</p>
           </div>
         ) : (
@@ -80,7 +81,7 @@ function AdminPayments() {
                   )}
                 </div>
 
-                <div style={{fontSize:13, color:'var(--purple-light)', marginBottom:14}}>🏆 {p.tournament_name}</div>
+                <div style={{fontSize:13, color:'var(--purple-light)', marginBottom:14}}><FiAward /> {p.tournament_name}</div>
 
                 {p.team_name && (
                   <div style={{marginBottom:14, padding:'10px 12px', background:'var(--bg-surface)', borderRadius:8}}>
@@ -108,8 +109,8 @@ function AdminPayments() {
                 <div style={{fontFamily:'var(--font-mono)',fontSize:12,color:'var(--text-secondary)',marginBottom:16,wordBreak:'break-all'}}>{p._id}</div>
 
                 <div style={{display:'flex',gap:10}}>
-                  <button className="btn-success" onClick={() => approve(p._id)}>✅ Approve</button>
-                  <button className="btn-danger" onClick={() => reject(p._id)}>❌ Reject</button>
+                  <button className="btn-success" onClick={() => approve(p._id)}><FiCheckCircle /> Approve</button>
+                  <button className="btn-danger" onClick={() => reject(p._id)}><FiXCircle /> Reject</button>
                 </div>
               </div>
               {p.screenshot ? (

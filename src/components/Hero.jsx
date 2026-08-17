@@ -1,4 +1,5 @@
 import { FaGamepad, FaArrowRight, FaBolt } from "react-icons/fa"
+import { FiMonitor, FiAward, FiCrosshair, FiZap } from "react-icons/fi"
 import { useNavigate } from "react-router-dom"
 import { handleTiltMove, handleTiltLeave } from "../utils/tilt"
 import "./Hero.css"
@@ -101,8 +102,8 @@ function Hero() {
 
           <div className="player-avatars">
             <div className="avatar-pill">
-              {['🎮','🏆','⚔️','🔥'].map((e, i) => (
-                <div key={i} className="avatar-dot" style={{background: ['#d4af37','#f9a825','#f59e0b','#22c55e'][i]+'33'}}>{e}</div>
+              {[FiMonitor, FiAward, FiCrosshair, FiZap].map((Icon, i) => (
+                <div key={i} className="avatar-dot" style={{background: ['#d4af37','#f9a825','#f59e0b','#22c55e'][i]+'33'}}><Icon /></div>
               ))}
             </div>
             <span className="player-count-text">+88 players joined</span>

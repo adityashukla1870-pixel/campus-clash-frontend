@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
+import { FiAward, FiZap, FiRefreshCw, FiFlag } from "react-icons/fi"
 import API from "../api/axios"
 import AdminTopBar from "../components/AdminTopBar"
 import { SkeletonText, SkeletonBracket, SkeletonBlock } from "../components/Skeleton"
@@ -86,7 +87,7 @@ function AdminBracket() {
           </>
         ) : (
           <>
-            <h1 style={{fontFamily:'var(--font-display)',fontSize:28,fontWeight:700,marginBottom:6}}>🏆 Bracket Manager</h1>
+            <h1 style={{fontFamily:'var(--font-display)',fontSize:28,fontWeight:700,marginBottom:6}}><FiAward /> Bracket Manager</h1>
             <p style={{color:'var(--text-secondary)',fontSize:14,marginBottom:32}}>Generate the bracket and report match winners round by round.</p>
 
             <div style={{background:'var(--bg-card)',border:'1px solid var(--border)',borderRadius:20,padding:32,marginBottom:24}}>
@@ -103,13 +104,13 @@ function AdminBracket() {
 
               {selectedId && !rounds && (
                 <button className="btn-primary" style={{marginTop:20}} onClick={handleGenerate} disabled={generating}>
-                  {generating ? "Generating..." : "⚡ Generate Bracket"}
+                  {generating ? "Generating..." : <><FiZap /> Generate Bracket</>}
                 </button>
               )}
 
               {selectedId && rounds && (
                 <button className="btn-secondary" onClick={handleGenerate} disabled={generating}>
-                  {generating ? "Regenerating..." : "🔄 Regenerate Bracket"}
+                  {generating ? "Regenerating..." : <><FiRefreshCw /> Regenerate Bracket</>}
                 </button>
               )}
             </div>
@@ -119,7 +120,7 @@ function AdminBracket() {
                 {rounds.map((round, ridx) => (
                   <div key={ridx} style={{minWidth:260, flexShrink:0}}>
                     <div style={{fontFamily:'var(--font-display)',fontWeight:700,fontSize:16,marginBottom:14,color:'var(--purple-light)'}}>
-                      {ridx === rounds.length - 1 ? "🏁 Final" : `Round ${ridx + 1}`}
+                      {ridx === rounds.length - 1 ? <><FiFlag /> Final</> : `Round ${ridx + 1}`}
                     </div>
                     {round.map((match, midx) => (
                       <div key={match.match_id} style={{background:'var(--bg-card)',border:'1px solid var(--border)',borderRadius:12,padding:12,marginBottom:16}}>

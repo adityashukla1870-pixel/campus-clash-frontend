@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom"
 import Navbar from "../components/Navbar"
 import API from "../api/axios"
 import { SkeletonRoom, SkeletonText } from "../components/Skeleton"
+import { FiMonitor, FiClock, FiSend } from "react-icons/fi"
 
 function TournamentRoom() {
   const { id } = useParams()
@@ -37,7 +38,7 @@ function TournamentRoom() {
     if (!room || !room.room_id) return
     const interval = setInterval(() => {
       const diff = new Date(room.match_start_time).getTime() - Date.now()
-      if (diff <= 0) { setTimeLeft("Match Started 🚀"); clearInterval(interval); return }
+      if (diff <= 0) { setTimeLeft("Match Started"); clearInterval(interval); return }
       const minutes = Math.floor((diff / 60000) % 60)
       const seconds = Math.floor((diff / 1000) % 60)
       setTimeLeft(`${String(minutes).padStart(2,'0')} : ${String(seconds).padStart(2,'0')}`)
@@ -92,7 +93,7 @@ function TournamentRoom() {
           {/* Top accent line */}
           <div style={{position:'absolute',top:0,left:0,right:0,height:3,background:'linear-gradient(135deg,#7c3aed,#a855f7)'}}/>
 
-          <div style={{fontSize:48,marginBottom:16}}>🎮</div>
+          <div style={{fontSize:48,marginBottom:16}}><FiMonitor /></div>
           <h1 style={{fontFamily:'var(--font-display)',fontSize:28,fontWeight:700,marginBottom:8}}>Match Room</h1>
 
           {!room?.room_id ? (
@@ -103,7 +104,7 @@ function TournamentRoom() {
                 borderRadius:12,
                 padding:'20px 24px',
               }}>
-                <div style={{fontSize:32,marginBottom:8}}>⏳</div>
+                <div style={{fontSize:32,marginBottom:8}}><FiClock /></div>
                 <p style={{color:'var(--yellow)',fontWeight:600,fontSize:16}}>Waiting for admin to release room</p>
                 <p style={{color:'var(--text-muted)',fontSize:14,marginTop:6}}>Come back shortly — details will appear here.</p>
               </div>
@@ -136,7 +137,7 @@ function TournamentRoom() {
                 padding:20,
               }}>
                 <div style={{fontSize:12,textTransform:'uppercase',letterSpacing:'0.8px',color:'var(--text-muted)',marginBottom:6}}>Match Starts In</div>
-                <div style={{fontFamily:'var(--font-mono)',fontSize:40,fontWeight:600,color:'var(--cyan)',letterSpacing:4}}>{timeLeft}</div>
+                <div style={{fontFamily:'var(--font-mono)',fontSize:40,fontWeight:600,color:'var(--cyan)',letterSpacing:4}}>{timeLeft === "Match Started" ? <><FiSend /> Match Started</> : timeLeft}</div>
               </div>
             </div>
           )}

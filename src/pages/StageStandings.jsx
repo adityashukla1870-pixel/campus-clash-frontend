@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
+import { FiCheckCircle, FiCircle, FiStar, FiKey, FiAward, FiTarget, FiMonitor, FiArrowLeft } from "react-icons/fi"
 import Navbar from "../components/Navbar"
 import API from "../api/axios"
 import { SkeletonTable, SkeletonText, SkeletonBlock, SkeletonButton } from "../components/Skeleton"
@@ -19,7 +20,7 @@ function PodView({ podSummary, advanceCount }) {
       <div className="pod-block-header">
         <h3>{podSummary.name}</h3>
         <span className={`stage-status ${podSummary.status}`}>
-          {podSummary.status === "completed" ? "✅ Done" : "🟢 Live"}
+          {podSummary.status === "completed" ? <><FiCheckCircle /> Done</> : <><FiCircle style={{color:'var(--green)'}} /> Live</>}
         </span>
       </div>
 
@@ -51,10 +52,10 @@ function PodView({ podSummary, advanceCount }) {
                 <span className="match-label">Match {m.match_number}{m.map && ` · ${m.map}`}</span>
                 {m.status === "completed" ? (
                   <span className="match-tag done">
-                    Results in{m.mvp && ` · ⭐ ${m.mvp.name} (${m.mvp.kills} kills)`}
+                    Results in{m.mvp && <><FiStar /> {m.mvp.name} ({m.mvp.kills} kills)</>}
                   </span>
                 ) : m.room_id ? (
-                  <span className="match-tag live">🔑 Room live</span>
+                  <span className="match-tag live"><FiKey /> Room live</span>
                 ) : (
                   <span className="match-tag pending">Upcoming</span>
                 )}
@@ -97,7 +98,7 @@ function StageView({ stageSummary }) {
       <div className="stage-block-header">
         <h2>{stageSummary.name} {stageSummary.is_final && <span className="badge badge-purple">FINAL</span>}</h2>
         <span className={`stage-status ${stageSummary.status}`}>
-          {stageSummary.status === "completed" ? "✅ Completed" : "🟢 Live"}
+          {stageSummary.status === "completed" ? <><FiCheckCircle /> Completed</> : <><FiCircle style={{color:'var(--green)'}} /> Live</>}
         </span>
       </div>
       {detail?.pods?.map(p => (
@@ -169,11 +170,11 @@ function StageStandings() {
   }
 
   const statTabs = [
-    { key: "overall", label: "🏆 Overall" },
-    { key: "team_frags", label: "🔫 Team Frags" },
-    { key: "individual_frags", label: "🎯 Individual Frags" },
-    { key: "chicken_dinners", label: "🍗 Chicken Dinners" },
-    { key: "mvp_leaderboard", label: "⭐ MVPs" },
+    { key: "overall", label: "Overall", Icon: FiAward },
+    { key: "team_frags", label: "Team Frags", Icon: FiTarget },
+    { key: "individual_frags", label: "Individual Frags", Icon: FiTarget },
+    { key: "chicken_dinners", label: "Chicken Dinners", Icon: FiAward },
+    { key: "mvp_leaderboard", label: "MVPs", Icon: FiStar },
   ]
 
   const renderStatTable = () => {
@@ -194,7 +195,7 @@ function StageStandings() {
         ]} />
       case "chicken_dinners":
         return <StatTable rows={stats.chicken_dinners} columns={[
-          { key: "rank", label: "#" }, { key: "name", label: "Team" }, { key: "chicken_dinners", label: "🍗 Wins" }
+          { key: "rank", label: "#" }, { key: "name", label: "Team" }, { key: "chicken_dinners", label: "Wins" }
         ]} />
       case "mvp_leaderboard":
         return <StatTable rows={stats.mvp_leaderboard} columns={[
@@ -209,12 +210,12 @@ function StageStandings() {
     <>
       <Navbar />
       <div className="standings-page">
-        <div className="standings-back" onClick={() => navigate(`/tournament/${id}`)}>← Back to Tournament</div>
+        <div className="standings-back" onClick={() => navigate(`/tournament/${id}`)}><FiArrowLeft /> Back to Tournament</div>
 
         {tournament && (
           <>
             <h1 className="standings-title">{tournament.name}</h1>
-            <p className="standings-subtitle">🎮 {tournament.game} — Full Tournament Standings</p>
+            <p className="standings-subtitle"><FiMonitor /> {tournament.game} — Full Tournament Standings</p>
           </>
         )}
 
@@ -236,7 +237,7 @@ function StageStandings() {
             <div className="stat-tabs">
               {statTabs.map(t => (
                 <span key={t.key} className={statTab === t.key ? "stat-tab active" : "stat-tab"} onClick={() => setStatTab(t.key)}>
-                  {t.label}
+                  <t.Icon /> {t.label}
                 </span>
               ))}
             </div>

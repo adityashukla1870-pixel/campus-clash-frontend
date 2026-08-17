@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
-import { FiAward, FiTarget, FiZap, FiEdit2, FiUser, FiMail, FiBookOpen, FiHash, FiLogOut, FiShield, FiTrendingUp, FiClock, FiCheckCircle } from "react-icons/fi"
+import { FiAward, FiTarget, FiZap, FiEdit2, FiUser, FiMail, FiBookOpen, FiHash, FiLogOut, FiShield, FiTrendingUp, FiClock, FiCheckCircle, FiLink } from "react-icons/fi"
 import Navbar from "../components/Navbar"
 import AvatarSelector from "../components/AvatarSelector"
 import API from "../api/axios"
@@ -142,7 +142,7 @@ function Profile() {
                 {isAdmin ? <><FiShield size={12} /> Admin</> : <><FiZap size={12} /> Player</>}
               </span>
               {profile.auth_provider === "google" && (
-                <span className="badge badge-google">🔗 Google</span>
+                <span className="badge badge-google"><FiLink /> Google</span>
               )}
             </div>
           </motion.div>

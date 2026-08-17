@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
+import { FiFlag, FiCheckCircle, FiClock, FiTarget, FiUsers, FiMonitor, FiAward, FiHeart, FiSend } from "react-icons/fi"
 import Navbar from "../components/Navbar"
 import API from "../api/axios"
 import { SkeletonCard, SkeletonText } from "../components/Skeleton"
@@ -37,9 +38,9 @@ function MyTournaments() {
   }
 
   const statusChip = (status) => {
-    if (status === "completed") return <span className="chip-completed">Completed 🏁</span>
-    if (status === "approved") return <span className="chip-approved">Approved ✅</span>
-    return <span className="chip-pending">Pending ⏳</span>
+    if (status === "completed") return <span className="chip-completed"><FiFlag /> Completed</span>
+    if (status === "approved") return <span className="chip-approved"><FiCheckCircle /> Approved</span>
+    return <span className="chip-pending"><FiClock /> Pending</span>
   }
 
   return (
@@ -53,7 +54,7 @@ function MyTournaments() {
 
           {tournaments.length === 0 ? (
             <div className="empty-state">
-              <div className="empty-icon">🎯</div>
+              <div className="empty-icon"><FiTarget /></div>
               <p>You haven't joined any tournaments yet. Go find a battle!</p>
             </div>
           ) : (
@@ -69,12 +70,12 @@ function MyTournaments() {
                     {t.team_name && (
                       <div className="mt-meta-item">
                         <span className="meta-label uppercase-label">Team</span>
-                        <span className="meta-value">👥 {t.team_name}</span>
+                        <span className="meta-value"><FiUsers /> {t.team_name}</span>
                       </div>
                     )}
                     <div className="mt-meta-item">
                       <span className="meta-label uppercase-label">Game</span>
-                      <span className="meta-value">🎮 {t.game}</span>
+                      <span className="meta-value"><FiMonitor /> {t.game}</span>
                     </div>
                     <div className="mt-meta-item">
                       <span className="meta-label uppercase-label">Entry Fee</span>
@@ -90,12 +91,12 @@ function MyTournaments() {
                     <div className={`winner-banner${t.is_winner ? '' : ' loser'}`}>
                       {t.is_winner ? (
                         <>
-                          <p style={{color:'var(--green)'}}>🎉 You won this tournament!</p>
+                          <p style={{color:'var(--green)'}}>You won this tournament!</p>
                           <div className="winner-name">Congratulations, champion.</div>
                         </>
                       ) : (
                         <>
-                          <p style={{color:'var(--yellow)'}}>❤️ Better luck next time</p>
+                          <p style={{color:'var(--yellow)'}}><FiHeart /> Better luck next time</p>
                           <div className="winner-name">Winner: {t.winner}</div>
                         </>
                       )}
@@ -110,11 +111,11 @@ function MyTournaments() {
                         disabled={t.status !== "approved"}
                         style={t.status !== "approved" ? {opacity:0.4,cursor:'not-allowed'} : {}}
                       >
-                        {t.status === "approved" ? "🚀 Open Room" : "⏳ Awaiting Approval"}
+                        {t.status === "approved" ? <><FiSend /> Open Room</> : <><FiClock /> Awaiting Approval</>}
                       </button>
                       {t.has_bracket && t.format !== 'full' && (
                         <button className="btn-primary" onClick={() => navigate(`/tournament/${t.id}/bracket`)}>
-                          🏆 Bracket
+                          <FiAward /> Bracket
                         </button>
                       )}
                     </div>
@@ -123,7 +124,7 @@ function MyTournaments() {
                   {t.status === "completed" && t.has_bracket && t.format !== 'full' && (
                     <div className="mt-action">
                       <button className="btn-primary" onClick={() => navigate(`/tournament/${t.id}/bracket`)}>
-                        🏆 View Final Bracket
+                        <FiAward /> View Final Bracket
                       </button>
                     </div>
                   )}

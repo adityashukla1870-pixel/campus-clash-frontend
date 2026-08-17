@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom"
+import { FiUser } from "react-icons/fi"
 
 function AdminTopBar({ showBack = true }) {
   const navigate = useNavigate()
@@ -29,7 +30,7 @@ function AdminTopBar({ showBack = true }) {
           style={{ cursor: "pointer", color: "var(--text-secondary)", fontSize: 14 }}
           onClick={() => navigate("/tournaments")}
         >
-          👤 User Dashboard
+          <FiUser /> User Dashboard
         </span>
 
         <span

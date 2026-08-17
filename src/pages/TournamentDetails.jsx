@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { QRCodeSVG } from "qrcode.react"
-import { FiUpload, FiUsers, FiTarget, FiCreditCard, FiBarChart2, FiCheckCircle } from "react-icons/fi"
+import { FiUpload, FiUsers, FiUser, FiTarget, FiCreditCard, FiBarChart2, FiCheckCircle, FiAward, FiMonitor, FiZap, FiSmartphone, FiKey, FiAlertTriangle, FiSend, FiArrowLeft } from "react-icons/fi"
 import Navbar from "../components/Navbar"
 import API from "../api/axios"
 import { resolveImageUrl } from "../utils/media"
@@ -143,7 +143,7 @@ function TournamentDetails() {
       <div className="details-page">
         <div className="details-inner">
           <div className="details-back" onClick={() => navigate("/tournaments")}>
-            ← Back to Tournaments
+            <FiArrowLeft /> Back to Tournaments
           </div>
 
           {tournament.banner_image && (
@@ -164,7 +164,7 @@ function TournamentDetails() {
                   Your Group — {myGroup.stage_name}
                 </div>
                 <div style={{ fontFamily: 'var(--font-display)', fontSize: 20, fontWeight: 700, color: 'var(--purple-light)' }}>
-                  🏷️ {myGroup.pod_name}
+                   <FiTarget /> {myGroup.pod_name}
                 </div>
                 {myGroup.teammates?.length > 0 && (
                   <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>
@@ -179,12 +179,12 @@ function TournamentDetails() {
             <div className="details-eyebrow">Tournament Details</div>
             <h1 className="details-title">{tournament.name}</h1>
             <div className="details-badges">
-              <span className="details-badge">🎮 {tournament.game}</span>
+              <span className="details-badge"><FiMonitor /> {tournament.game}</span>
               <span className={`details-badge ${isSquad ? 'cyan' : 'purple'}`}>
-                {isSquad ? `👥 Squad — Team of ${tournament.team_size}` : '🧍 Solo'}
+                {isSquad ? <><FiUsers /> Squad — Team of {tournament.team_size}</> : <><FiUser /> Solo</>}
               </span>
               <span className={`details-badge ${tournament.format === 'full' ? 'gold' : 'cyan'}`}>
-                {tournament.format === 'full' ? '🏅 Multi-Stage Tournament' : '⚡ Quick Match'}
+                {tournament.format === 'full' ? <><FiAward /> Multi-Stage Tournament</> : <><FiZap /> Quick Match</>}
               </span>
               {tournament.format === "full" && (
                 <span className="details-badge gold clickable" onClick={() => navigate(`/tournament/${id}/standings`)}>
@@ -217,13 +217,13 @@ function TournamentDetails() {
               {/* Prize breakdown — how the pool splits across placements */}
               {tournament.prize_breakdown?.length > 0 && (
                 <div className="section-card">
-                  <h2>🏆 Prize Breakdown</h2>
+                  <h2><FiAward /> Prize Breakdown</h2>
                   <p className="section-subtext">How the ₹{tournament.prize_pool} pool is split across placements.</p>
                   <div className="scoring-grid">
                     {tournament.prize_breakdown.map((row) => (
                       <div className="scoring-chip" key={row.rank}>
                         <div className="scoring-chip-rank">
-                          {row.rank === "1" ? "🥇 #1" : row.rank === "2" ? "🥈 #2" : row.rank === "3" ? "🥉 #3" : `#${row.rank}`}
+                          {row.rank === "1" ? <><FiAward /> #1</> : row.rank === "2" ? <><FiAward /> #2</> : row.rank === "3" ? <><FiAward /> #3</> : `#${row.rank}`}
                         </div>
                         <div className="scoring-chip-pts">₹{row.amount.toLocaleString()}</div>
                       </div>
@@ -252,7 +252,7 @@ function TournamentDetails() {
                       ))}
                   </div>
                   <div className="kill-points-row">
-                    <span>🔫 Per Kill</span>
+                    <span><FiTarget /> Per Kill</span>
                     <strong>{tournament.kill_point_value} {tournament.kill_point_value === 1 ? 'point' : 'points'}</strong>
                   </div>
                 </div>
@@ -331,12 +331,12 @@ function TournamentDetails() {
                         <QRCodeSVG value={upiLink} size={172} />
                       </div>
                     )}
-                    <div className="code-note">📱 Scan to pay ₹{tournament.entry_fee} — amount &amp; code auto-filled</div>
-                    <div className="code-label">🔑 Your Payment Code</div>
+                    <div className="code-note"><FiSmartphone /> Scan to pay ₹{tournament.entry_fee} — amount &amp; code auto-filled</div>
+                    <div className="code-label"><FiKey /> Your Payment Code</div>
                     <div className="code-value">{paymentCode || "Generating..."}</div>
-                    <div className="code-note">⚠️ Add this code in the UPI payment remarks/note</div>
+                    <div className="code-note"><FiAlertTriangle /> Add this code in the UPI payment remarks/note</div>
                     <button className="btn-secondary" onClick={handleCopy}>
-                      {copied ? "✅ Copied!" : "Copy Code"}
+                      {copied ? <><FiCheckCircle /> Copied!</> : "Copy Code"}
                     </button>
                   </div>
                 </div>
@@ -348,7 +348,7 @@ function TournamentDetails() {
                     <input type="file" accept="image/*" onChange={(e) => setFile(e.target.files[0])} />
                     <FiUpload className="upload-icon" size={26} />
                     <p>Click to upload payment screenshot</p>
-                    {file && <div className="file-name">✅ {file.name}</div>}
+                    {file && <div className="file-name"><FiCheckCircle /> {file.name}</div>}
                   </div>
 
                   <div className="field-group">
@@ -362,7 +362,7 @@ function TournamentDetails() {
                   </div>
 
                   <button className="btn-primary chamfer-sm details-cta" onClick={handleUpload} disabled={loading}>
-                    {loading ? "Submitting..." : "🚀 Submit Payment"}
+                    {loading ? "Submitting..." : <><FiSend /> Submit Payment</>}
                   </button>
                 </div>
               </div>

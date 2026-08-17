@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { FiLock, FiClock } from "react-icons/fi"
 
 function msLeftOf(deadline) {
   if (!deadline) return null
@@ -25,7 +26,7 @@ function formatDuration(ms) {
  * - Calls onExpire() exactly once, right when the deadline passes.
  * - Renders nothing if no deadline is set (open-ended registration).
  */
-function RegistrationTimer({ deadline, onExpire, style = {}, closedText = "🔒 Registration Closed" }) {
+function RegistrationTimer({ deadline, onExpire, style = {}, closedText = "Registration Closed" }) {
   const [msLeft, setMsLeft] = useState(() => msLeftOf(deadline))
   const [firedExpire, setFiredExpire] = useState(false)
 
@@ -56,7 +57,7 @@ function RegistrationTimer({ deadline, onExpire, style = {}, closedText = "🔒 
 
   return (
     <div className={`reg-timer${closed ? " reg-timer-closed" : ""}`} style={style}>
-      {closed ? closedText : `⏳ Closes in ${formatDuration(msLeft)}`}
+      {closed ? <><FiLock /> {closedText}</> : <><FiClock /> Closes in {formatDuration(msLeft)}</>}
     </div>
   )
 }
