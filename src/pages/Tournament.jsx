@@ -64,8 +64,7 @@ function Tournament() {
     const matchesSearch = t.name?.toLowerCase().includes(search.toLowerCase())
     const matchesGame = gameFilter === "all" || t.game === gameFilter
     const matchesStatus = statusFilter === "all"
-      || (statusFilter === "open" && t.status === "upcoming" && t.players.length < t.max_players)
-      || (statusFilter === "full" && t.players.length >= t.max_players)
+      || (statusFilter === "open" && t.status === "upcoming")
       || (statusFilter === "in_progress" && t.status === "in_progress")
       || (statusFilter === "completed" && t.status === "completed")
     return matchesSearch && matchesGame && matchesStatus
@@ -77,7 +76,7 @@ function Tournament() {
     .filter(t => t.status === "in_progress")
     .sort((a, b) => (b.prize_pool || 0) - (a.prize_pool || 0))[0]
     || [...tournaments]
-      .filter(t => t.status === "upcoming" && t.players.length < t.max_players)
+      .filter(t => t.status === "upcoming")
       .sort((a, b) => (b.prize_pool || 0) - (a.prize_pool || 0))[0]
 
   return (
@@ -138,7 +137,6 @@ function Tournament() {
           >
             <option value="all">All Status</option>
             <option value="open">Open</option>
-            <option value="full">Full</option>
             <option value="in_progress">In Progress</option>
             <option value="completed">Completed</option>
           </select>
@@ -173,8 +171,6 @@ function Tournament() {
           <div className="tournament-list">
             {filteredTournaments.map((t) => {
               const alreadyJoined = t.players?.includes(userId)
-              const isFull = t.players.length >= t.max_players
-              const fillPct = Math.round((t.players.length / t.max_players) * 100)
 
               return (
                 <div className="tournament-card hover-lift" key={t.id}>
@@ -195,7 +191,6 @@ function Tournament() {
                       {t.format === 'full' ? '🏅 Multi-Stage' : '⚡ Quick Match'}
                     </span>
                     {alreadyJoined && <span className="badge badge-cyan">Joined</span>}
-                    {isFull && !alreadyJoined && <span style={{color:'var(--red)',fontSize:'12px',fontWeight:600}}>FULL</span>}
                   </div>
 
                   <div className="card-title">{t.name}</div>
@@ -238,14 +233,8 @@ function Tournament() {
 
                   <div className="player-bar">
                     <div className="player-bar-top">
-                      <span>Players</span>
-                      <span>{t.players.length} / {t.max_players}</span>
-                    </div>
-                    <div className="bar-track">
-                      <div
-                        className={`bar-fill${isFull ? ' full' : ''}`}
-                        style={{ width: `${fillPct}%` }}
-                      />
+                      <span>Players Registered</span>
+                      <span>{t.players.length}</span>
                     </div>
                   </div>
 
@@ -263,12 +252,12 @@ function Tournament() {
                     )}
                     <div style={{display:'flex', gap:8, alignItems:'center'}}>
                       <button
-                        className={alreadyJoined ? 'btn-joined' : isFull || t.registration_open === false ? 'btn-full' : 'btn-join'}
-                        onClick={() => !alreadyJoined && !isFull && t.registration_open !== false && navigate(`/tournament/${t.id}`)}
-                        disabled={alreadyJoined || isFull || t.registration_open === false}
+                        className={alreadyJoined ? 'btn-joined' : t.registration_open === false ? 'btn-full' : 'btn-join'}
+                        onClick={() => !alreadyJoined && t.registration_open !== false && navigate(`/tournament/${t.id}`)}
+                        disabled={alreadyJoined || t.registration_open === false}
                         style={{flex:1}}
                       >
-                        {alreadyJoined ? '✅ Registered' : isFull ? '🔒 Full' : t.registration_open === false ? '⏱️ Registration Closed' : '⚔️ Join Now'}
+                        {alreadyJoined ? '✅ Registered' : t.registration_open === false ? '⏱️ Registration Closed' : '⚔️ Join Now'}
                       </button>
                     </div>
                   </div>

@@ -63,6 +63,7 @@ function TournamentDetails() {
   const handleConfirmTeam = async () => {
     if (!teamName.trim()) { alert("Enter your team name"); return }
     if (!teamLeader.name.trim()) { alert("Enter the team leader's name"); return }
+    if (!teamLeader.game_uid.trim()) { alert("Enter the team leader's game UID"); return }
     if (!teamLeader.contact.trim()) { alert("Enter the team leader's contact number"); return }
     const incomplete = members.some(m => !m.name.trim())
     if (incomplete) { alert("Enter names for all teammates"); return }
@@ -140,7 +141,6 @@ function TournamentDetails() {
 
   const isSquad = tournament.mode === "squad"
   const canPay = !isSquad || teamConfirmed
-  const fillPct = Math.round((tournament.players.length / tournament.max_players) * 100)
 
   const upiLink = paymentCode
     ? `upi://pay?pa=${encodeURIComponent(UPI_ID)}&pn=${encodeURIComponent(PAYEE_NAME)}&am=${tournament.entry_fee}&tn=${encodeURIComponent(paymentCode)}&cu=INR`
@@ -227,10 +227,7 @@ function TournamentDetails() {
                   <div className="ig-value gold">₹{tournament.prize_pool}</div>
                 </div>
                 <div className="info-grid-item" style={{ gridColumn: '1/-1' }}>
-                  <div className="ig-label">Players — {tournament.players.length} / {tournament.max_players}</div>
-                  <div className="ig-progress-track">
-                    <div className="ig-progress-fill" style={{ width: `${fillPct}%` }} />
-                  </div>
+                  <div className="ig-label">Players Registered — {tournament.players.length}</div>
                 </div>
               </div>
 
@@ -308,7 +305,7 @@ function TournamentDetails() {
                       />
                     </div>
                     <div className="field-group">
-                      <label>Team Leader Game UID (optional)</label>
+                      <label>Team Leader Game UID</label>
                       <input
                         type="text"
                         placeholder="Your in-game ID"
