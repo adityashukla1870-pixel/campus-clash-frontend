@@ -24,6 +24,7 @@ function TournamentDetails() {
 
   // Squad mode state
   const [teamName, setTeamName] = useState("")
+  const [teamLeader, setTeamLeader] = useState({ name: "", game_uid: "", contact: "" })
   const [members, setMembers] = useState([])
   const [teamConfirmed, setTeamConfirmed] = useState(false)
   const [teamLoading, setTeamLoading] = useState(false)
@@ -55,8 +56,14 @@ function TournamentDetails() {
     setMembers(prev => prev.map((m, i) => i === index ? { ...m, [field]: value } : m))
   }
 
+  const updateLeader = (field, value) => {
+    setTeamLeader(prev => ({ ...prev, [field]: value }))
+  }
+
   const handleConfirmTeam = async () => {
     if (!teamName.trim()) { alert("Enter your team name"); return }
+    if (!teamLeader.name.trim()) { alert("Enter the team leader's name"); return }
+    if (!teamLeader.contact.trim()) { alert("Enter the team leader's contact number"); return }
     const incomplete = members.some(m => !m.name.trim())
     if (incomplete) { alert("Enter names for all teammates"); return }
 
@@ -64,6 +71,7 @@ function TournamentDetails() {
     try {
       const res = await API.post(`/tournament/register/${id}`, {
         team_name: teamName,
+        team_leader: teamLeader,
         team_members: members
       })
       setPaymentCode(res.data.payment_code)
@@ -79,7 +87,7 @@ function TournamentDetails() {
     if (!file || !utr) { alert("Upload screenshot and enter UTR"); return }
     setLoading(true)
     try {
-      const res1 = await API.post(`/tournament/register/${id}`, tournament.mode === "squad" ? { team_name: teamName, team_members: members } : {})
+      const res1 = await API.post(`/tournament/register/${id}`, tournament.mode === "squad" ? { team_name: teamName, team_leader: teamLeader, team_members: members } : {})
       const registrationId = res1.data.registration_id
       if (!registrationId) { alert("Registration failed"); return }
 
@@ -288,6 +296,39 @@ function TournamentDetails() {
                     />
                   </div>
 
+                  <div className="team-member-row">
+                    <div className="field-group">
+                      <label>Team Leader Name</label>
+                      <input
+                        type="text"
+                        placeholder="Your name"
+                        value={teamLeader.name}
+                        onChange={(e) => updateLeader("name", e.target.value)}
+                        disabled={teamConfirmed}
+                      />
+                    </div>
+                    <div className="field-group">
+                      <label>Team Leader Game UID (optional)</label>
+                      <input
+                        type="text"
+                        placeholder="Your in-game ID"
+                        value={teamLeader.game_uid}
+                        onChange={(e) => updateLeader("game_uid", e.target.value)}
+                        disabled={teamConfirmed}
+                      />
+                    </div>
+                  </div>
+                  <div className="field-group">
+                    <label>Team Leader Contact Number</label>
+                    <input
+                      type="tel"
+                      placeholder="Reachable phone number"
+                      value={teamLeader.contact}
+                      onChange={(e) => updateLeader("contact", e.target.value)}
+                      disabled={teamConfirmed}
+                    />
+                  </div>
+
                   {members.map((m, i) => (
                     <div key={i} className="team-member-row">
                       <div className="field-group">
@@ -319,7 +360,7 @@ function TournamentDetails() {
                     </button>
                   ) : (
                     <div className="team-confirmed-note">
-                      <FiCheckCircle size={16} /> Team "{teamName}" confirmed
+                      <FiCheckCircle size={16} /> Team "{teamName}" confirmed — led by {teamLeader.name}
                     </div>
                   )}
                 </div>

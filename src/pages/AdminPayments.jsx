@@ -85,9 +85,19 @@ function AdminPayments() {
                 {p.team_name && (
                   <div style={{marginBottom:14, padding:'10px 12px', background:'var(--bg-surface)', borderRadius:8}}>
                     <div style={{fontSize:11,textTransform:'uppercase',letterSpacing:'0.8px',color:'var(--text-muted)',marginBottom:4}}>Squad — {p.team_name}</div>
+
+                    {p.team_leader?.name && (
+                      <div style={{fontSize:12, color:'var(--text-secondary)', marginBottom: p.team_members?.length ? 6 : 0}}>
+                        <strong style={{color:'var(--text-primary)'}}>Leader:</strong> {p.team_leader.name}
+                        {p.team_leader.game_uid && ` (UID: ${p.team_leader.game_uid})`}
+                        {p.team_leader.contact && ` · ${p.team_leader.contact}`}
+                      </div>
+                    )}
+
                     {p.team_members?.length > 0 && (
                       <div style={{fontSize:12, color:'var(--text-secondary)'}}>
-                        {p.team_members.map(m => m.name).filter(Boolean).join(", ")}
+                        <strong style={{color:'var(--text-primary)'}}>Members:</strong>{" "}
+                        {p.team_members.map(m => m.game_uid ? `${m.name} (UID: ${m.game_uid})` : m.name).filter(Boolean).join(", ")}
                       </div>
                     )}
                   </div>

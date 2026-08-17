@@ -70,7 +70,7 @@ function PodCard({ pod, isSquad, stageId, onChanged }) {
     const results = pod.participants.map(p => {
       const teamDraft = draft[p.registration_id] || {}
       if (isSquad && p.team_members?.length > 0) {
-        const allNames = [{ name: p.name }, ...p.team_members]
+        const allNames = [{ name: p.team_leader?.name || p.name }, ...p.team_members]
         const players = allNames.map(mem => ({
           name: mem.name,
           kills: Number(teamDraft.playerKills?.[mem.name] || 0)
