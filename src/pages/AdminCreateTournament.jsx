@@ -62,6 +62,12 @@ function AdminCreateTournament() {
     }
     setLoading(true)
     try {
+      // Convert datetime-local (no tz info) to UTC ISO string
+      // datetime-local treats the value as browser local time,
+      // so we convert it to UTC before sending to backend.
+      const deadlineDate = new Date(registrationEndTime)
+      const utcRegistrationEndTime = deadlineDate.toISOString()
+
       const formData = new FormData()
       formData.append("name", name)
       formData.append("game", game)
@@ -69,8 +75,13 @@ function AdminCreateTournament() {
       formData.append("prize_pool", Number(prizePool))
       formData.append("prize_distribution", JSON.stringify(prizeDistribution))
       formData.append("max_players", Number(maxPlayers))
-      formData.append("registration_end_time", registrationEndTime)
-      if (scheduledTime) formData.append("scheduled_time", scheduledTime)
+      formData.append("registration_end_time", utcRegistrationEndTime)
+      if (scheduledTime) {
+        // Similarly convert scheduled_time if it's a datetime-local value
+        const scheduledDate = new Date(scheduledTime)
+        const utcScheduledTime = scheduledDate.toISOString()
+        formData.append("scheduled_time", utcScheduledTime)
+      }
       formData.append("mode", mode)
       formData.append("team_size", mode === "squad" ? Number(teamSize) : 1)
       formData.append("format", format)
