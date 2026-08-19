@@ -1,15 +1,26 @@
+import { motion } from "framer-motion"
+import {
+  GiAk47,
+  GiCrosshair,
+  GiFlame,
+  GiSoccerBall,
+  GiMachineGun,
+  GiCastle,
+  GiTargetShot,
+  GiIsland,
+} from "react-icons/gi"
 import { FiTarget, FiZap, FiCircle, FiAward, FiMonitor, FiCrosshair } from "react-icons/fi"
 import "./GamesTicker.css"
 
 const GAMES = [
-  { Icon: FiCrosshair, name: "BGMI" },
-  { Icon: FiTarget, name: "Valorant" },
-  { Icon: FiZap, name: "Free Fire" },
-  { Icon: FiCircle, name: "FIFA / eFootball" },
-  { Icon: FiAward, name: "Call of Duty Mobile" },
-  { Icon: FiMonitor, name: "Clash Royale" },
-  { Icon: FiMonitor, name: "CS2" },
-  { Icon: FiZap, name: "Fortnite" },
+  { icon: <GiAk47 />, name: "BGMI" },
+  { icon: <GiCrosshair />, name: "Valorant" },
+  { icon: <GiFlame />, name: "Free Fire" },
+  { icon: <GiSoccerBall />, name: "FIFA / eFootball" },
+  { icon: <GiMachineGun />, name: "Call of Duty Mobile" },
+  { icon: <GiCastle />, name: "Clash Royale" },
+  { icon: <GiTargetShot />, name: "CS2" },
+  { icon: <GiIsland />, name: "Fortnite" },
 ]
 
 function GamesTicker() {
@@ -20,10 +31,15 @@ function GamesTicker() {
       <div className="ticker-mask">
         <div className="ticker-track">
           {track.map((g, i) => (
-            <div className="ticker-item" key={i}>
-              <span className="ticker-emoji"><g.Icon /></span>
+            <motion.div
+              className="ticker-item"
+              key={i}
+              whileHover={{ scale: 1.08, y: -2 }}
+              transition={{ type: "spring", stiffness: 320, damping: 18 }}
+            >
+              <span className="ticker-icon">{g.icon}</span>
               <span>{g.name}</span>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>

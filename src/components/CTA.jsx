@@ -1,5 +1,6 @@
 import { FaGamepad, FaArrowRight } from "react-icons/fa"
 import { useNavigate } from "react-router-dom"
+import { motion } from "framer-motion"
 import Reveal from "./Reveal"
 import "./CTA.css"
 
@@ -10,14 +11,24 @@ function CTA() {
     <section className="section cta-section">
       <Reveal direction="scale" className="cta-card shimmer-wrap">
         <h2>Ready to prove you're the best?</h2>
-        <p>Join thousands of college gamers already competing for real prize money on Campus Clash.</p>
+        <p>Register free, join a tournament, and start competing for real prize money on Campus Clash.</p>
         <div className="cta-buttons">
-          <button className="btn-primary" onClick={() => navigate("/register")}>
+          <motion.button
+            className="btn-primary"
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.97 }}
+            onClick={() => navigate("/register")}
+          >
             <FaGamepad /> Create Free Account
-          </button>
-          <button className="btn-secondary" onClick={() => navigate("/login")}>
+          </motion.button>
+          <motion.button
+            className="btn-secondary"
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.97 }}
+            onClick={() => navigate("/login")}
+          >
             I already have an account <FaArrowRight />
-          </button>
+          </motion.button>
         </div>
       </Reveal>
     </section>

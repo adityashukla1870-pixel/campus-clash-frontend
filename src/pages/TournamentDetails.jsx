@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { QRCodeSVG } from "qrcode.react"
-import { FiUpload, FiUsers, FiUser, FiTarget, FiCreditCard, FiBarChart2, FiCheckCircle, FiAward, FiMonitor, FiZap, FiSmartphone, FiKey, FiAlertTriangle, FiSend, FiArrowLeft } from "react-icons/fi"
+import { FiUpload, FiUsers, FiTarget, FiCreditCard, FiBarChart2, FiCheckCircle, FiZap } from "react-icons/fi"
 import Navbar from "../components/Navbar"
 import API from "../api/axios"
 import { resolveImageUrl } from "../utils/media"
 import { SkeletonBlock, SkeletonText, SkeletonCard, SkeletonForm, SkeletonRoom, SkeletonBadge } from "../components/Skeleton"
+import RegistrationTimer from "../components/RegistrationTimer"
 import "./TournamentDetails.css"
 
 const UPI_ID = "7052759580@ptyes"
@@ -23,6 +24,7 @@ function TournamentDetails() {
 
   // Squad mode state
   const [teamName, setTeamName] = useState("")
+  const [teamLeader, setTeamLeader] = useState({ name: "", game_uid: "", contact: "" })
   const [members, setMembers] = useState([])
   const [teamConfirmed, setTeamConfirmed] = useState(false)
   const [teamLoading, setTeamLoading] = useState(false)
@@ -54,20 +56,24 @@ function TournamentDetails() {
     setMembers(prev => prev.map((m, i) => i === index ? { ...m, [field]: value } : m))
   }
 
+  const updateLeader = (field, value) => {
+    setTeamLeader(prev => ({ ...prev, [field]: value }))
+  }
+
   const handleConfirmTeam = async () => {
     if (!teamName.trim()) { alert("Enter your team name"); return }
-    const incomplete = members.some(m => !m.username.trim())
-    if (incomplete) { alert("Enter a username for all teammates"); return }
+    if (!teamLeader.name.trim()) { alert("Enter the team leader's name"); return }
+    if (!teamLeader.game_uid.trim()) { alert("Enter the team leader's game UID"); return }
+    if (!teamLeader.contact.trim()) { alert("Enter the team leader's contact number"); return }
+    const incomplete = members.some(m => !m.name.trim() || !m.game_uid.trim())
+    if (incomplete) { alert("Enter name and game UID for all teammates"); return }
 
     setTeamLoading(true)
     try {
       const res = await API.post(`/tournament/register/${id}`, {
         team_name: teamName,
-        team_members: members.map(m => ({
-          username: m.username.trim().toLowerCase(),
-          name: m.name.trim(),
-          game_uid: m.game_uid.trim()
-        }))
+        team_leader: teamLeader,
+        team_members: members
       })
       setPaymentCode(res.data.payment_code)
       setTeamConfirmed(true)
@@ -82,7 +88,7 @@ function TournamentDetails() {
     if (!file || !utr) { alert("Upload screenshot and enter UTR"); return }
     setLoading(true)
     try {
-      const res1 = await API.post(`/tournament/register/${id}`, tournament.mode === "squad" ? { team_name: teamName, team_members: members.map(m => ({ username: m.username.trim().toLowerCase(), name: m.name.trim(), game_uid: m.game_uid.trim() })) } : {})
+      const res1 = await API.post(`/tournament/register/${id}`, tournament.mode === "squad" ? { team_name: teamName, team_leader: teamLeader, team_members: members } : {})
       const registrationId = res1.data.registration_id
       if (!registrationId) { alert("Registration failed"); return }
 
@@ -135,7 +141,6 @@ function TournamentDetails() {
 
   const isSquad = tournament.mode === "squad"
   const canPay = !isSquad || teamConfirmed
-  const fillPct = Math.round((tournament.players.length / tournament.max_players) * 100)
 
   const upiLink = paymentCode
     ? `upi://pay?pa=${encodeURIComponent(UPI_ID)}&pn=${encodeURIComponent(PAYEE_NAME)}&am=${tournament.entry_fee}&tn=${encodeURIComponent(paymentCode)}&cu=INR`
@@ -191,11 +196,22 @@ function TournamentDetails() {
                 {tournament.format === 'full' ? <><FiAward /> Multi-Stage Tournament</> : <><FiZap /> Quick Match</>}
               </span>
               {tournament.format === "full" && (
-                <span className="details-badge gold clickable" onClick={() => navigate(`/tournament/${id}/standings`)}>
+                <span
+                  className="details-badge details-badge-action"
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => navigate(`/tournament/${id}/standings`)}
+                  onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && navigate(`/tournament/${id}/standings`)}
+                >
                   <FiBarChart2 size={13} /> View Standings
                 </span>
               )}
             </div>
+            {tournament.scheduled_time && (
+              <div className="details-scheduled">
+                <FiZap size={12} /> Starts: {new Date(tournament.scheduled_time).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })} at {new Date(tournament.scheduled_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              </div>
+            )}
           </div>
 
           <div className="details-layout">
@@ -211,12 +227,12 @@ function TournamentDetails() {
                   <div className="ig-value gold">₹{tournament.prize_pool}</div>
                 </div>
                 <div className="info-grid-item" style={{ gridColumn: '1/-1' }}>
-                  <div className="ig-label">Players — {tournament.players.length} / {tournament.max_players}</div>
-                  <div className="ig-progress-track">
-                    <div className="ig-progress-fill" style={{ width: `${fillPct}%` }} />
-                  </div>
+                  <div className="ig-label">Players Registered — {tournament.players.length}</div>
                 </div>
               </div>
+
+              {/* Registration timer — shows when registration closes */}
+              <RegistrationTimer deadline={tournament.registration_end_time} />
 
               {/* Prize breakdown — how the pool splits across placements */}
               {tournament.prize_breakdown?.length > 0 && (
@@ -277,6 +293,39 @@ function TournamentDetails() {
                     />
                   </div>
 
+                  <div className="team-member-row">
+                    <div className="field-group">
+                      <label>Team Leader Name</label>
+                      <input
+                        type="text"
+                        placeholder="Your name"
+                        value={teamLeader.name}
+                        onChange={(e) => updateLeader("name", e.target.value)}
+                        disabled={teamConfirmed}
+                      />
+                    </div>
+                    <div className="field-group">
+                      <label>Team Leader Game UID</label>
+                      <input
+                        type="text"
+                        placeholder="Your in-game ID"
+                        value={teamLeader.game_uid}
+                        onChange={(e) => updateLeader("game_uid", e.target.value)}
+                        disabled={teamConfirmed}
+                      />
+                    </div>
+                  </div>
+                  <div className="field-group">
+                    <label>Team Leader Contact Number</label>
+                    <input
+                      type="tel"
+                      placeholder="Reachable phone number"
+                      value={teamLeader.contact}
+                      onChange={(e) => updateLeader("contact", e.target.value)}
+                      disabled={teamConfirmed}
+                    />
+                  </div>
+
                   {members.map((m, i) => (
                     <div key={i} className="team-member-row">
                       <div className="field-group">
@@ -300,7 +349,7 @@ function TournamentDetails() {
                         />
                       </div>
                       <div className="field-group">
-                        <label>Game UID (optional)</label>
+                        <label>Teammate {i + 1} Game UID</label>
                         <input
                           type="text"
                           placeholder="In-game ID"
@@ -318,7 +367,7 @@ function TournamentDetails() {
                     </button>
                   ) : (
                     <div className="team-confirmed-note">
-                      <FiCheckCircle size={16} /> Team "{teamName}" confirmed
+                      <FiCheckCircle size={16} /> Team "{teamName}" confirmed — led by {teamLeader.name}
                     </div>
                   )}
                 </div>

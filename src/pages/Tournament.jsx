@@ -5,6 +5,7 @@ import { FiSearch, FiZap, FiMonitor, FiTarget, FiCrosshair, FiCheckCircle, FiLoc
 import Navbar from "../components/Navbar"
 import API from "../api/axios"
 import { resolveImageUrl } from "../utils/media"
+import RegistrationTimer from "../components/RegistrationTimer"
 import { SkeletonCardGrid, SkeletonTable, SkeletonText, SkeletonBadge, SkeletonBlock } from "../components/Skeleton"
 import "./Tournament.css"
 
@@ -63,8 +64,7 @@ function Tournament() {
     const matchesSearch = t.name?.toLowerCase().includes(search.toLowerCase())
     const matchesGame = gameFilter === "all" || t.game === gameFilter
     const matchesStatus = statusFilter === "all"
-      || (statusFilter === "open" && t.status === "upcoming" && t.players.length < t.max_players)
-      || (statusFilter === "full" && t.players.length >= t.max_players)
+      || (statusFilter === "open" && t.status === "upcoming")
       || (statusFilter === "in_progress" && t.status === "in_progress")
       || (statusFilter === "completed" && t.status === "completed")
     return matchesSearch && matchesGame && matchesStatus
@@ -76,7 +76,7 @@ function Tournament() {
     .filter(t => t.status === "in_progress")
     .sort((a, b) => (b.prize_pool || 0) - (a.prize_pool || 0))[0]
     || [...tournaments]
-      .filter(t => t.status === "upcoming" && t.players.length < t.max_players)
+      .filter(t => t.status === "upcoming")
       .sort((a, b) => (b.prize_pool || 0) - (a.prize_pool || 0))[0]
 
   return (
@@ -137,7 +137,6 @@ function Tournament() {
           >
             <option value="all">All Status</option>
             <option value="open">Open</option>
-            <option value="full">Full</option>
             <option value="in_progress">In Progress</option>
             <option value="completed">Completed</option>
           </select>
@@ -172,8 +171,6 @@ function Tournament() {
           <div className="tournament-list">
             {filteredTournaments.map((t) => {
               const alreadyJoined = t.players?.includes(userId)
-              const isFull = t.players.length >= t.max_players
-              const fillPct = Math.round((t.players.length / t.max_players) * 100)
 
               return (
                 <div className="tournament-card hover-lift" key={t.id}>
@@ -194,7 +191,6 @@ function Tournament() {
                       {t.format === 'full' ? <><FiAward /> Multi-Stage</> : <><FiZap /> Quick Match</>}
                     </span>
                     {alreadyJoined && <span className="badge badge-cyan">Joined</span>}
-                    {isFull && !alreadyJoined && <span style={{color:'var(--red)',fontSize:'12px',fontWeight:600}}>FULL</span>}
                   </div>
 
                   <div className="card-title">{t.name}</div>
@@ -204,6 +200,12 @@ function Tournament() {
                       ? 'Group stages → playoffs → grand finale, with a live points table.'
                       : 'Single decisive match — winner takes the prize pool.'}
                   </div>
+
+                  {t.scheduled_time && (
+                    <div className="card-scheduled">
+                      <FiZap size={12} /> Starting: {new Date(t.scheduled_time).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })} {new Date(t.scheduled_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </div>
+                  )}
 
                   <div className="card-stats">
                     <div className="card-stat">
@@ -231,16 +233,12 @@ function Tournament() {
 
                   <div className="player-bar">
                     <div className="player-bar-top">
-                      <span>Players</span>
-                      <span>{t.players.length} / {t.max_players}</span>
-                    </div>
-                    <div className="bar-track">
-                      <div
-                        className={`bar-fill${isFull ? ' full' : ''}`}
-                        style={{ width: `${fillPct}%` }}
-                      />
+                      <span>Players Registered</span>
+                      <span>{t.players.length}</span>
                     </div>
                   </div>
+
+                  <RegistrationTimer deadline={t.registration_end_time} />
 
                   <div className="card-actions">
                     {t.has_bracket && t.format !== 'full' && (
@@ -252,13 +250,16 @@ function Tournament() {
                         <FiAward size={14} /> Bracket
                       </button>
                     )}
-                    <button
-                      className={alreadyJoined ? 'btn-joined' : isFull || t.registration_open === false ? 'btn-full' : 'btn-join'}
-                      onClick={() => !alreadyJoined && !isFull && t.registration_open !== false && navigate(`/tournament/${t.id}`)}
-                      disabled={alreadyJoined || isFull || t.registration_open === false}
-                    >
-                      {alreadyJoined ? <><FiCheckCircle /> Registered</> : isFull ? <><FiLock /> Full</> : t.registration_open === false ? <><FiClock /> Registration Closed</> : <><FiCrosshair /> Join Now</>}
-                    </button>
+                    <div style={{display:'flex', gap:8, alignItems:'center'}}>
+                      <button
+                        className={alreadyJoined ? 'btn-joined' : t.registration_open === false ? 'btn-full' : 'btn-join'}
+                        onClick={() => !alreadyJoined && t.registration_open !== false && navigate(`/tournament/${t.id}`)}
+                        disabled={alreadyJoined || t.registration_open === false}
+                        style={{flex:1}}
+                      >
+                        {alreadyJoined ? '✅ Registered' : t.registration_open === false ? '⏱️ Registration Closed' : '⚔️ Join Now'}
+                      </button>
+                    </div>
                   </div>
                 </div>
               )

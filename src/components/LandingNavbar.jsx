@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom"
 import { FiArrowRight } from "react-icons/fi"
+import { motion } from "framer-motion"
 import logo from "../assets/logo.png"
 import "./LandingNavbar.css"
 
@@ -8,7 +9,12 @@ function LandingNavbar() {
   const token = localStorage.getItem("token")
 
   return (
-    <header className="landing-nav">
+    <motion.header
+      className="landing-nav"
+      initial={{ opacity: 0, y: -24 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+    >
       <div className="landing-nav-inner">
         <div className="landing-nav-logo" onClick={() => navigate("/")}>
           <img src={logo} alt="Campus Clash" />
@@ -35,7 +41,7 @@ function LandingNavbar() {
           )}
         </div>
       </div>
-    </header>
+    </motion.header>
   )
 }
 

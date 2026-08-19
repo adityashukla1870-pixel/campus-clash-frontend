@@ -1,41 +1,38 @@
-import { useEffect, useRef, useState } from "react"
-import { FaUsers, FaTrophy, FaGamepad, FaMedal } from "react-icons/fa"
+import { FaGamepad, FaLayerGroup, FaUsers, FaChartBar } from "react-icons/fa"
+import { motion } from "framer-motion"
 import Reveal from "./Reveal"
 import { handleTiltMove, handleTiltLeave } from "../utils/tilt"
 import "./Stats.css"
 
-const STATS = [
-  { icon: <FaUsers />, prefix: "", value: 500, suffix: "+", label: "Active Players" },
-  { icon: <FaTrophy />, prefix: "₹", value: 50, suffix: "K+", label: "Prize Pool" },
-  { icon: <FaGamepad />, prefix: "", value: 30, suffix: "+", label: "Tournaments" },
-  { icon: <FaMedal />, prefix: "", value: 95, suffix: "%", label: "Match Success" },
+/**
+ * Platform highlights — describes what Campus Clash actually offers.
+ * No fabricated social-proof numbers (player counts, prize pools, win rates);
+ * only real, verifiable platform capabilities.
+ */
+const HIGHLIGHTS = [
+  {
+    icon: <FaGamepad />,
+    title: "8+ Games Supported",
+    desc: "BGMI, Valorant, Free Fire, COD Mobile and more, all in one place.",
+  },
+  {
+    icon: <FaLayerGroup />,
+    title: "Multiple Formats",
+    desc: "Single elimination, double elimination and round-robin brackets.",
+  },
+  {
+    icon: <FaUsers />,
+    title: "Solo, Duo & Squad",
+    desc: "Register alone or bring your full team into the bracket.",
+  },
+  {
+    icon: <FaChartBar />,
+    title: "Live Bracket Tracking",
+    desc: "Watch matches update in real time, right from your dashboard.",
+  },
 ]
 
-/** Counts a number up from 0 to `value` once it becomes visible. Presentation only. */
-function useCountUp(value, active, duration = 1400) {
-  const [display, setDisplay] = useState(0)
-  const started = useRef(false)
-
-  useEffect(() => {
-    if (!active || started.current) return
-    started.current = true
-
-    let startTime = null
-    const step = (timestamp) => {
-      if (startTime === null) startTime = timestamp
-      const progress = Math.min((timestamp - startTime) / duration, 1)
-      const eased = 1 - Math.pow(1 - progress, 3)
-      setDisplay(Math.round(eased * value))
-      if (progress < 1) requestAnimationFrame(step)
-    }
-    requestAnimationFrame(step)
-  }, [active, value, duration])
-
-  return display
-}
-
-function StatCard({ stat, active, delay }) {
-  const count = useCountUp(stat.value, active)
+function HighlightCard({ item, delay }) {
   return (
     <Reveal
       delay={delay}
@@ -44,44 +41,29 @@ function StatCard({ stat, active, delay }) {
       onMouseMove={(e) => handleTiltMove(e, { maxTilt: 10 })}
       onMouseLeave={handleTiltLeave}
     >
-      <div className="stat-icon">{stat.icon}</div>
-      <h2>{stat.prefix}{count}{stat.suffix}</h2>
-      <p>{stat.label}</p>
+      <motion.div
+        className="stat-icon"
+        whileHover={{ rotate: -6, scale: 1.08 }}
+        transition={{ type: "spring", stiffness: 300, damping: 15 }}
+      >
+        {item.icon}
+      </motion.div>
+      <h3>{item.title}</h3>
+      <p>{item.desc}</p>
     </Reveal>
   )
 }
 
 function Stats() {
-  const sectionRef = useRef(null)
-  const [active, setActive] = useState(false)
-
-  useEffect(() => {
-    const node = sectionRef.current
-    if (!node) return
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setActive(true)
-            observer.unobserve(entry.target)
-          }
-        })
-      },
-      { threshold: 0.3 }
-    )
-    observer.observe(node)
-    return () => observer.disconnect()
-  }, [])
-
   return (
-    <section className="stats-section" id="stats" ref={sectionRef}>
+    <section className="stats-section" id="stats">
       <Reveal className="stats-heading">
-        <h2>Trusted by <span style={{color:'var(--purple-light)'}}>500+</span> College Players</h2>
-        <p>Real tournaments. Real money. Real competition.</p>
+        <h2>Built for <span style={{ color: "var(--purple-light)" }}>Serious</span> College Gamers</h2>
+        <p>A complete esports tournament experience — from registration to prize payout.</p>
       </Reveal>
       <div className="stats-container">
-        {STATS.map((item, index) => (
-          <StatCard stat={item} active={active} delay={index * 90} key={index} />
+        {HIGHLIGHTS.map((item, index) => (
+          <HighlightCard item={item} delay={index * 90} key={index} />
         ))}
       </div>
     </section>

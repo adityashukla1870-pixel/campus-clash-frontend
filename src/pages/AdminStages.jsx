@@ -462,6 +462,10 @@ function FinalParticipantsPanel({ tournamentId, tournament, onGrouped }) {
 
       {data.count === 0 ? (
         <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>No approved participants yet.</p>
+      ) : data.registration_open ? (
+        <p style={{ fontSize: 13, color: 'var(--gold)', marginTop: 14 }}>
+          ⏳ Groups can be launched once registration closes, so every approved entry makes it into the draw.
+        </p>
       ) : (
         <>
           <div style={{ display: 'flex', gap: 14, alignItems: 'flex-end', flexWrap: 'wrap', margin: '16px 0' }}>
