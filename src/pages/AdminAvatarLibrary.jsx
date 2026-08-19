@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react"
-import { FiPlus, FiTrash2, FiEye, FiEyeOff, FiImage } from "react-icons/fi"
+import { FiPlus, FiTrash2, FiEye, FiEyeOff, FiImage, FiAperture } from "react-icons/fi"
 import AdminTopBar from "../components/AdminTopBar"
 import SpotlightGlow from "../components/SpotlightGlow"
 import { getAllAvatars, addAvatar, deleteAvatar, togglePublish, updateAvatar } from "../data/avatarRepository"
@@ -102,7 +102,7 @@ function AdminAvatarLibrary() {
         <AdminTopBar />
 
         <div className="admin-dash-header">
-          <div className="admin-dash-header-icon">🎨</div>
+          <div className="admin-dash-header-icon"><FiAperture /></div>
           <div>
             <h1>Avatar Library</h1>
             <p>{publishedCount} published · {avatars.length} total</p>

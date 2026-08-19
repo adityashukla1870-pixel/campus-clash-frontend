@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback, useRef } from "react"
 import { useNavigate } from "react-router-dom"
-import { FiUser, FiMail, FiBookOpen, FiLock, FiShield, FiHash } from "react-icons/fi"
+import { FiUser, FiMail, FiBookOpen, FiLock, FiShield, FiHash, FiAtSign } from "react-icons/fi"
 import API from "../api/axios"
 import { isAuthenticated, getHomeRoute } from "../utils/auth"
 import logo from "../assets/logo.png"
@@ -13,6 +13,8 @@ function Register() {
   const navigate = useNavigate()
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
+  const [username, setUsername] = useState("")
+  const [usernameStatus, setUsernameStatus] = useState(null)
   const [college, setCollege] = useState("")
   const [gameUid, setGameUid] = useState("")
   const [password, setPassword] = useState("")
@@ -20,6 +22,7 @@ function Register() {
   const [agreed, setAgreed] = useState(false)
   const [loading, setLoading] = useState(false)
   const [initialCheck, setInitialCheck] = useState(true)
+  const usernameTimer = useRef(null)
 
   useEffect(() => {
     if (isAuthenticated()) {
@@ -28,13 +31,43 @@ function Register() {
     setInitialCheck(false)
   }, [navigate])
 
+  const checkUsername = useCallback((value) => {
+    if (usernameTimer.current) clearTimeout(usernameTimer.current)
+    const trimmed = value.trim().toLowerCase()
+    if (!trimmed || trimmed.length < 3) {
+      setUsernameStatus(null)
+      return
+    }
+    if (!/^[a-z0-9._-]{3,20}$/.test(trimmed)) {
+      setUsernameStatus({ available: false, error: "3-20 chars, lowercase letters, numbers, dots, hyphens, underscores" })
+      return
+    }
+    setUsernameStatus({ checking: true })
+    usernameTimer.current = setTimeout(() => {
+      API.get(`/auth/check-username/${trimmed}`)
+        .then(res => setUsernameStatus(res.data))
+        .catch(() => setUsernameStatus({ available: false, error: "Could not check availability" }))
+    }, 400)
+  }, [])
+
+  const handleUsernameChange = (e) => {
+    const val = e.target.value.toLowerCase()
+    setUsername(val)
+    checkUsername(val)
+  }
+
   const passwordsMatch = !confirmPassword || password === confirmPassword
-  const canSubmit = name && email && college && gameUid && password && confirmPassword && passwordsMatch && agreed
+  const usernameAvailable = usernameStatus?.available === true
+  const canSubmit = name && email && college && gameUid && password && confirmPassword && passwordsMatch && agreed && usernameAvailable
 
   const handleRegister = async (e) => {
     e.preventDefault()
-    if (!name || !email || !password || !college || !gameUid) {
+    if (!name || !email || !password || !college || !gameUid || !username) {
       alert("Please fill all fields")
+      return
+    }
+    if (!usernameAvailable) {
+      alert("Please choose an available username")
       return
     }
     if (password !== confirmPassword) {
@@ -47,7 +80,7 @@ function Register() {
     }
     setLoading(true)
     try {
-      const res = await API.post("/auth/register", { name, email, password, college, game_uid: gameUid })
+      const res = await API.post("/auth/register", { name, email, password, college, game_uid: gameUid, username })
       alert(res.data.message || "Registration Successful")
       navigate("/login")
     } catch (err) {
@@ -119,6 +152,26 @@ function Register() {
                 />
                 <span className="ghost-input-underline" />
               </div>
+            </div>
+
+            <div className="field-group-ghost">
+              <label className="uppercase-label" htmlFor="reg-username">Username</label>
+              <div className="ghost-input-wrap icon-input">
+                <FiAtSign className="ghost-input-icon" />
+                <input
+                  id="reg-username"
+                  type="text"
+                  className="ghost-input"
+                  placeholder="unique handle (e.g. alex123)"
+                  value={username}
+                  onChange={handleUsernameChange}
+                  autoComplete="off"
+                />
+                <span className="ghost-input-underline" />
+              </div>
+              {usernameStatus?.checking && <p className="field-hint" style={{ color: 'var(--text-muted, #888)', fontSize: 12, marginTop: 4 }}>Checking...</p>}
+              {usernameStatus?.available === true && <p className="field-hint" style={{ color: '#4ade80', fontSize: 12, marginTop: 4 }}>Available!</p>}
+              {usernameStatus?.available === false && <p className="field-error" style={{ fontSize: 12, marginTop: 4 }}>{usernameStatus.error || "Username taken"}</p>}
             </div>
 
             <div className="field-group-ghost">

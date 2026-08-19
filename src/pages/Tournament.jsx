@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
 import { jwtDecode } from "jwt-decode"
-import { FiSearch, FiZap } from "react-icons/fi"
+import { FiSearch, FiZap, FiMonitor, FiTarget, FiCrosshair, FiCheckCircle, FiLock, FiClock, FiAward, FiFlag, FiUsers, FiUser } from "react-icons/fi"
 import Navbar from "../components/Navbar"
 import API from "../api/axios"
 import { resolveImageUrl } from "../utils/media"
@@ -9,7 +9,7 @@ import RegistrationTimer from "../components/RegistrationTimer"
 import { SkeletonCardGrid, SkeletonTable, SkeletonText, SkeletonBadge, SkeletonBlock } from "../components/Skeleton"
 import "./Tournament.css"
 
-const GAME_ICONS = { BGMI: "🎮", "Free Fire": "🔥", Valorant: "🎯", "Call of Duty Mobile": "🪖" }
+const GAME_ICONS = { BGMI: FiMonitor, "Free Fire": FiZap, Valorant: FiTarget, "Call of Duty Mobile": FiCrosshair }
 
 function Tournament() {
   const navigate = useNavigate()
@@ -85,7 +85,7 @@ function Tournament() {
       <div className="tournaments-page">
         <div className="tournaments-header">
           <div className="tournaments-header-left">
-            <h1>🎮 Tournaments</h1>
+            <h1><FiMonitor /> Tournaments</h1>
             <p>Find your next battle — join, compete, win.</p>
           </div>
           <span className="badge badge-purple">{tournaments.length} Active</span>
@@ -109,7 +109,7 @@ function Tournament() {
                 <div className="featured-tag"><FiZap size={13} /> Featured</div>
               )}
               <h2>{featured.name}</h2>
-              <p className="featured-game">{GAME_ICONS[featured.game] || "🎮"} {featured.game}</p>
+              {(() => { const GameIcon = GAME_ICONS[featured.game]; return <p className="featured-game">{GameIcon ? <GameIcon /> : <FiMonitor />} {featured.game}</p>; })()}
               <div className="featured-prize-label">Total Prize Pool</div>
               <div className="featured-prize-value">₹{featured.prize_pool?.toLocaleString?.() || featured.prize_pool}</div>
               <button className="featured-cta shimmer-wrap chamfer-sm" onClick={(e) => { e.stopPropagation(); navigate(`/tournament/${featured.id}`) }}>
@@ -152,19 +152,19 @@ function Tournament() {
               className={`game-pill${gameFilter === g ? ' active' : ''}`}
               onClick={() => setGameFilter(g)}
             >
-              {GAME_ICONS[g] || "🎮"} {g}
+              {(() => { const GIcon = GAME_ICONS[g]; return <>{GIcon ? <GIcon /> : <FiMonitor />} {g}</>; })()}
             </button>
           ))}
         </div>
 
         {tournaments.length === 0 ? (
           <div className="tournaments-empty">
-            <div className="empty-icon">🎯</div>
+            <div className="empty-icon"><FiTarget /></div>
             <p>No tournaments available right now. Check back soon!</p>
           </div>
         ) : filteredTournaments.length === 0 ? (
           <div className="tournaments-empty">
-            <div className="empty-icon">🔍</div>
+            <div className="empty-icon"><FiSearch /></div>
             <p>No tournaments match your filters.</p>
           </div>
         ) : (
@@ -180,15 +180,15 @@ function Tournament() {
                       style={{ backgroundImage: `url(${resolveImageUrl(t.banner_image)})` }}
                     />
                   )}
-                  {t.status === 'in_progress' && <div className="card-live-tag">🔴 LIVE</div>}
-                  {t.status === 'completed' && <div className="card-live-tag ended">🏁 ENDED</div>}
+                  {t.status === 'in_progress' && <div className="card-live-tag"><span className="dot" style={{background:'var(--red)',width:8,height:8,borderRadius:'50%',display:'inline-block'}} /> LIVE</div>}
+                  {t.status === 'completed' && <div className="card-live-tag ended"><FiFlag /> ENDED</div>}
                   <div className="card-header">
-                    <span className="card-game-badge">🎮 {t.game}</span>
+                    <span className="card-game-badge"><FiMonitor /> {t.game}</span>
                     <span className="badge" style={{background: t.mode === 'squad' ? 'var(--cyan-glow)' : 'var(--purple-glow)', color: t.mode === 'squad' ? 'var(--cyan)' : 'var(--purple-light)', fontSize:11}}>
-                      {t.mode === 'squad' ? `👥 Squad (${t.team_size})` : '🧍 Solo'}
+                      {t.mode === 'squad' ? <><FiUsers /> Squad ({t.team_size})</> : <><FiUser /> Solo</>}
                     </span>
                     <span className="badge" style={{background: t.format === 'full' ? '#f59e0b22' : 'var(--cyan-glow)', color: t.format === 'full' ? 'var(--gold)' : 'var(--cyan)', fontSize:11}}>
-                      {t.format === 'full' ? '🏅 Multi-Stage' : '⚡ Quick Match'}
+                      {t.format === 'full' ? <><FiAward /> Multi-Stage</> : <><FiZap /> Quick Match</>}
                     </span>
                     {alreadyJoined && <span className="badge badge-cyan">Joined</span>}
                   </div>
@@ -223,7 +223,7 @@ function Tournament() {
                       {t.prize_breakdown.slice(0, 3).map((row) => (
                         <div className="prize-chip" key={row.rank}>
                           <span className="prize-chip-medal">
-                            {row.rank === "1" ? "🥇" : row.rank === "2" ? "🥈" : row.rank === "3" ? "🥉" : `#${row.rank}`}
+                            {row.rank === "1" ? <><FiAward /> #1</> : row.rank === "2" ? <><FiAward /> #2</> : row.rank === "3" ? <><FiAward /> #3</> : `#${row.rank}`}
                           </span>
                           <span className="prize-chip-amount">₹{row.amount.toLocaleString()}</span>
                         </div>
@@ -247,7 +247,7 @@ function Tournament() {
                         style={{marginRight:8}}
                         onClick={() => navigate(`/tournament/${t.id}/bracket`)}
                       >
-                        🏆 Bracket
+                        <FiAward size={14} /> Bracket
                       </button>
                     )}
                     <div style={{display:'flex', gap:8, alignItems:'center'}}>

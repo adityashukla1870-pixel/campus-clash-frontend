@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
+import { FiMonitor, FiRadio } from "react-icons/fi"
 import API from "../api/axios"
 import AdminTopBar from "../components/AdminTopBar"
 import { SkeletonText, SkeletonBlock, SkeletonCard } from "../components/Skeleton"
@@ -24,7 +25,7 @@ function AdminReleaseRoom() {
       await API.post(`/tournament/admin/release-room/${selectedId}`, {
         room_id: roomId, password, start_time: new Date(matchTime).toISOString()
       })
-      alert("Room Released ✅")
+      alert("Room Released")
     } catch { alert("Failed to release room") }
     finally { setLoading(false) }
   }
@@ -45,7 +46,7 @@ function AdminReleaseRoom() {
           </>
         ) : (
           <>
-            <h1 style={{fontFamily:'var(--font-display)',fontSize:28,fontWeight:700,marginBottom:6}}>🎮 Release Room</h1>
+            <h1 style={{fontFamily:'var(--font-display)',fontSize:28,fontWeight:700,marginBottom:6}}><FiMonitor /> Release Room</h1>
             <p style={{color:'var(--text-secondary)',fontSize:14,marginBottom:32}}>Share room credentials with registered players.</p>
 
             <div style={{background:'var(--bg-card)',border:'1px solid var(--border)',borderRadius:20,padding:32,position:'relative',overflow:'hidden'}}>
@@ -71,7 +72,7 @@ function AdminReleaseRoom() {
                   <input type="datetime-local" onChange={e => setMatchTime(e.target.value)} />
                 </div>
                 <button className="btn-primary" style={{width:'100%',justifyContent:'center',marginTop:4}} onClick={handleSubmit} disabled={loading || !selectedId}>
-                  {loading ? "Releasing..." : "📡 Release Room"}
+                  {loading ? "Releasing..." : <><FiRadio /> Release Room</>}
                 </button>
               </div>
             </div>

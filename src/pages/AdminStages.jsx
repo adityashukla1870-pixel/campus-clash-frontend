@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import { FiCheckCircle, FiPlus, FiKey, FiClock, FiStar, FiAward, FiTrash2, FiFileText, FiDownload, FiSend, FiTarget } from "react-icons/fi"
 import API from "../api/axios"
 import AdminTopBar from "../components/AdminTopBar"
 import { SkeletonText, SkeletonTable, SkeletonBlock, SkeletonCard } from "../components/Skeleton"
@@ -153,11 +154,11 @@ function PodCard({ pod, isSquad, stageId, onChanged }) {
         <div>
           <h4 style={{ fontSize: 16, fontWeight: 700 }}>{pod.name}</h4>
           <p style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-            {pod.participants.length} teams · {pod.status === 'completed' ? '✅ Finalized' : '🟢 Active'}
+            {pod.participants.length} teams · {pod.status === 'completed' ? <><FiCheckCircle /> Finalized</> : <><span style={{color:'var(--green)'}}>●</span> Active</>}
           </p>
         </div>
         {pod.status === 'active' && (
-          <button className="btn-success" disabled={busy} onClick={finalizePod}>✅ Finalize Pod</button>
+          <button className="btn-success" disabled={busy} onClick={finalizePod}><FiCheckCircle /> Finalize Pod</button>
         )}
       </div>
 
@@ -189,7 +190,7 @@ function PodCard({ pod, isSquad, stageId, onChanged }) {
       {pod.status === 'active' && (
         <div style={{ background: 'var(--bg-card)', border: '1px dashed var(--border)', borderRadius: 10, padding: 12, marginBottom: 14 }}>
           <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 8 }}>
-            ➕ Add a team approved after this group was created
+            <FiPlus /> Add a team approved after this group was created
           </div>
           {unassigned.length === 0 ? (
             <div style={{ fontSize: 12.5, color: 'var(--text-muted)' }}>No unassigned approved teams right now.</div>
@@ -212,7 +213,7 @@ function PodCard({ pod, isSquad, stageId, onChanged }) {
           <div style={{ fontWeight: 600, marginBottom: 8, fontSize: 13.5 }}>
             Match {m.match_number} {m.map && `— ${m.map}`}
             <span style={{ marginLeft: 8, fontSize: 11, color: m.status === 'completed' ? 'var(--green)' : 'var(--text-muted)' }}>
-              {m.status === 'completed' ? '✅ Results in' : m.room_id ? '🔑 Room live' : '⏳ Not started'}
+              {m.status === 'completed' ? <><FiCheckCircle /> Results in</> : m.room_id ? <><FiKey /> Room live</> : <><FiClock /> Not started</>}
             </span>
           </div>
 
@@ -270,7 +271,7 @@ function PodCard({ pod, isSquad, stageId, onChanged }) {
 
           {m.status === 'completed' && (
             <div style={{ fontSize: 12.5, color: 'var(--text-secondary)' }}>
-              {m.mvp && <div style={{ color: 'var(--gold)', marginBottom: 4 }}>⭐ MVP: {m.mvp.name} ({m.mvp.team_name}) — {m.mvp.kills} kills</div>}
+              {m.mvp && <div style={{ color: 'var(--gold)', marginBottom: 4 }}><FiStar /> MVP: {m.mvp.name} ({m.mvp.team_name}) — {m.mvp.kills} kills</div>}
               {[...m.results].sort((a, b) => a.placement - b.placement).map(r => (
                 <div key={r.registration_id}>#{r.placement} {r.name} — {r.kills} kills — {r.points} pts</div>
               ))}
@@ -339,9 +340,9 @@ function StageSection({ stageSummary, isSquad, onChanged }) {
         {stageSummary.status === 'active' && (
           <div style={{ display: 'flex', gap: 8 }}>
             <button className="btn-success" disabled={!allPodsDone} onClick={finalizeStage} title={!allPodsDone ? "Finalize every group first" : ""}>
-              {stageSummary.is_final ? '🏆 Finalize & Declare Winner' : '✅ Finalize Stage'}
+              {stageSummary.is_final ? <><FiAward /> Finalize & Declare Winner</> : <><FiCheckCircle /> Finalize Stage</>}
             </button>
-            <button className="btn-danger" onClick={deleteStage}>🗑️ Delete</button>
+            <button className="btn-danger" onClick={deleteStage}><FiTrash2 /> Delete</button>
           </div>
         )}
       </div>
@@ -448,7 +449,7 @@ function FinalParticipantsPanel({ tournamentId, tournament, onGrouped }) {
     <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 16, padding: 22, marginBottom: 24 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10, marginBottom: 10 }}>
         <div>
-          <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 18 }}>📋 Final Participant List</h3>
+          <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 18 }}><FiFileText /> Final Participant List</h3>
           <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>
             {data.count} approved {data.count === 1 ? 'entry' : 'entries'} ·{' '}
             {data.registration_open
@@ -456,7 +457,7 @@ function FinalParticipantsPanel({ tournamentId, tournament, onGrouped }) {
               : <span style={{ color: 'var(--cyan)' }}>Registration closed — list locked in</span>}
           </p>
         </div>
-        <button className="btn-secondary" onClick={downloadCsv} disabled={data.count === 0}>⬇️ Download CSV</button>
+        <button className="btn-secondary" onClick={downloadCsv} disabled={data.count === 0}><FiDownload /> Download CSV</button>
       </div>
 
       {data.count === 0 ? (
@@ -495,7 +496,7 @@ function FinalParticipantsPanel({ tournamentId, tournament, onGrouped }) {
                   <option value="snake">Snake seeding</option>
                 </select>
               </div>
-              <button className="btn-primary" disabled={busy} onClick={launchAuto}>🚀 Launch Groups</button>
+              <button className="btn-primary" disabled={busy} onClick={launchAuto}><FiSend /> Launch Groups</button>
             </div>
           ) : (
             <div>
@@ -531,7 +532,7 @@ function FinalParticipantsPanel({ tournamentId, tournament, onGrouped }) {
                   </tbody>
                 </table>
               </div>
-              <button className="btn-primary" disabled={busy} onClick={launchManual}>🚀 Launch Groups</button>
+              <button className="btn-primary" disabled={busy} onClick={launchManual}><FiSend /> Launch Groups</button>
             </div>
           )}
         </>
@@ -613,7 +614,7 @@ function AdminStages() {
           </>
         ) : (
           <>
-            <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 28, fontWeight: 700, marginBottom: 6 }}>🎯 Manage Stages</h1>
+            <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 28, fontWeight: 700, marginBottom: 6 }}><FiTarget /> Manage Stages</h1>
             <p style={{ color: 'var(--text-secondary)', fontSize: 14, marginBottom: 28 }}>
               Groups, brackets, and finals — with parallel pods and a points-based leaderboard.
             </p>
@@ -676,13 +677,13 @@ function AdminStages() {
                       Tip: for a knockout bracket round, set groups = number of matchups and teams advancing = 1 per group.
                     </p>
                     <button className="btn-primary" style={{ marginTop: 6 }} disabled={busy} onClick={createStage}>
-                      🚀 Start Stage
+                      <FiSend /> Start Stage
                     </button>
                   </div>
                 )}
 
                 {tournament?.status === "completed" && (
-                  <div style={{ textAlign: 'center', color: 'var(--green)', padding: 20 }}>🏆 Tournament completed!</div>
+                  <div style={{ textAlign: 'center', color: 'var(--green)', padding: 20 }}><FiAward /> Tournament completed!</div>
                 )}
               </>
             )}

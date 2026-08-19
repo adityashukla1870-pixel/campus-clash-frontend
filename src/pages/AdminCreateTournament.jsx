@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
+import { FiAward, FiUser, FiUsers, FiZap, FiSend } from "react-icons/fi"
 import API from "../api/axios"
 import AdminTopBar from "../components/AdminTopBar"
 
@@ -123,7 +124,7 @@ function AdminCreateTournament() {
           <AdminTopBar />
         </div>
 
-        <h1 style={{fontFamily:'var(--font-display)',fontSize:28,fontWeight:700,marginBottom:6}}>🏆 Create Tournament</h1>
+        <h1 style={{fontFamily:'var(--font-display)',fontSize:28,fontWeight:700,marginBottom:6}}><FiAward /> Create Tournament</h1>
         <p style={{color:'var(--text-secondary)',fontSize:14,marginBottom:32}}>Fill in the details to launch a new tournament.</p>
 
         <div style={{
@@ -160,8 +161,8 @@ function AdminCreateTournament() {
             <div className="field-group">
               <label>Registration Mode</label>
               <div style={{display:'flex', gap:10}}>
-                <div style={modeBtnStyle(mode === 'solo')} onClick={() => setMode('solo')}>🧍 Solo</div>
-                <div style={modeBtnStyle(mode === 'squad')} onClick={() => setMode('squad')}>👥 Squad</div>
+                <div style={modeBtnStyle(mode === 'solo')} onClick={() => setMode('solo')}><FiUser /> Solo</div>
+                <div style={modeBtnStyle(mode === 'squad')} onClick={() => setMode('squad')}><FiUsers /> Squad</div>
               </div>
             </div>
 
@@ -169,10 +170,10 @@ function AdminCreateTournament() {
               <label>Tournament Format</label>
               <div style={{display:'flex', gap:10}}>
                 <div style={modeBtnStyle(format === 'quick')} onClick={() => setFormat('quick')}>
-                  ⚡ Quick Match
+                  <FiZap /> Quick Match
                 </div>
                 <div style={modeBtnStyle(format === 'full')} onClick={() => setFormat('full')}>
-                  🏟️ Full Tournament
+                  Full Tournament
                 </div>
               </div>
               <p style={{fontSize:12, color:'var(--text-muted)', marginTop:8}}>
@@ -315,7 +316,7 @@ function AdminCreateTournament() {
             </div>
 
             <button className="btn-primary" style={{width:'100%',justifyContent:'center',marginTop:4}} onClick={handleSubmit} disabled={loading}>
-              {loading ? "Creating..." : "🚀 Create Tournament"}
+              {loading ? "Creating..." : <><FiSend /> Create Tournament</>}
             </button>
           </div>
         </div>

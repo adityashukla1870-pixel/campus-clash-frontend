@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { FiUsers, FiZap, FiDollarSign, FiClock, FiArrowRight } from "react-icons/fi"
+import { FiUsers, FiZap, FiDollarSign, FiClock, FiArrowRight, FiMonitor, FiAward, FiTarget, FiAperture, FiCrosshair } from "react-icons/fi"
 import AdminTopBar from "../components/AdminTopBar"
 import SpotlightGlow from "../components/SpotlightGlow"
 import API from "../api/axios"
@@ -8,13 +8,13 @@ import { SkeletonCardGrid, SkeletonTable, SkeletonCircle, SkeletonText } from ".
 import "./AdminDashboard.css"
 
 const adminActions = [
-  { icon: "💰", label: "Payment Verification", desc: "Review & approve pending payments", path: "/admin/payments", color: "#f59e0b" },
-  { icon: "🎮", label: "Release Room", desc: "Share room ID & password with players", path: "/admin/release-room", color: "#f9a825" },
-  { icon: "🏆", label: "Create Tournament", desc: "Set up a new esports tournament", path: "/admin/create-tournament", color: "#d4af37" },
-  { icon: "🥇", label: "Declare Winner", desc: "Finalize results and announce winner", path: "/admin/winner", color: "#22c55e" },
-  { icon: "🏆", label: "Bracket Manager", desc: "Generate brackets & report match results", path: "/admin/bracket", color: "#f2ca50" },
-  { icon: "🎯", label: "Manage Stages", desc: "Groups, playoffs & finals for Full Tournaments", path: "/admin/stages", color: "#ffb957" },
-  { icon: "🎨", label: "Avatar Library", desc: "Manage avatars available to players", path: "/admin/avatars", color: "#d4af37" },
+  { Icon: FiDollarSign, label: "Payment Verification", desc: "Review & approve pending payments", path: "/admin/payments", color: "#f59e0b" },
+  { Icon: FiMonitor, label: "Release Room", desc: "Share room ID & password with players", path: "/admin/release-room", color: "#f9a825" },
+  { Icon: FiAward, label: "Create Tournament", desc: "Set up a new esports tournament", path: "/admin/create-tournament", color: "#d4af37" },
+  { Icon: FiAward, label: "Declare Winner", desc: "Finalize results and announce winner", path: "/admin/winner", color: "#22c55e" },
+  { Icon: FiAward, label: "Bracket Manager", desc: "Generate brackets & report match results", path: "/admin/bracket", color: "#f2ca50" },
+  { Icon: FiTarget, label: "Manage Stages", desc: "Groups, playoffs & finals for Full Tournaments", path: "/admin/stages", color: "#ffb957" },
+  { Icon: FiAperture, label: "Avatar Library", desc: "Manage avatars available to players", path: "/admin/avatars", color: "#d4af37" },
 ]
 
 function AdminDashboard() {
@@ -67,7 +67,7 @@ function AdminDashboard() {
         ) : (
           <>
             <div className="admin-dash-header">
-              <div className="admin-dash-header-icon">⚔️</div>
+              <div className="admin-dash-header-icon"><FiCrosshair /></div>
               <div>
                 <h1>Admin Dashboard</h1>
                 <p>Campus Clash — Control Panel</p>
@@ -99,7 +99,7 @@ function AdminDashboard() {
                   style={{ '--accent': action.color }}
                 >
                   <div className="admin-action-icon" style={{ background: action.color + '22', border: `1px solid ${action.color}44` }}>
-                    {action.icon}
+                    <action.Icon size={24} />
                   </div>
                   <h3>{action.label}</h3>
                   <p>{action.desc}</p>

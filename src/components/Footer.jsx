@@ -1,4 +1,5 @@
 import { FaDiscord, FaInstagram, FaTwitter, FaYoutube } from "react-icons/fa"
+import { FiCrosshair, FiMonitor } from "react-icons/fi"
 import { useNavigate } from "react-router-dom"
 import "./Footer.css"
 
@@ -11,7 +12,7 @@ function Footer() {
       <div className="footer-top">
         <div className="footer-brand">
           <div className="logo">
-            <div className="logo-icon">⚔️</div>
+            <div className="logo-icon"><FiCrosshair /></div>
             Campus <span className="logo-text-clash">Clash</span>
           </div>
           <p>India's college esports platform — compete, climb, and get paid for being the best.</p>
@@ -47,7 +48,7 @@ function Footer() {
 
       <div className="footer-bottom">
         <p>© {year} Campus Clash. All rights reserved.</p>
-        <p>Built for competitive college gamers 🎮</p>
+        <p>Built for competitive college gamers <FiMonitor /></p>
       </div>
     </footer>
   )

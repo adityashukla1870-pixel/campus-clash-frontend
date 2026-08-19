@@ -214,7 +214,7 @@ function Dashboard() {
 
               {liveOrUpcoming.length === 0 ? (
                 <div className="dash-empty">
-                  <div className="dash-empty-icon">🎯</div>
+                  <div className="dash-empty-icon"><FaTrophy /></div>
                   <p>No live or upcoming matches. Go find a battle!</p>
                   <button className="btn-primary" onClick={() => navigate("/tournaments")}>Browse Tournaments</button>
                 </div>
@@ -279,7 +279,7 @@ function Dashboard() {
                     <div key={t.id} className="dash-activity-row">
                       <span>{t.name}</span>
                       <span className={t.is_winner ? "dash-activity-win" : "dash-activity-loss"}>
-                        {t.is_winner ? "Won 🏆" : "Finished"}
+                        {t.is_winner ? <><FaTrophy /> Won</> : "Finished"}
                       </span>
                     </div>
                   ))

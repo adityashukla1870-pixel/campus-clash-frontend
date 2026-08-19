@@ -13,6 +13,19 @@ import {
   FiTrash2,
   FiUsers,
   FiVolumeX,
+  FiSend,
+  FiMapPin,
+  FiMic,
+  FiMicOff,
+  FiPaperclip,
+  FiEdit2,
+  FiX,
+  FiArrowUp,
+  FiAward,
+  FiTarget,
+  FiMonitor,
+  FiCheckCircle,
+  FiStar,
 } from "react-icons/fi"
 import Navbar from "../components/Navbar"
 import API from "../api/axios"
@@ -436,12 +449,12 @@ function Community() {
       <div className="community-page">
         <div className="community-header">
           <div>
-            <h1>💬 Community</h1>
+            <h1><FiMessageCircle /> Community</h1>
             <p># {activeChannelMeta?.name || activeChannel} — {activeChannelMeta?.description || "hang out with fellow players"}</p>
           </div>
           <div className="community-header-actions">
             {role === "admin" && (
-              <button className="reports-btn" onClick={openReports}>🚩 Reports</button>
+              <button className="reports-btn" onClick={openReports}><FiFlag /> Reports</button>
             )}
             <div className={`presence-pill ${connected ? "live" : ""}`}>
               <span className="presence-dot" />
@@ -467,7 +480,7 @@ function Community() {
               >
                 <span className="channel-icon">{c.icon}</span>
                 <span className="channel-name">{c.name}</span>
-                {c.admin_only_post && <span className="channel-lock" title="Admin-only posting">🔒</span>}
+                {c.admin_only_post && <span className="channel-lock" title="Admin-only posting"><FiLock /></span>}
               </button>
             ))}
             <div className="channel-sidebar-footer">
@@ -491,7 +504,7 @@ function Community() {
             </header>
 
             <div className="pinned-bar-legacy" onClick={togglePinnedPanel}>
-              📌 {showPinned ? "Hide pinned messages" : "View pinned messages"}
+              <FiMapPin /> {showPinned ? "Hide pinned messages" : "View pinned messages"}
             </div>
 
             {showPinned && (
@@ -508,12 +521,12 @@ function Community() {
             <div className="chat-messages">
               {hasMore && (
                 <button className="load-older-btn" onClick={loadOlder} disabled={loadingOlder}>
-                  {loadingOlder ? "Loading..." : "⬆ Load older messages"}
+                  {loadingOlder ? "Loading..." : <><FiArrowUp /> Load older messages</>}
                 </button>
               )}
 
               {grouped.length === 0 && (
-                <div className="chat-empty">No messages yet — say hi to your fellow players 👋</div>
+                <div className="chat-empty">No messages yet — say hi to your fellow players</div>
               )}
 
               {grouped.map((group, gi) => (
@@ -525,7 +538,7 @@ function Community() {
                     <div className="msg-group-header">
                       <span className="msg-name" style={{ color: colorForUser(group.user_id) }}>{group.name}</span>
                       {group.role === "admin" && <span className="msg-badge">ADMIN</span>}
-                      {group.items[0].is_champion && <span className="msg-badge champion">🏆 CHAMPION</span>}
+                      {group.items[0].is_champion && <span className="msg-badge champion"><FiAward /> CHAMPION</span>}
                       <span className="msg-time">{formatTime(group.items[0].created_at)}</span>
                     </div>
 
@@ -537,14 +550,14 @@ function Community() {
                         onMouseLeave={() => setHoveredId(prev => prev === m.id ? null : prev)}
                       >
                         {m.reply_to && (
-                          <div className="reply-preview">↪ replying to <b>{m.reply_to.name}</b>: {m.reply_to.message}</div>
+                          <div className="reply-preview"><FiCornerUpLeft /> replying to <b>{m.reply_to.name}</b>: {m.reply_to.message}</div>
                         )}
 
                         {m.lfg && (
                           <div className="lfg-card">
-                            <div className="lfg-card-header">🎯 {m.lfg.game} · {m.lfg.rank || "Any rank"}</div>
+                            <div className="lfg-card-header"><FiTarget /> {m.lfg.game} · {m.lfg.rank || "Any rank"}</div>
                             <div className="lfg-card-meta">
-                              {m.lfg.mic ? "🎤 Mic on" : "🔇 No mic"} · needs {m.lfg.slots_needed} more
+                              {m.lfg.mic ? <><FiMic /> Mic on</> : <><FiMicOff /> No mic</>} · needs {m.lfg.slots_needed} more
                             </div>
                             {m.user_id !== myUserId && (
                               <button className="lfg-join-btn" onClick={() => joinLfgPost(m)}>🙋 I'm in</button>
@@ -614,7 +627,7 @@ function Community() {
                               </button>
                               {m.user_id === myUserId && !m.image_url && (
                                 <button className="toolbar-btn action-btn" onClick={() => startEdit(m)} title="Edit">
-                                  ✏️
+                                  <FiEdit2 />
                                 </button>
                               )}
                               {(m.user_id === myUserId || role === "admin") && (
@@ -629,7 +642,7 @@ function Community() {
                               )}
                               {role === "admin" && (
                                 <>
-                                  <button className="toolbar-btn action-btn" onClick={() => togglePin(m.id)} title="Pin">📌</button>
+                                  <button className="toolbar-btn action-btn" onClick={() => togglePin(m.id)} title="Pin"><FiMapPin /></button>
                                   {m.user_id !== myUserId && (
                                     <>
                                       <button className="toolbar-btn action-btn" onClick={() => setMuteTarget({ user_id: m.user_id, name: m.name })} title="Mute">
@@ -669,15 +682,15 @@ function Community() {
 
             {replyingTo && (
               <div className="replying-bar">
-                ↪ Replying to <b>{replyingTo.name}</b>
-                <button onClick={() => setReplyingTo(null)}>✕</button>
+                <FiCornerUpLeft /> Replying to <b>{replyingTo.name}</b>
+                <button onClick={() => setReplyingTo(null)}><FiX /></button>
               </div>
             )}
 
             {attachedPreview && (
               <div className="attach-preview-bar">
                 <img src={attachedPreview} alt="preview" />
-                <button onClick={removeAttachedImage}>✕</button>
+                <button onClick={removeAttachedImage}><FiX /></button>
               </div>
             )}
 
@@ -711,7 +724,7 @@ function Community() {
               </div>
             ) : (
               <div className="chat-input-row">
-                <button className="attach-btn" onClick={() => fileInputRef.current?.click()} title="Attach image">📎</button>
+                <button className="attach-btn" onClick={() => fileInputRef.current?.click()} title="Attach image"><FiPaperclip /></button>
                 <input type="file" accept="image/*" ref={fileInputRef} style={{ display: "none" }} onChange={handleFileSelect} />
                 <textarea
                   className="chat-input"
@@ -776,7 +789,7 @@ function Community() {
       {reportTarget && (
         <div className="modal-overlay" onClick={() => setReportTarget(null)}>
           <div className="modal-box" onClick={e => e.stopPropagation()}>
-            <h3>🚩 Report message</h3>
+            <h3><FiFlag /> Report message</h3>
             <textarea
               placeholder="Why are you reporting this? (optional)"
               value={reportReason}
@@ -793,7 +806,7 @@ function Community() {
       {muteTarget && (
         <div className="modal-overlay" onClick={() => setMuteTarget(null)}>
           <div className="modal-box" onClick={e => e.stopPropagation()}>
-            <h3>🔇 Mute {muteTarget.name}</h3>
+            <h3><FiVolumeX /> Mute {muteTarget.name}</h3>
             <label>Minutes</label>
             <input type="number" min="1" value={muteMinutes} onChange={e => setMuteMinutes(e.target.value)} />
             <div className="modal-actions">
@@ -807,8 +820,8 @@ function Community() {
       {showReports && (
         <div className="modal-overlay" onClick={() => setShowReports(false)}>
           <div className="modal-box reports-box" onClick={e => e.stopPropagation()}>
-            <h3>🚩 Chat Reports</h3>
-            {reports.length === 0 && <p className="chat-empty">No open reports 🎉</p>}
+            <h3><FiFlag /> Chat Reports</h3>
+            {reports.length === 0 && <p className="chat-empty">No open reports</p>}
             {reports.map(r => (
               <div key={r.id} className="report-item">
                 <div>

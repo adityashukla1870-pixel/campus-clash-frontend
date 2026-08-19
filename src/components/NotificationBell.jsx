@@ -1,15 +1,15 @@
 import { useEffect, useRef, useState } from "react"
 import { createPortal } from "react-dom"
 import { useNavigate } from "react-router-dom"
-import { FiBell } from "react-icons/fi"
+import { FiBell, FiCreditCard, FiKey, FiAward } from "react-icons/fi"
 import API from "../api/axios"
 import "./NotificationBell.css"
 
 const ICONS = {
-  payment: "💳",
-  room: "🔑",
-  winner: "🏆",
-  info: "🔔"
+  payment: FiCreditCard,
+  room: FiKey,
+  winner: FiAward,
+  info: FiBell
 }
 
 function timeAgo(iso) {
@@ -93,7 +93,7 @@ function NotificationBell() {
         <div className="notif-dropdown" ref={dropdownRef}>
           <div className="notif-dropdown-header">Notifications</div>
           {items.length === 0 ? (
-            <div className="notif-empty">You're all caught up 🎉</div>
+            <div className="notif-empty">You're all caught up</div>
           ) : (
             <div className="notif-list">
               {items.map((n) => (
@@ -102,7 +102,7 @@ function NotificationBell() {
                   className={`notif-item${n.read ? "" : " unread"}`}
                   onClick={() => handleItemClick(n)}
                 >
-                  <span className="notif-icon">{ICONS[n.type] || ICONS.info}</span>
+                  <span className="notif-icon">{(() => { const Icon = ICONS[n.type] || ICONS.info; return <Icon />; })()}</span>
                   <div className="notif-body">
                     <div className="notif-message">{n.message}</div>
                     <div className="notif-time">{timeAgo(n.created_at)}</div>

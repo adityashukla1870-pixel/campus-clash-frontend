@@ -1,22 +1,26 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { motion } from "framer-motion"
-import { FiAward, FiDollarSign, FiTarget, FiTrendingUp, FiUsers } from "react-icons/fi"
+import { FiAward, FiDollarSign, FiTarget, FiUsers, FiMonitor, FiZap } from "react-icons/fi"
 import Navbar from "../components/Navbar"
 import API from "../api/axios"
 import { SkeletonLeaderboard, SkeletonText, SkeletonBlock } from "../components/Skeleton"
 import { getSelectedAvatarId, resolveAvatarUrl, getCurrentUserId } from "../data/avatarRepository"
 import "./Leaderboard.css"
 
-function initials(name) {
-  return (name || "?").trim().slice(0, 1).toUpperCase()
+const TABS = [
+  { key: "global", label: "Global", icon: FiAward, metric: "Tournaments Won" },
+  { key: "BGMI", label: "BGMI", icon: FiMonitor, metric: "Total Kills" },
+  { key: "FREE_FIRE", label: "Free Fire", icon: FiZap, metric: "Total Kills" },
+]
+
+const TAB_ENDPOINTS = {
+  global: "/stats/leaderboard/global",
+  BGMI: "/stats/leaderboard/game/BGMI",
+  FREE_FIRE: "/stats/leaderboard/game/FREE_FIRE",
 }
 
-function formatPrize(value) {
-  return new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 0,
-  }).format(Number(value) || 0)
+function initials(name) {
+  return (name || "?").trim().slice(0, 1).toUpperCase()
 }
 
 function rankLabel(rank) {
@@ -25,39 +29,36 @@ function rankLabel(rank) {
 
 function playerAvatarUrl(player) {
   if (!player?.user_id) return null
-
-  // Current user: prefer the live per-user selection
   const myId = getCurrentUserId()
   if (myId && player.user_id === myId) {
     const selectedId = getSelectedAvatarId(myId)
     if (selectedId) return resolveAvatarUrl(selectedId)
   }
-
-  // Any player: avatarId is included in the leaderboard API response
   if (player.avatarId) return resolveAvatarUrl(player.avatarId)
-
   return null
 }
 
 function Leaderboard() {
-  const [rows, setRows] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [activeTab, setActiveTab] = useState("global")
+  const [tabData, setTabData] = useState({ global: null, BGMI: null, FREE_FIRE: null })
+  const [loadingTabs, setLoadingTabs] = useState({ global: true, BGMI: false, FREE_FIRE: false })
   const [searchQuery, setSearchQuery] = useState("")
 
   useEffect(() => {
-    API.get("/tournament/leaderboard")
-      .then(res => setRows(Array.isArray(res.data) ? res.data : []))
-      .catch(console.error)
-      .finally(() => setLoading(false))
-  }, [])
+    const endpoint = TAB_ENDPOINTS[activeTab]
+    setLoadingTabs(prev => ({ ...prev, [activeTab]: true }))
+    API.get(endpoint)
+      .then(res => {
+        setTabData(prev => ({ ...prev, [activeTab]: Array.isArray(res.data) ? res.data : [] }))
+      })
+      .catch(() => setTabData(prev => ({ ...prev, [activeTab]: [] })))
+      .finally(() => setLoadingTabs(prev => ({ ...prev, [activeTab]: false })))
+  }, [activeTab])
 
-  const summary = useMemo(() => ({
-    champions: rows.length,
-    titles: rows.reduce((total, row) => total + (Number(row.wins) || 0), 0),
-    prizes: rows.reduce((total, row) => total + (Number(row.prize_won) || 0), 0),
-  }), [rows])
+  const rows = tabData[activeTab] || []
+  const loading = loadingTabs[activeTab]
 
-  const hasPodium = rows.length >= 3
+  const hasPodium = rows.length >= 3 && activeTab === "global"
   const podium = hasPodium ? rows.slice(0, 3) : []
   const rest = hasPodium ? rows.slice(3) : rows
 
@@ -66,6 +67,7 @@ function Leaderboard() {
     const q = searchQuery.toLowerCase()
     return rest.filter(row =>
       row.name?.toLowerCase().includes(q) ||
+      row.username?.toLowerCase().includes(q) ||
       row.college?.toLowerCase().includes(q)
     )
   }, [rest, searchQuery])
@@ -73,6 +75,8 @@ function Leaderboard() {
   const handleSearch = useCallback((e) => {
     setSearchQuery(e.target.value)
   }, [])
+
+  const activeTabInfo = TABS.find(t => t.key === activeTab)
 
   return (
     <>
@@ -87,51 +91,39 @@ function Leaderboard() {
           >
             <span className="uppercase-label">Campus Clash rankings</span>
             <h1>Make your <span>mark.</span></h1>
-            <p>Verified tournament champions, ranked by titles earned and prize winnings.</p>
+            <p>Verified tournament champions and top fraggers, ranked across all competitions.</p>
           </motion.header>
 
-          <motion.div
-            className="lb-summary"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.15 }}
-          >
-            <div className="lb-summary-stat">
-              <span className="lb-summary-icon" aria-hidden="true"><FiUsers /></span>
-              <div>
-                <span className="lb-summary-value">{summary.champions}</span>
-                <span className="lb-summary-label">Ranked players</span>
-              </div>
-            </div>
-            <div className="lb-summary-stat">
-              <span className="lb-summary-icon" aria-hidden="true"><FiAward /></span>
-              <div>
-                <span className="lb-summary-value">{summary.titles}</span>
-                <span className="lb-summary-label">Titles claimed</span>
-              </div>
-            </div>
-            <div className="lb-summary-stat">
-              <span className="lb-summary-icon" aria-hidden="true"><FiDollarSign /></span>
-              <div>
-                <span className="lb-summary-value">{formatPrize(summary.prizes)}</span>
-                <span className="lb-summary-label">Prizes awarded</span>
-              </div>
-            </div>
-          </motion.div>
+          {/* Tab bar */}
+          <div className="lb-tabs" role="tablist">
+            {TABS.map(tab => {
+              const Icon = tab.icon
+              return (
+                <button
+                  key={tab.key}
+                  className={`lb-tab${activeTab === tab.key ? " lb-tab-active" : ""}`}
+                  role="tab"
+                  aria-selected={activeTab === tab.key}
+                  onClick={() => { setActiveTab(tab.key); setSearchQuery("") }}
+                >
+                  <Icon size={15} /> {tab.label}
+                </button>
+              )
+            })}
+          </div>
 
           {loading ? (
             <>
               <SkeletonText width="180px" height={14} style={{ marginBottom: 8 }} />
               <SkeletonText width="300px" height={32} style={{ marginBottom: 24 }} />
-              <SkeletonBlock height={140} style={{ borderRadius: 16, marginBottom: 24 }} />
               <SkeletonLeaderboard rows={8} />
             </>
           ) : rows.length === 0 ? (
             <section className="lb-empty" aria-labelledby="empty-title">
               <div className="lb-empty-icon"><FiTarget aria-hidden="true" /></div>
               <span className="uppercase-label">The arena is ready</span>
-              <h2 id="empty-title">No champions yet</h2>
-              <p>Complete a tournament to become the first player on the board.</p>
+              <h2 id="empty-title">No data yet</h2>
+              <p>Complete a tournament to appear on this leaderboard.</p>
             </section>
           ) : (
             <>
@@ -155,9 +147,9 @@ function Leaderboard() {
                     transition={{ duration: 0.6, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
                   >
                     <div className="lb-podium">
-                      <PodiumBlock player={podium[1]} rank={2} delay={0.6} />
-                      <PodiumBlock player={podium[0]} rank={1} delay={0.3} />
-                      <PodiumBlock player={podium[2]} rank={3} delay={0.8} />
+                      <PodiumBlock player={podium[1]} rank={2} delay={0.6} activeTab={activeTab} />
+                      <PodiumBlock player={podium[0]} rank={1} delay={0.3} activeTab={activeTab} />
+                      <PodiumBlock player={podium[2]} rank={3} delay={0.8} activeTab={activeTab} />
                     </div>
                   </motion.div>
                 </section>
@@ -174,7 +166,7 @@ function Leaderboard() {
                   <div className="lb-standings-header">
                     <div>
                       <span className="uppercase-label">Full rankings</span>
-                      <h2 id="standings-title">The chase continues</h2>
+                      <h2 id="standings-title">{activeTabInfo.label} leaderboard</h2>
                     </div>
                     <div className="lb-standings-controls">
                       <input
@@ -191,8 +183,18 @@ function Leaderboard() {
                     <div className="lb-table-head" role="row">
                       <span role="columnheader">Rank</span>
                       <span role="columnheader">Player</span>
-                      <span className="lb-col-right" role="columnheader">Titles</span>
-                      <span className="lb-col-right" role="columnheader">Prize won</span>
+                      {activeTab === "global" ? (
+                        <>
+                          <span role="columnheader">Username</span>
+                          <span className="lb-col-right" role="columnheader">Titles</span>
+                        </>
+                      ) : (
+                        <>
+                          <span role="columnheader">Username</span>
+                          <span className="lb-col-right" role="columnheader">{activeTabInfo.metric}</span>
+                          <span className="lb-col-right" role="columnheader">Played</span>
+                        </>
+                      )}
                     </div>
                     {filteredRows.map((row, index) => (
                       <motion.div
@@ -217,8 +219,18 @@ function Leaderboard() {
                             <span className="lb-player-college">{row.college || "Campus Clash"}</span>
                           </span>
                         </span>
-                        <span className="lb-col-right lb-wins" role="cell"><FiAward aria-hidden="true" /> {row.wins}</span>
-                        <span className="lb-col-right lb-prize" role="cell">{formatPrize(row.prize_won)}</span>
+                        {activeTab === "global" ? (
+                          <>
+                            <span className="lb-player-username" role="cell">@{row.username || "—"}</span>
+                            <span className="lb-col-right lb-wins" role="cell"><FiAward aria-hidden="true" /> {row.tournaments_won || 0}</span>
+                          </>
+                        ) : (
+                          <>
+                            <span className="lb-player-username" role="cell">@{row.username || "—"}</span>
+                            <span className="lb-col-right lb-wins" role="cell"><FiTarget aria-hidden="true" /> {row.total_kills || 0}</span>
+                            <span className="lb-col-right" role="cell">{row.tournaments_played || 0}</span>
+                          </>
+                        )}
                       </motion.div>
                     ))}
                   </div>
@@ -232,12 +244,14 @@ function Leaderboard() {
   )
 }
 
-function PodiumBlock({ player, rank, delay = 0 }) {
+function PodiumBlock({ player, rank, delay = 0, activeTab }) {
   if (!player) return null
 
   const tierClass = rank === 1 ? "gold" : rank === 2 ? "silver" : "bronze"
-  const points = player.wins * 100
   const blockHeight = rank === 1 ? 180 : rank === 2 ? 120 : 90
+  const displayValue = activeTab === "global"
+    ? (player.tournaments_won || 0) * 100
+    : (player.total_kills || 0)
 
   return (
     <div className={`lb-podium-block-wrapper rank-${rank}`}>
@@ -283,7 +297,7 @@ function PodiumBlock({ player, rank, delay = 0 }) {
           transition={{ type: "spring", stiffness: 200, damping: 15, delay: delay + 0.6 }}
         >
           <span className="lb-podium-points-arrow">↑</span>
-          <span>{points}</span>
+          <span>{displayValue}</span>
         </motion.div>
       </motion.div>
       <motion.div

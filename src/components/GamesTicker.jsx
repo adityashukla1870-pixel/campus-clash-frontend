@@ -9,6 +9,7 @@ import {
   GiTargetShot,
   GiIsland,
 } from "react-icons/gi"
+import { FiTarget, FiZap, FiCircle, FiAward, FiMonitor, FiCrosshair } from "react-icons/fi"
 import "./GamesTicker.css"
 
 const GAMES = [

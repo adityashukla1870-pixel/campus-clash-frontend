@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
-import { FiAward, FiTarget, FiZap, FiEdit2, FiUser, FiMail, FiBookOpen, FiHash, FiLogOut, FiShield, FiTrendingUp, FiClock, FiCheckCircle } from "react-icons/fi"
+import { FiAward, FiTarget, FiZap, FiEdit2, FiUser, FiMail, FiBookOpen, FiHash, FiLogOut, FiShield, FiTrendingUp, FiClock, FiCheckCircle, FiLink, FiAtSign, FiMonitor } from "react-icons/fi"
 import Navbar from "../components/Navbar"
 import AvatarSelector from "../components/AvatarSelector"
 import API from "../api/axios"
@@ -13,6 +13,7 @@ import "./Profile.css"
 function Profile() {
   const navigate = useNavigate()
   const [profile, setProfile] = useState(null)
+  const [playerStats, setPlayerStats] = useState(null)
   const [tournaments, setTournaments] = useState([])
   const [editing, setEditing] = useState(false)
   const [form, setForm] = useState({ name: "", college: "", game_uid: "" })
@@ -26,9 +27,11 @@ function Profile() {
     Promise.all([
       API.get("/auth/profile"),
       API.get("/tournament/my-tournaments"),
-    ]).then(([profileRes, tournamentsRes]) => {
+      API.get("/stats/player/me").catch(() => ({ data: null })),
+    ]).then(([profileRes, tournamentsRes, statsRes]) => {
       setProfile(profileRes.data)
       setTournaments(Array.isArray(tournamentsRes.data) ? tournamentsRes.data : [])
+      setPlayerStats(statsRes?.data)
       setForm({
         name: profileRes.data.name || "",
         college: profileRes.data.college || "",
@@ -141,8 +144,11 @@ function Profile() {
               <span className={`badge ${isAdmin ? 'badge-admin' : 'badge-player'}`}>
                 {isAdmin ? <><FiShield size={12} /> Admin</> : <><FiZap size={12} /> Player</>}
               </span>
+              {profile.username && (
+                <span className="badge badge-username"><FiAtSign size={11} /> @{profile.username}</span>
+              )}
               {profile.auth_provider === "google" && (
-                <span className="badge badge-google">🔗 Google</span>
+                <span className="badge badge-google"><FiLink /> Google</span>
               )}
             </div>
           </motion.div>
@@ -173,6 +179,31 @@ function Profile() {
 
           {/* Performance Graph */}
           <div className="mb-6"><PerformanceGraph /></div>
+
+          {/* Game Stats */}
+          {playerStats && Object.keys(playerStats.games || {}).length > 0 && (
+            <motion.div className="profile-details-card" variants={item}>
+              <div className="profile-details-header">
+                <h2><FiMonitor size={16} /> Game Stats</h2>
+              </div>
+              <div className="profile-game-stats-grid">
+                {Object.entries(playerStats.games).map(([game, stats]) => (
+                  <div key={game} className="profile-game-stat-card">
+                    <div className="profile-game-stat-game">{game}</div>
+                    <div className="profile-game-stat-row">
+                      <FiTarget size={13} /> <span>{stats.total_kills}</span> kills
+                    </div>
+                    <div className="profile-game-stat-row">
+                      <FiAward size={13} /> <span>{stats.tournaments_won}</span> wins
+                    </div>
+                    <div className="profile-game-stat-row">
+                      <FiZap size={13} /> <span>{stats.tournaments_played}</span> played
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          )}
 
           {/* Account Details */}
           <motion.div className="profile-details-card" variants={item}>

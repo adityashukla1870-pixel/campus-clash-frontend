@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
+import { FiAward } from "react-icons/fi"
 import API from "../api/axios"
 import AdminTopBar from "../components/AdminTopBar"
 import { SkeletonText, SkeletonBlock, SkeletonCard } from "../components/Skeleton"
@@ -52,7 +53,7 @@ function AdminWinner() {
           </>
         ) : (
           <>
-            <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 28, fontWeight: 700, marginBottom: 6 }}>🥇 Declare Winner</h1>
+            <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 28, fontWeight: 700, marginBottom: 6 }}><FiAward /> Declare Winner</h1>
             <p style={{ color: 'var(--text-secondary)', fontSize: 14, marginBottom: 32 }}>Select the tournament and the winning player.</p>
 
             <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 20, padding: 32, position: 'relative', overflow: 'hidden' }}>
@@ -74,12 +75,12 @@ function AdminWinner() {
                 </div>
                 {selectedWinner && (
                   <div style={{ background: 'var(--green-bg)', border: '1px solid #22c55e44', borderRadius: 12, padding: 16, textAlign: 'center' }}>
-                    <div style={{ fontSize: 28, marginBottom: 6 }}>🏆</div>
+                    <div style={{ fontSize: 28, marginBottom: 6 }}><FiAward size={28} /></div>
                     <p style={{ color: 'var(--green)', fontWeight: 600 }}>Ready to declare winner!</p>
                   </div>
                 )}
                 <button className="btn-primary" style={{ width: '100%', justifyContent: 'center', background: 'linear-gradient(135deg,#22c55e,#4ade80)', marginTop: 4 }} onClick={handleSubmit} disabled={loading || !selectedWinner}>
-                  {loading ? 'Declaring...' : '🏆 Declare Winner'}
+                  {loading ? 'Declaring...' : <><FiAward /> Declare Winner</>}
                 </button>
               </div>
             </div>
