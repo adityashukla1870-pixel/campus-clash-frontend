@@ -15,8 +15,8 @@ const TABS = [
 
 const TAB_ENDPOINTS = {
   global: "/stats/leaderboard/global",
-  BGMI: "/stats/leaderboard/game/BGMI",
-  FREE_FIRE: "/stats/leaderboard/game/FREE_FIRE",
+  BGMI: "/stats/leaderboard/bgmi",
+  FREE_FIRE: "/stats/leaderboard/free-fire",
 }
 
 function initials(name) {
@@ -49,7 +49,8 @@ function Leaderboard() {
     setLoadingTabs(prev => ({ ...prev, [activeTab]: true }))
     API.get(endpoint)
       .then(res => {
-        setTabData(prev => ({ ...prev, [activeTab]: Array.isArray(res.data) ? res.data : [] }))
+        const data = res.data?.leaderboard || (Array.isArray(res.data) ? res.data : [])
+        setTabData(prev => ({ ...prev, [activeTab]: data }))
       })
       .catch(() => setTabData(prev => ({ ...prev, [activeTab]: [] })))
       .finally(() => setLoadingTabs(prev => ({ ...prev, [activeTab]: false })))
