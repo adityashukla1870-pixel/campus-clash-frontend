@@ -317,7 +317,7 @@
 .lb-table-head,
 .lb-table-row {
   display: grid;
-  grid-template-columns: 56px minmax(140px, 1fr) 120px 80px 100px;
+  grid-template-columns: 48px 1fr 100px 80px;
   gap: 12px;
   padding: 0 24px;
   align-items: center;
@@ -409,10 +409,9 @@
   .lb-standings-header { flex-direction: column; gap: 12px; align-items: stretch; }
   .lb-standings-controls { justify-content: space-between; }
   .lb-table-head,
-  .lb-table-row { grid-template-columns: 48px minmax(0, 1fr) 75px; gap: 10px; padding-right: 18px; padding-left: 18px; }
-  .lb-table-head span:last-child,
-  .lb-table-row .lb-prize,
-  .lb-player-username { display: none; }
+  .lb-table-row { grid-template-columns: 40px 1fr 80px; gap: 10px; padding-right: 14px; padding-left: 14px; }
+  .lb-table-head span:nth-child(4),
+  .lb-table-row span:nth-child(4) { display: none; }
 }
 
 @media (max-width: 540px) {
@@ -431,7 +430,7 @@
   .lb-podium-points { font-size: 10px; padding: 3px 8px; gap: 4px; }
   .lb-podium-player-info { gap: 6px; margin-bottom: 8px; }
   .lb-table-head,
-  .lb-table-row { grid-template-columns: 40px minmax(0, 1fr) 62px; padding-right: 14px; padding-left: 14px; }
+  .lb-table-row { grid-template-columns: 36px 1fr 70px; padding-right: 12px; padding-left: 12px; }
   .lb-table-head { min-height: 38px; }
   .lb-table-row { min-height: 68px; }
   .lb-avatar { width: 34px; height: 34px; }

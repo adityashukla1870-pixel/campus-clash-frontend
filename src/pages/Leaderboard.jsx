@@ -184,17 +184,9 @@ function Leaderboard() {
                     <div className="lb-table-head" role="row">
                       <span role="columnheader">Rank</span>
                       <span role="columnheader">Player</span>
-                      {activeTab === "global" ? (
-                        <>
-                          <span role="columnheader">Username</span>
-                          <span className="lb-col-right" role="columnheader">Titles</span>
-                        </>
-                      ) : (
-                        <>
-                          <span role="columnheader">Username</span>
-                          <span className="lb-col-right" role="columnheader">{activeTabInfo.metric}</span>
-                          <span className="lb-col-right" role="columnheader">Played</span>
-                        </>
+                      <span className="lb-col-right" role="columnheader">{activeTab === "global" ? "Titles" : activeTabInfo.metric}</span>
+                      {activeTab !== "global" && (
+                        <span className="lb-col-right" role="columnheader">Played</span>
                       )}
                     </div>
                     {filteredRows.map((row, index) => (
@@ -208,29 +200,18 @@ function Leaderboard() {
                       >
                         <span className="lb-rank" role="cell">{rankLabel(index + (hasPodium ? 4 : 1))}</span>
                         <span className="lb-player" role="cell">
-                          {playerAvatarUrl(row) ? (
-                            <span className="lb-avatar" aria-hidden="true" style={{ padding: 0, overflow: "hidden" }}>
-                              <img src={playerAvatarUrl(row)} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                            </span>
-                          ) : (
-                            <span className="lb-avatar" aria-hidden="true">{initials(row.name)}</span>
-                          )}
                           <span className="lb-player-details">
                             <span className="lb-player-name">{row.name}</span>
                             <span className="lb-player-college">{row.college || "Campus Clash"}</span>
                           </span>
                         </span>
                         {activeTab === "global" ? (
-                          <>
-                            <span className="lb-player-username" role="cell">@{row.username || "—"}</span>
-                            <span className="lb-col-right lb-wins" role="cell"><FiAward aria-hidden="true" /> {row.tournaments_won || 0}</span>
-                          </>
+                          <span className="lb-col-right lb-wins" role="cell"><FiAward aria-hidden="true" /> {row.tournaments_won || 0}</span>
                         ) : (
-                          <>
-                            <span className="lb-player-username" role="cell">@{row.username || "—"}</span>
-                            <span className="lb-col-right lb-wins" role="cell"><FiTarget aria-hidden="true" /> {row.total_kills || 0}</span>
-                            <span className="lb-col-right" role="cell">{row.tournaments_played || 0}</span>
-                          </>
+                          <span className="lb-col-right lb-wins" role="cell"><FiTarget aria-hidden="true" /> {row.total_kills || 0}</span>
+                        )}
+                        {activeTab !== "global" && (
+                          <span className="lb-col-right" role="cell">{row.tournaments_played || 0}</span>
                         )}
                       </motion.div>
                     ))}
