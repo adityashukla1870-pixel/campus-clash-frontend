@@ -43,7 +43,7 @@ function Login() {
         navigate(getHomeRoute(), { replace: true })
       }
     } catch (err) {
-      alert(err.response?.data?.msg || "Login Failed")
+      alert(err.response?.data?.error || err.response?.data?.msg || "Login Failed")
     } finally {
       setLoading(false)
     }

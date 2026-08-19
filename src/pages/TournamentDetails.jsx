@@ -33,7 +33,7 @@ function TournamentDetails() {
       const t = res.data
       setTournament(t)
       if (t.mode === "squad") {
-        setMembers(Array.from({ length: Math.max(t.team_size - 1, 0) }, () => ({ name: "", game_uid: "" })))
+        setMembers(Array.from({ length: Math.max(t.team_size - 1, 0) }, () => ({ username: "", name: "", game_uid: "" })))
       } else {
         // solo tournaments register immediately to reserve a payment code
         API.post(`/tournament/register/${id}`, {}).then(r => setPaymentCode(r.data.payment_code)).catch(() => {})
@@ -56,14 +56,18 @@ function TournamentDetails() {
 
   const handleConfirmTeam = async () => {
     if (!teamName.trim()) { alert("Enter your team name"); return }
-    const incomplete = members.some(m => !m.name.trim())
-    if (incomplete) { alert("Enter names for all teammates"); return }
+    const incomplete = members.some(m => !m.username.trim())
+    if (incomplete) { alert("Enter a username for all teammates"); return }
 
     setTeamLoading(true)
     try {
       const res = await API.post(`/tournament/register/${id}`, {
         team_name: teamName,
-        team_members: members
+        team_members: members.map(m => ({
+          username: m.username.trim().toLowerCase(),
+          name: m.name.trim(),
+          game_uid: m.game_uid.trim()
+        }))
       })
       setPaymentCode(res.data.payment_code)
       setTeamConfirmed(true)
@@ -78,7 +82,7 @@ function TournamentDetails() {
     if (!file || !utr) { alert("Upload screenshot and enter UTR"); return }
     setLoading(true)
     try {
-      const res1 = await API.post(`/tournament/register/${id}`, tournament.mode === "squad" ? { team_name: teamName, team_members: members } : {})
+      const res1 = await API.post(`/tournament/register/${id}`, tournament.mode === "squad" ? { team_name: teamName, team_members: members.map(m => ({ username: m.username.trim().toLowerCase(), name: m.name.trim(), game_uid: m.game_uid.trim() })) } : {})
       const registrationId = res1.data.registration_id
       if (!registrationId) { alert("Registration failed"); return }
 
@@ -275,6 +279,16 @@ function TournamentDetails() {
 
                   {members.map((m, i) => (
                     <div key={i} className="team-member-row">
+                      <div className="field-group">
+                        <label>Teammate {i + 1} Username</label>
+                        <input
+                          type="text"
+                          placeholder="e.g. player123"
+                          value={m.username}
+                          onChange={(e) => updateMember(i, "username", e.target.value)}
+                          disabled={teamConfirmed}
+                        />
+                      </div>
                       <div className="field-group">
                         <label>Teammate {i + 1} Name</label>
                         <input
