@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { QRCodeSVG } from "qrcode.react"
-import { FiUpload, FiUsers, FiTarget, FiCreditCard, FiBarChart2, FiCheckCircle, FiZap, FiArrowLeft } from "react-icons/fi"
+import { FiUpload, FiUsers, FiTarget, FiCreditCard, FiBarChart2, FiCheckCircle, FiZap, FiArrowLeft, FiMonitor, FiUser, FiAward, FiSmartphone, FiKey, FiAlertTriangle, FiSend } from "react-icons/fi"
 import Navbar from "../components/Navbar"
 import API from "../api/axios"
 import { resolveImageUrl } from "../utils/media"
