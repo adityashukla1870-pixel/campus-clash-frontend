@@ -69,14 +69,19 @@ let _initialized = false
  */
 export async function initAvatarLibrary() {
   if (_initialized) return
+
+  const token = localStorage.getItem("token")
+  if (!token) return
+
   try {
     const res = await axios.get("/avatars")
+
     if (Array.isArray(res.data)) {
       writeLibrary(res.data)
       _initialized = true
     }
   } catch {
-    // API unavailable — localStorage cache (from a previous session) is the fallback
+    // API unavailable — localStorage cache remains the fallback
   }
 }
 
