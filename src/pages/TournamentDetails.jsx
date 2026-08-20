@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { QRCodeSVG } from "qrcode.react"
-import { FiUpload, FiUsers, FiTarget, FiCreditCard, FiBarChart2, FiCheckCircle, FiZap, FiArrowLeft, FiMonitor, FiUser, FiAward, FiSmartphone, FiKey, FiAlertTriangle, FiSend } from "react-icons/fi"
+import { FiUpload, FiUsers, FiTarget, FiCreditCard, FiBarChart2, FiCheckCircle, FiZap, FiArrowLeft, FiMonitor, FiUser, FiAward, FiSmartphone, FiKey, FiAlertTriangle, FiSend, FiInstagram, FiImage, FiX } from "react-icons/fi"
 import Navbar from "../components/Navbar"
 import API from "../api/axios"
 import { resolveImageUrl } from "../utils/media"
@@ -11,6 +11,8 @@ import "./TournamentDetails.css"
 
 const UPI_ID = "7052759580@ptyes"
 const PAYEE_NAME = "Campus Clash"
+const IG_LINK = "https://www.instagram.com/campusclashog?igsh=NWNxcGlsbmZnbWwy"
+const IG_USERNAME = "campusclashog"
 
 function TournamentDetails() {
   const { id } = useParams()
@@ -30,6 +32,10 @@ function TournamentDetails() {
   const [teamLoading, setTeamLoading] = useState(false)
   const [myGroup, setMyGroup] = useState(null)
   const [myRole, setMyRole] = useState(null)
+
+  // Instagram proof state (for free tournaments)
+  const [igFiles, setIgFiles] = useState([])
+  const [igUploading, setIgUploading] = useState(false)
 
   useEffect(() => {
     API.get(`/tournament/${id}`).then(res => {
@@ -112,6 +118,39 @@ function TournamentDetails() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleIgUpload = async () => {
+    if (igFiles.length === 0) { alert("Upload at least one screenshot"); return }
+    setIgUploading(true)
+    try {
+      const res1 = await API.post(`/tournament/register/${id}`, tournament.mode === "squad" ? { team_name: teamName, team_leader: teamLeader, team_members: members } : {})
+      const registrationId = res1.data.registration_id
+      if (!registrationId) { alert("Registration failed"); return }
+
+      const formData = new FormData()
+      igFiles.forEach(f => formData.append("files", f))
+      await API.post(`/tournament/upload-ig-proof/${registrationId}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      })
+      alert("Proof submitted! Waiting for admin approval.")
+      navigate("/my-tournaments")
+    } catch (err) {
+      alert(err.response?.data?.error || err.response?.data?.msg || "Upload Failed")
+    } finally {
+      setIgUploading(false)
+    }
+  }
+
+  const addIgFiles = (newFiles) => {
+    const remaining = 4 - igFiles.length
+    if (remaining <= 0) { alert("Maximum 4 screenshots allowed"); return }
+    const toAdd = Array.from(newFiles).slice(0, remaining)
+    setIgFiles(prev => [...prev, ...toAdd])
+  }
+
+  const removeIgFile = (index) => {
+    setIgFiles(prev => prev.filter((_, i) => i !== index))
   }
 
   if (!tournament) {
@@ -204,7 +243,9 @@ function TournamentDetails() {
                   You're a team member in this tournament
                 </div>
                 <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>
-                  Your team leader is handling the payment. You'll be notified when it's approved.
+                  {tournament.entry_fee > 0
+                    ? "Your team leader is handling the payment. You'll be notified when it's approved."
+                    : "Your team leader is submitting the follow proof. You'll be notified when it's approved."}
                 </div>
               </div>
             </div>
@@ -400,8 +441,8 @@ function TournamentDetails() {
               )}
             </div>
 
-            {/* ---------------- Sidebar: payment ---------------- */}
-            {canPay && (
+            {/* ---------------- Sidebar: payment / IG proof ---------------- */}
+            {canPay && tournament.entry_fee > 0 && (
               <div className="details-sidebar">
                 <div className="section-card payment-card">
                   <h2><FiCreditCard size={17} /> Payment Details</h2>
@@ -452,6 +493,102 @@ function TournamentDetails() {
 
                   <button className="btn-primary chamfer-sm details-cta" onClick={handleUpload} disabled={loading}>
                     {loading ? "Submitting..." : <><FiSend /> Submit Payment</>}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {canPay && tournament.entry_fee === 0 && (
+              <div className="details-sidebar">
+                <div className="section-card" style={{ border: '1px solid #E1306C' }}>
+                  <h2><FiInstagram size={17} style={{ color: '#E1306C' }} /> Follow Us on Instagram</h2>
+                  <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 12 }}>
+                    This tournament is <strong style={{ color: 'var(--green)' }}>FREE</strong>! To register, follow these steps:
+                  </p>
+
+                  <div style={{ background: 'var(--bg-surface)', borderRadius: 10, padding: 14, marginBottom: 14 }}>
+                    <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.6 }}>Step 1 — Follow</div>
+                    <a
+                      href={IG_LINK}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px',
+                        background: 'linear-gradient(135deg, #833AB4, #E1306C, #F77737)',
+                        borderRadius: 8, color: '#fff', fontWeight: 600, fontSize: 14,
+                        textDecoration: 'none',
+                      }}
+                    >
+                      <FiInstagram size={18} /> @{IG_USERNAME}
+                    </a>
+                  </div>
+
+                  <div style={{ background: 'var(--bg-surface)', borderRadius: 10, padding: 14, marginBottom: 14 }}>
+                    <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.6 }}>Step 2 — Upload Proof</div>
+                    <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8 }}>
+                      Upload screenshot(s) showing <strong>all teammates</strong> following @{IG_USERNAME}.
+                      Max 4 screenshots. If any teammate hasn't followed, registration will be cancelled.
+                    </p>
+
+                    <div className="upload-area" style={{ borderStyle: 'dashed', borderColor: '#E1306C' }}>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={(e) => addIgFiles(e.target.files)}
+                      />
+                      <FiImage className="upload-icon" size={26} style={{ color: '#E1306C' }} />
+                      <p style={{ fontSize: 12 }}>Click to upload screenshots ({igFiles.length}/4)</p>
+                    </div>
+
+                    {igFiles.length > 0 && (
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 10 }}>
+                        {igFiles.map((f, i) => (
+                          <div key={i} style={{
+                            position: 'relative', width: 70, height: 70, borderRadius: 8,
+                            overflow: 'hidden', border: '1px solid var(--border)',
+                          }}>
+                            <img
+                              src={URL.createObjectURL(f)}
+                              alt={`Proof ${i + 1}`}
+                              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                            />
+                            <button
+                              onClick={() => removeIgFile(i)}
+                              style={{
+                                position: 'absolute', top: 2, right: 2, width: 18, height: 18,
+                                borderRadius: '50%', background: 'rgba(0,0,0,0.7)', border: 'none',
+                                color: '#fff', cursor: 'pointer', display: 'flex',
+                                alignItems: 'center', justifyContent: 'center', fontSize: 10,
+                              }}
+                            >
+                              <FiX size={10} />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  <div style={{
+                    background: 'rgba(225,48,108,0.1)', border: '1px solid rgba(225,48,108,0.3)',
+                    borderRadius: 8, padding: '10px 12px', marginBottom: 14,
+                  }}>
+                    <div style={{ fontSize: 12, color: '#E1306C', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <FiAlertTriangle size={13} /> Important
+                    </div>
+                    <p style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4, margin: '4px 0 0' }}>
+                      All teammates must follow @{IG_USERNAME}. If any teammate hasn't followed, your registration will be cancelled by the admin.
+                    </p>
+                  </div>
+
+                  <button
+                    className="btn-primary chamfer-sm details-cta"
+                    onClick={handleIgUpload}
+                    disabled={igUploading || igFiles.length === 0}
+                    style={igFiles.length === 0 ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
+                  >
+                    {igUploading ? "Submitting..." : <><FiSend /> Submit Proof</>}
                   </button>
                 </div>
               </div>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { FiDollarSign, FiCheckCircle, FiXCircle, FiAward } from "react-icons/fi"
+import { FiDollarSign, FiCheckCircle, FiXCircle, FiAward, FiInstagram, FiImage } from "react-icons/fi"
 import API from "../api/axios"
 import { resolveImageUrl } from "../utils/media"
 import AdminTopBar from "../components/AdminTopBar"
@@ -17,6 +17,9 @@ const cardStyle = {
 }
 
 function PaymentCard({ p, actions }) {
+  const isFreeTournament = p.entry_fee === 0
+  const hasIgProof = p.ig_screenshots && p.ig_screenshots.length > 0
+
   return (
     <div style={cardStyle}>
       <div style={{ flex: 1, minWidth: 220 }}>
@@ -25,9 +28,20 @@ function PaymentCard({ p, actions }) {
             <div style={{ fontSize: 17, fontWeight: 700, color: 'var(--text-primary)' }}>{p.player_name}</div>
             {p.player_email && <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{p.player_email}</div>}
           </div>
-          {p.entry_fee != null && (
-            <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--gold)' }}>₹{p.entry_fee}</div>
-          )}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            {isFreeTournament && (
+              <span style={{
+                fontSize: 11, fontWeight: 600, padding: '3px 8px', borderRadius: 6,
+                background: 'rgba(225,48,108,0.15)', color: '#E1306C', border: '1px solid rgba(225,48,108,0.3)',
+                display: 'flex', alignItems: 'center', gap: 4,
+              }}>
+                <FiInstagram size={11} /> FREE
+              </span>
+            )}
+            {p.entry_fee != null && p.entry_fee > 0 && (
+              <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--gold)' }}>₹{p.entry_fee}</div>
+            )}
+          </div>
         </div>
 
         <div style={{ fontSize: 13, color: 'var(--purple-light)', marginBottom: 14 }}>🏆 {p.tournament_name}</div>
@@ -53,23 +67,58 @@ function PaymentCard({ p, actions }) {
           </div>
         )}
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 16 }}>
-          <div>
-            <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.8px', color: 'var(--text-muted)', marginBottom: 4 }}>Payment Code</div>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 15, fontWeight: 700, color: 'var(--purple-light)' }}>{p.payment_code}</div>
+        {!isFreeTournament && (
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 16 }}>
+            <div>
+              <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.8px', color: 'var(--text-muted)', marginBottom: 4 }}>Payment Code</div>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 15, fontWeight: 700, color: 'var(--purple-light)' }}>{p.payment_code}</div>
+            </div>
+            <div>
+              <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.8px', color: 'var(--text-muted)', marginBottom: 4 }}>UTR Number</div>
+              <div style={{ fontFamily: 'var(--font-mono)', fontSize: 15, fontWeight: 700, color: 'var(--cyan)' }}>{p.utr || "—"}</div>
+            </div>
           </div>
-          <div>
-            <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.8px', color: 'var(--text-muted)', marginBottom: 4 }}>UTR Number</div>
-            <div style={{ fontFamily: 'var(--font-mono)', fontSize: 15, fontWeight: 700, color: 'var(--cyan)' }}>{p.utr || "—"}</div>
+        )}
+
+        {isFreeTournament && (
+          <div style={{ marginBottom: 16, padding: '10px 12px', background: 'rgba(225,48,108,0.08)', borderRadius: 8, border: '1px solid rgba(225,48,108,0.2)' }}>
+            <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.8px', color: '#E1306C', marginBottom: 4, fontWeight: 600 }}>
+              <FiInstagram size={11} style={{ verticalAlign: 'middle' }} /> Instagram Verification
+            </div>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
+              {hasIgProof ? `${p.ig_screenshots.length} screenshot(s) uploaded` : "No proof uploaded yet"}
+            </div>
           </div>
-        </div>
+        )}
 
         <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.8px', color: 'var(--text-muted)', marginBottom: 4 }}>Registration ID</div>
         <div style={{ fontFamily: 'var(--font-mono)', fontSize: 12, color: 'var(--text-secondary)', marginBottom: 16, wordBreak: 'break-all' }}>{p._id}</div>
 
         {actions}
       </div>
-      {p.screenshot ? (
+
+      {/* Screenshot display */}
+      {isFreeTournament && hasIgProof ? (
+        <div style={{ flexShrink: 0 }}>
+          <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.8px', color: '#E1306C', marginBottom: 8, fontWeight: 600 }}>
+            <FiImage size={11} /> IG Proof ({p.ig_screenshots.length})
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, maxWidth: 200 }}>
+            {p.ig_screenshots.map((url, i) => (
+              <a key={i} href={resolveImageUrl(url)} target="_blank" rel="noopener noreferrer">
+                <img
+                  src={resolveImageUrl(url)}
+                  style={{
+                    width: 88, height: 80, objectFit: 'cover', borderRadius: 8,
+                    border: '1px solid var(--border)', cursor: 'pointer',
+                  }}
+                  alt={`IG proof ${i + 1}`}
+                />
+              </a>
+            ))}
+          </div>
+        </div>
+      ) : !isFreeTournament && p.screenshot ? (
         <div style={{ flexShrink: 0 }}>
           <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.8px', color: 'var(--text-muted)', marginBottom: 8 }}>Screenshot</div>
           <img

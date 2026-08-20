@@ -119,7 +119,7 @@ function MyTournaments() {
                     <div className="mt-action" style={{display:'flex', gap:10}}>
                       {t.role === 'teammate' && t.status === 'teammate' ? (
                         <span style={{ fontSize: 12, color: 'var(--text-muted)', padding: '8px 0' }}>
-                          Waiting for leader to complete payment...
+                          Waiting for leader to submit proof...
                         </span>
                       ) : (
                         <>
