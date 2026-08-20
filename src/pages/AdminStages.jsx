@@ -71,7 +71,10 @@ function PodCard({ pod, isSquad, stageId, onChanged }) {
     const results = pod.participants.map(p => {
       const teamDraft = draft[p.registration_id] || {}
       if (isSquad && p.team_members?.length > 0) {
-        const allNames = [...p.team_members]
+        const allNames = [
+          ...(p.team_leader ? [{ name: p.team_leader.name }] : []),
+          ...p.team_members
+        ]
         const players = allNames.map(mem => ({
           name: mem.name,
           kills: Number(teamDraft.playerKills?.[mem.name] || 0)
@@ -237,7 +240,10 @@ function PodCard({ pod, isSquad, stageId, onChanged }) {
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 8 }}>
                 {pod.participants.map(p => {
-                  const roster = isSquad ? (p.team_members || []) : []
+                  const roster = isSquad ? [
+                    ...(p.team_leader ? [{ name: p.team_leader.name }] : []),
+                    ...(p.team_members || [])
+                  ] : []
                   const teamDraft = resultDrafts[m.id]?.[p.registration_id] || {}
                   return (
                     <div key={p.registration_id} style={{ background: 'var(--bg-surface)', borderRadius: 8, padding: 8 }}>
