@@ -131,6 +131,9 @@ function Login() {
                 onChange={(e) => setRemember(e.target.checked)}
               />
               <label htmlFor="remember">Remember this device</label>
+              <span style={{ marginLeft: 'auto', fontSize: 13, color: 'var(--purple)', cursor: 'pointer', fontWeight: 600 }} onClick={() => navigate("/forgot-password")}>
+                Forgot Password?
+              </span>
             </div>
 
             <button type="submit" className="login-submit-btn shimmer-wrap chamfer-sm" disabled={loading}>
