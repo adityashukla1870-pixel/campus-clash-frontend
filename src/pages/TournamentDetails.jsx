@@ -29,6 +29,7 @@ function TournamentDetails() {
   const [teamConfirmed, setTeamConfirmed] = useState(false)
   const [teamLoading, setTeamLoading] = useState(false)
   const [myGroup, setMyGroup] = useState(null)
+  const [myRole, setMyRole] = useState(null)
 
   useEffect(() => {
     API.get(`/tournament/${id}`).then(res => {
@@ -44,6 +45,12 @@ function TournamentDetails() {
 
     // Which group/pod did I land in, if grouping already happened?
     API.get(`/stages/tournament/${id}/my-group`).then(res => setMyGroup(res.data.group)).catch(() => setMyGroup(null))
+
+    // Check if I'm a teammate (not leader) in this tournament
+    API.get("/tournament/my-tournaments").then(res => {
+      const myReg = (Array.isArray(res.data) ? res.data : []).find(t => t.id === id)
+      if (myReg) setMyRole(myReg.role)
+    }).catch(() => {})
   }, [id])
 
   const handleCopy = () => {
@@ -140,7 +147,8 @@ function TournamentDetails() {
   }
 
   const isSquad = tournament.mode === "squad"
-  const canPay = !isSquad || teamConfirmed
+  const isTeammate = myRole === "teammate"
+  const canPay = !isSquad || (teamConfirmed && !isTeammate)
 
   const upiLink = paymentCode
     ? `upi://pay?pa=${encodeURIComponent(UPI_ID)}&pn=${encodeURIComponent(PAYEE_NAME)}&am=${tournament.entry_fee}&tn=${encodeURIComponent(paymentCode)}&cu=INR`
@@ -180,6 +188,24 @@ function TournamentDetails() {
                     With: {myGroup.teammates.join(", ")}
                   </div>
                 )}
+              </div>
+            </div>
+          )}
+
+          {isTeammate && (
+            <div style={{
+              background: 'linear-gradient(135deg, #22c55e11, #16a34a22)', border: '1px solid var(--green)',
+              borderRadius: 14, padding: '14px 18px', marginBottom: 20, display: 'flex',
+              alignItems: 'center', gap: 10,
+            }}>
+              <FiUsers size={18} style={{ color: 'var(--green)' }} />
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--green)' }}>
+                  You're a team member in this tournament
+                </div>
+                <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>
+                  Your team leader is handling the payment. You'll be notified when it's approved.
+                </div>
               </div>
             </div>
           )}
@@ -278,8 +304,8 @@ function TournamentDetails() {
                 </div>
               )}
 
-              {/* Team registration section (squad mode only) */}
-              {isSquad && (
+              {/* Team registration section (squad mode only, leaders only) */}
+              {isSquad && !isTeammate && (
                 <div className="section-card">
                   <h2><FiUsers size={17} /> Team Details</h2>
                   <div className="field-group">

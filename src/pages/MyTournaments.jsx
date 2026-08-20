@@ -40,6 +40,7 @@ function MyTournaments() {
   const statusChip = (status) => {
     if (status === "completed") return <span className="chip-completed"><FiFlag /> Completed</span>
     if (status === "approved") return <span className="chip-approved"><FiCheckCircle /> Approved</span>
+    if (status === "teammate") return <span className="chip-pending"><FiUsers /> Teammate</span>
     return <span className="chip-pending"><FiClock /> Pending</span>
   }
 
@@ -71,6 +72,17 @@ function MyTournaments() {
                       <div className="mt-meta-item">
                         <span className="meta-label uppercase-label">Team</span>
                         <span className="meta-value"><FiUsers /> {t.team_name}</span>
+                        {t.role && (
+                          <span style={{
+                            marginLeft: 6, fontSize: 10, padding: '2px 6px',
+                            borderRadius: 4, fontWeight: 600, textTransform: 'uppercase',
+                            background: t.role === 'leader' ? 'rgba(124,58,237,0.2)' : 'rgba(34,197,94,0.2)',
+                            color: t.role === 'leader' ? 'var(--purple-light)' : 'var(--green)',
+                            border: `1px solid ${t.role === 'leader' ? 'var(--purple)' : 'var(--green)'}33`
+                          }}>
+                            {t.role === 'leader' ? 'Leader' : 'Member'}
+                          </span>
+                        )}
                       </div>
                     )}
                     <div className="mt-meta-item">
@@ -105,18 +117,26 @@ function MyTournaments() {
 
                   {t.status !== "completed" && (
                     <div className="mt-action" style={{display:'flex', gap:10}}>
-                      <button
-                        className="btn-primary shimmer-wrap"
-                        onClick={() => navigate(`/room/${t.id}`)}
-                        disabled={t.status !== "approved"}
-                        style={t.status !== "approved" ? {opacity:0.4,cursor:'not-allowed'} : {}}
-                      >
-                        {t.status === "approved" ? <><FiSend /> Open Room</> : <><FiClock /> Awaiting Approval</>}
-                      </button>
-                      {t.has_bracket && t.format !== 'full' && (
-                        <button className="btn-primary" onClick={() => navigate(`/tournament/${t.id}/bracket`)}>
-                          <FiAward /> Bracket
-                        </button>
+                      {t.role === 'teammate' && t.status === 'teammate' ? (
+                        <span style={{ fontSize: 12, color: 'var(--text-muted)', padding: '8px 0' }}>
+                          Waiting for leader to complete payment...
+                        </span>
+                      ) : (
+                        <>
+                          <button
+                            className="btn-primary shimmer-wrap"
+                            onClick={() => navigate(`/room/${t.id}`)}
+                            disabled={t.status !== "approved"}
+                            style={t.status !== "approved" ? {opacity:0.4,cursor:'not-allowed'} : {}}
+                          >
+                            {t.status === "approved" ? <><FiSend /> Open Room</> : <><FiClock /> Awaiting Approval</>}
+                          </button>
+                          {t.has_bracket && t.format !== 'full' && (
+                            <button className="btn-primary" onClick={() => navigate(`/tournament/${t.id}/bracket`)}>
+                              <FiAward /> Bracket
+                            </button>
+                          )}
+                        </>
                       )}
                     </div>
                   )}
