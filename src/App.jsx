@@ -28,6 +28,7 @@ import AdminWinner from "./pages/AdminWinner"
 import AdminBracket from "./pages/AdminBracket"
 import AdminStages from "./pages/AdminStages"
 import AdminAvatarLibrary from "./pages/AdminAvatarLibrary"
+import AdminUsers from "./pages/AdminUsers"
 import ThemeProvider from "./theme/ThemeProvider"
 
 
@@ -159,6 +160,7 @@ function App() {
       <Route path="/admin/bracket" element={<AdminRoute><AdminBracket /></AdminRoute>} />
       <Route path="/admin/stages" element={<AdminRoute><AdminStages /></AdminRoute>} />
       <Route path="/admin/avatars" element={<AdminRoute><AdminAvatarLibrary /></AdminRoute>} />
+      <Route path="/admin/users" element={<AdminRoute><AdminUsers /></AdminRoute>} />
 
 
     </Routes>

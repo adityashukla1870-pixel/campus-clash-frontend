@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { FiUsers, FiZap, FiDollarSign, FiClock, FiArrowRight, FiMonitor, FiAward, FiTarget, FiAperture, FiCrosshair } from "react-icons/fi"
+import { FiUsers, FiZap, FiDollarSign, FiClock, FiArrowRight, FiMonitor, FiAward, FiTarget, FiAperture, FiCrosshair, FiUserCheck } from "react-icons/fi"
 import AdminTopBar from "../components/AdminTopBar"
 import SpotlightGlow from "../components/SpotlightGlow"
 import API from "../api/axios"
@@ -15,6 +15,7 @@ const adminActions = [
   { Icon: FiAward, label: "Bracket Manager", desc: "Generate brackets & report match results", path: "/admin/bracket", color: "#f2ca50" },
   { Icon: FiTarget, label: "Manage Stages", desc: "Groups, playoffs & finals for Full Tournaments", path: "/admin/stages", color: "#ffb957" },
   { Icon: FiAperture, label: "Avatar Library", desc: "Manage avatars available to players", path: "/admin/avatars", color: "#d4af37" },
+  { Icon: FiUserCheck, label: "User Management", desc: "Search users & reset passwords", path: "/admin/users", color: "#06b6d4" },
 ]
 
 function AdminDashboard() {
