@@ -1,4 +1,4 @@
-export const KNOWN_THEMES = ["cyber-boy", "cyber-girl"]
+export const KNOWN_THEMES = ["cyber-boy", "cyber-girl", "cyber-light"]
 
 export function applyTheme(themeId) {
   if (themeId && KNOWN_THEMES.includes(themeId)) {

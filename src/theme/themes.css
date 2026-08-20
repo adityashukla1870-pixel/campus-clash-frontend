@@ -96,3 +96,57 @@
   --grad-cyan:     linear-gradient(135deg, #ffafcc, #ffc8dd);
   --grad-prize:    linear-gradient(135deg, #ffafcc, #ffc8dd);
 }
+
+/*
+ * Cyber Light — Warm off-white / Gold palette
+ * Clean light theme with warm neutrals and gold accents.
+ */
+:root[data-theme="cyber-light"] {
+  /* Core backgrounds */
+  --bg-dark:       #f5f3ee;
+  --bg-card:       #ffffff;
+  --bg-surface:    #edeae3;
+  --border:        #d9d4c8;
+  --border-glow:   #d4af3744;
+
+  /* Primary accent — Gold (same as default) */
+  --purple:        #d4af37;
+  --purple-light:  #b8922e;
+  --purple-glow:   #d4af3733;
+
+  /* Secondary accent — Warm amber */
+  --cyan:          #c98b1e;
+  --cyan-light:    #e0a832;
+  --cyan-glow:     #c98b1e22;
+
+  /* Semantic accent RGB (for rgba() usage) */
+  --accent-rgb:      212, 175, 55;
+  --accent2-rgb:     201, 139, 30;
+  --bg-dark-rgb:     245, 243, 238;
+
+  /* Text — dark on light */
+  --text-primary:   #1a1510;
+  --text-secondary: #4a4540;
+  --text-muted:     #8a827a;
+
+  /* On-accent text (on gold gradients) */
+  --on-accent-text: #241a00;
+
+  /* Gold alias — deeper for light bg contrast */
+  --gold:          #b8860b;
+
+  /* Status */
+  --green:         #16a34a;
+  --yellow:        #ca8a04;
+  --red:           #dc2626;
+  --green-bg:      #16a34a15;
+  --yellow-bg:     #ca8a0415;
+  --red-bg:        #dc262615;
+
+  /* Gradients */
+  --grad-hero:     linear-gradient(135deg, #f5f3ee 0%, #ede8dd 50%, #f5f3ee 100%);
+  --grad-card:     linear-gradient(145deg, #ffffff, #f8f6f1);
+  --grad-purple:   linear-gradient(135deg, #d4af37, #f2ca50);
+  --grad-cyan:     linear-gradient(135deg, #c98b1e, #e0a832);
+  --grad-prize:    linear-gradient(135deg, #b8860b, #d4960a);
+}

@@ -5,6 +5,7 @@ import Navbar from "../components/Navbar"
 import API from "../api/axios"
 import { SkeletonLeaderboard, SkeletonText, SkeletonBlock } from "../components/Skeleton"
 import { getSelectedAvatarId, resolveAvatarUrl, getCurrentUserId } from "../data/avatarRepository"
+import PlayerMiniCard from "../components/PlayerMiniCard"
 import "./Leaderboard.css"
 
 const TABS = [
@@ -43,6 +44,7 @@ function Leaderboard() {
   const [tabData, setTabData] = useState({ global: null, BGMI: null, FREE_FIRE: null })
   const [loadingTabs, setLoadingTabs] = useState({ global: true, BGMI: false, FREE_FIRE: false })
   const [searchQuery, setSearchQuery] = useState("")
+  const [selectedPlayer, setSelectedPlayer] = useState(null)
 
   useEffect(() => {
     const endpoint = TAB_ENDPOINTS[activeTab]
@@ -59,7 +61,7 @@ function Leaderboard() {
   const rows = tabData[activeTab] || []
   const loading = loadingTabs[activeTab]
 
-  const hasPodium = rows.length >= 3 && activeTab === "global"
+  const hasPodium = rows.length >= 3
   const podium = hasPodium ? rows.slice(0, 3) : []
   const rest = hasPodium ? rows.slice(3) : rows
 
@@ -200,7 +202,10 @@ function Leaderboard() {
                       >
                         <span className="lb-rank" role="cell">{rankLabel(index + (hasPodium ? 4 : 1))}</span>
                         <span className="lb-player" role="cell">
-                          <span className="lb-player-details">
+                          <span
+                            className="lb-player-details lb-player-clickable"
+                            onClick={(e) => setSelectedPlayer({ userId: row.user_id, rect: e.currentTarget.getBoundingClientRect() })}
+                          >
                             <span className="lb-player-name">{row.name}</span>
                             <span className="lb-player-college">{row.college || "Campus Clash"}</span>
                           </span>
@@ -222,6 +227,14 @@ function Leaderboard() {
           )}
         </div>
       </main>
+
+      {selectedPlayer && (
+        <PlayerMiniCard
+          userId={selectedPlayer.userId}
+          anchorRect={selectedPlayer.rect}
+          onClose={() => setSelectedPlayer(null)}
+        />
+      )}
     </>
   )
 }
@@ -271,7 +284,12 @@ function PodiumBlock({ player, rank, delay = 0, activeTab }) {
             {rank}
           </motion.span>
         </motion.div>
-        <span className="lb-podium-name">{player.name}</span>
+        <span
+          className="lb-podium-name lb-player-clickable"
+          onClick={(e) => e.stopPropagation() || setSelectedPlayer({ userId: player.user_id, rect: e.currentTarget.getBoundingClientRect() })}
+        >
+          {player.name}
+        </span>
         <motion.div
           className="lb-podium-points"
           initial={{ opacity: 0, scale: 0.5 }}

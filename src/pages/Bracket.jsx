@@ -4,11 +4,13 @@ import { FiAward, FiFlag, FiClock, FiArrowLeft } from "react-icons/fi"
 import Navbar from "../components/Navbar"
 import API from "../api/axios"
 import { SkeletonBracket, SkeletonText } from "../components/Skeleton"
+import PlayerMiniCard from "../components/PlayerMiniCard"
 
 function Bracket() {
   const { id } = useParams()
   const navigate = useNavigate()
   const [data, setData] = useState(null)
+  const [selectedPlayer, setSelectedPlayer] = useState(null)
 
   useEffect(() => {
     API.get(`/tournament/bracket/${id}`).then(res => setData(res.data)).catch(console.error)
@@ -69,10 +71,18 @@ function Bracket() {
                   </div>
                   {round.map((match) => (
                     <div key={match.match_id} style={{background:'var(--bg-card)',border:'1px solid var(--border)',borderRadius:12,padding:12,marginBottom:16}}>
-                      <div style={slotStyle(match.winner && match.a && match.winner.registration_id === match.a.registration_id)}>
+                      <div
+                        style={slotStyle(match.winner && match.a && match.winner.registration_id === match.a.registration_id)}
+                        className="lb-player-clickable"
+                        onClick={match.a?.user_id ? (e) => setSelectedPlayer({ userId: match.a.user_id, rect: e.currentTarget.getBoundingClientRect() }) : undefined}
+                      >
                         {match.a ? match.a.name : "TBD"}
                       </div>
-                      <div style={slotStyle(match.winner && match.b && match.winner.registration_id === match.b.registration_id)}>
+                      <div
+                        style={slotStyle(match.winner && match.b && match.winner.registration_id === match.b.registration_id)}
+                        className="lb-player-clickable"
+                        onClick={match.b?.user_id ? (e) => setSelectedPlayer({ userId: match.b.user_id, rect: e.currentTarget.getBoundingClientRect() }) : undefined}
+                      >
                         {match.b ? match.b.name : "TBD"}
                       </div>
                     </div>
@@ -83,6 +93,14 @@ function Bracket() {
           )}
         </div>
       </div>
+
+      {selectedPlayer && (
+        <PlayerMiniCard
+          userId={selectedPlayer.userId}
+          anchorRect={selectedPlayer.rect}
+          onClose={() => setSelectedPlayer(null)}
+        />
+      )}
     </>
   )
 }
