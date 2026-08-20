@@ -370,6 +370,8 @@
 }
 
 .lb-player-details { min-width: 0; }
+.lb-player-clickable { cursor: pointer; transition: opacity 0.15s; }
+.lb-player-clickable:hover { opacity: 0.75; }
 .lb-player-name,
 .lb-player-college { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .lb-player-name { color: var(--text-primary); font-size: 14px; font-weight: 700; }
