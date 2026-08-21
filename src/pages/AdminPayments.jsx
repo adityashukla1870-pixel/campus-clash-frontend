@@ -142,12 +142,14 @@ function AdminPayments() {
   const navigate = useNavigate()
   const [pending, setPending] = useState([])
   const [approved, setApproved] = useState([])
+  const [allRegs, setAllRegs] = useState([])
   const [loading, setLoading] = useState(true)
   const [tab, setTab] = useState("pending")
 
   const loadAll = () => Promise.all([
     API.get("/tournament/admin/pending-payments").then(res => setPending(res.data)),
     API.get("/tournament/admin/approved-payments").then(res => setApproved(res.data)),
+    API.get("/tournament/admin/all-registrations").then(res => setAllRegs(res.data)),
   ])
 
   useEffect(() => {
@@ -156,17 +158,16 @@ function AdminPayments() {
 
   const approve = async (id) => {
     await API.post(`/tournament/admin/approve/${id}`)
-    // Move it from Pending into the persistent Approved list instead of
-    // just dropping it — the admin should still be able to see everything
-    // the registrant filled in, even after acting on it.
     const moved = pending.find(p => p._id === id)
     setPending(prev => prev.filter(p => p._id !== id))
+    setAllRegs(prev => prev.map(r => r._id === id ? { ...r, payment_status: "approved" } : r))
     if (moved) setApproved(prev => [{ ...moved, payment_status: "approved" }, ...prev])
   }
 
   const reject = async (id) => {
     await API.post(`/tournament/admin/reject/${id}`)
     setPending(prev => prev.filter(p => p._id !== id))
+    setAllRegs(prev => prev.map(r => r._id === id ? { ...r, payment_status: "rejected" } : r))
   }
 
   if (loading) {
@@ -184,7 +185,7 @@ function AdminPayments() {
     )
   }
 
-  const list = tab === "pending" ? pending : approved
+  const list = tab === "pending" ? pending : tab === "approved" ? approved : allRegs
 
   return (
     <div style={pageStyle}>
@@ -210,7 +211,7 @@ function AdminPayments() {
           <button
             onClick={() => setTab("approved")}
             style={{
-              background: 'none', border: 'none', cursor: 'pointer', padding: '10px 4px',
+              background: 'none', border: 'none', cursor: 'pointer', padding: '10px 4px', marginRight: 20,
               fontSize: 14, fontWeight: 600,
               color: tab === "approved" ? 'var(--text-primary)' : 'var(--text-muted)',
               borderBottom: tab === "approved" ? '2px solid var(--purple-light)' : '2px solid transparent',
@@ -218,13 +219,24 @@ function AdminPayments() {
           >
             ✅ Approved ({approved.length})
           </button>
+          <button
+            onClick={() => setTab("all")}
+            style={{
+              background: 'none', border: 'none', cursor: 'pointer', padding: '10px 4px',
+              fontSize: 14, fontWeight: 600,
+              color: tab === "all" ? 'var(--text-primary)' : 'var(--text-muted)',
+              borderBottom: tab === "all" ? '2px solid var(--purple-light)' : '2px solid transparent',
+            }}
+          >
+            📋 All ({allRegs.length})
+          </button>
         </div>
 
         {list.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '60px 24px', color: 'var(--text-muted)' }}>
-            <div style={{ fontSize: 48, marginBottom: 16 }}>{tab === "pending" ? "✅" : "🗂️"}</div>
+            <div style={{ fontSize: 48, marginBottom: 16 }}>{tab === "pending" ? "✅" : tab === "approved" ? "🗂️" : "📭"}</div>
             <p style={{ fontSize: 16 }}>
-              {tab === "pending" ? "No pending payments — all clear!" : "No approved registrations yet."}
+              {tab === "pending" ? "No pending payments — all clear!" : tab === "approved" ? "No approved registrations yet." : "No registrations found."}
             </p>
           </div>
         ) : (
@@ -238,8 +250,18 @@ function AdminPayments() {
                     <button className="btn-success" onClick={() => approve(p._id)}>✅ Approve</button>
                     <button className="btn-danger" onClick={() => reject(p._id)}>❌ Reject</button>
                   </div>
-                ) : (
+                ) : tab === "approved" ? (
                   <div style={{ fontSize: 13, color: 'var(--cyan)', fontWeight: 600 }}>✅ Approved</div>
+                ) : (
+                  <div style={{
+                    fontSize: 11, fontWeight: 600, padding: '4px 10px', borderRadius: 6,
+                    background: p.payment_status === 'approved' ? 'rgba(34,197,94,0.15)' : p.payment_status === 'rejected' ? 'rgba(239,68,68,0.15)' : p.payment_status === 'teammate' ? 'rgba(6,182,212,0.15)' : 'rgba(234,179,8,0.15)',
+                    color: p.payment_status === 'approved' ? 'var(--green)' : p.payment_status === 'rejected' ? 'var(--red)' : p.payment_status === 'teammate' ? 'var(--cyan)' : 'var(--gold)',
+                    border: `1px solid ${p.payment_status === 'approved' ? 'var(--green)' : p.payment_status === 'rejected' ? 'var(--red)' : p.payment_status === 'teammate' ? 'var(--cyan)' : 'var(--gold)'}33`,
+                    display: 'inline-block',
+                  }}>
+                    {p.payment_status === 'approved' ? '✅ Approved' : p.payment_status === 'rejected' ? '❌ Rejected' : p.payment_status === 'teammate' ? '👥 Teammate' : '⏳ Pending'}
+                  </div>
                 )
               }
             />
