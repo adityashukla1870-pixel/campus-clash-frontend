@@ -75,11 +75,11 @@ function TournamentDetails() {
 
   const handleConfirmTeam = async () => {
     if (!teamName.trim()) { alert("Enter your team name"); return }
-    if (!teamLeader.name.trim()) { alert("Enter the team leader's name"); return }
+    if (!teamLeader.name.trim()) { alert("Enter the team leader's in-game name"); return }
     if (!teamLeader.game_uid.trim()) { alert("Enter the team leader's game UID"); return }
     if (!teamLeader.contact.trim()) { alert("Enter the team leader's contact number"); return }
     const incomplete = members.some(m => !m.name.trim() || !m.game_uid.trim())
-    if (incomplete) { alert("Enter name and game UID for all teammates"); return }
+    if (incomplete) { alert("Enter in-game name and game UID for all teammates"); return }
 
     setTeamLoading(true)
     try {
@@ -362,10 +362,10 @@ function TournamentDetails() {
 
                   <div className="team-member-row">
                     <div className="field-group">
-                      <label>Team Leader Name</label>
+                      <label>Team Leader In-Game Name</label>
                       <input
                         type="text"
-                        placeholder="Your name"
+                        placeholder="In-game name"
                         value={teamLeader.name}
                         onChange={(e) => updateLeader("name", e.target.value)}
                         disabled={teamConfirmed}
@@ -406,10 +406,10 @@ function TournamentDetails() {
                         />
                       </div>
                       <div className="field-group">
-                        <label>Teammate {i + 1} Name</label>
+                        <label>Teammate {i + 1} In-Game Name</label>
                         <input
                           type="text"
-                          placeholder="Player name"
+                          placeholder="In-game name"
                           value={m.name}
                           onChange={(e) => updateMember(i, "name", e.target.value)}
                           disabled={teamConfirmed}
