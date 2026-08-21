@@ -6,7 +6,7 @@ import AvatarSelector from "../components/AvatarSelector"
 import API from "../api/axios"
 import { useNavigate } from "react-router-dom"
 import { SkeletonProfile, SkeletonCardGrid, SkeletonBlock } from "../components/Skeleton"
-import PerformanceGraph from "../app/components/PerformanceGraph"
+
 import { getSelectedAvatarId, setSelectedAvatarId, resolveAvatarUrl, setPlayerAvatar, getCurrentUserId, getAvatarById, initAvatarLibrary } from "../data/avatarRepository"
 import "./Profile.css"
 
@@ -176,9 +176,6 @@ function Profile() {
               <div className="profile-stat-label">Win Rate</div>
             </div>
           </motion.div>
-
-          {/* Performance Graph */}
-          <div className="mb-6"><PerformanceGraph /></div>
 
           {/* Game Stats */}
           {playerStats && Object.keys(playerStats.games || {}).length > 0 && (
