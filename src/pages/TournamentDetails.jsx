@@ -396,11 +396,14 @@ function TournamentDetails() {
                         <label>Teammate {i + 1} Username</label>
                         <input
                           type="text"
-                          placeholder="e.g. player123"
+                          placeholder="Their Campus Clash username"
                           value={m.username}
                           onChange={(e) => updateMember(i, "username", e.target.value)}
                           disabled={teamConfirmed}
                         />
+                        <span style={{fontSize:11, color:'var(--text-muted)', marginTop:4, display:'block'}}>
+                          The username they used to sign up on Campus Clash (not their in-game name)
+                        </span>
                       </div>
                       <div className="field-group">
                         <label>Teammate {i + 1} In-Game Name</label>
