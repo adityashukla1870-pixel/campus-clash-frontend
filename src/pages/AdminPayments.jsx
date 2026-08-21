@@ -143,6 +143,7 @@ function AdminPayments() {
   const [pending, setPending] = useState([])
   const [approved, setApproved] = useState([])
   const [allRegs, setAllRegs] = useState([])
+  const [incomplete, setIncomplete] = useState([])
   const [loading, setLoading] = useState(true)
   const [tab, setTab] = useState("pending")
 
@@ -150,6 +151,7 @@ function AdminPayments() {
     API.get("/tournament/admin/pending-payments").then(res => setPending(res.data)),
     API.get("/tournament/admin/approved-payments").then(res => setApproved(res.data)),
     API.get("/tournament/admin/all-registrations").then(res => setAllRegs(res.data)),
+    API.get("/tournament/admin/incomplete-registrations").then(res => setIncomplete(res.data)),
   ])
 
   useEffect(() => {
@@ -185,7 +187,7 @@ function AdminPayments() {
     )
   }
 
-  const list = tab === "pending" ? pending : tab === "approved" ? approved : allRegs
+  const list = tab === "pending" ? pending : tab === "approved" ? approved : tab === "all" ? allRegs : incomplete
 
   return (
     <div style={pageStyle}>
@@ -196,7 +198,7 @@ function AdminPayments() {
         <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 28, fontWeight: 700, marginBottom: 6 }}>💰 Payment Verification</h1>
         <p style={{ color: 'var(--text-secondary)', fontSize: 14, marginBottom: 24 }}>Review pending payments and keep a record of everything approved.</p>
 
-        <div style={{ display: 'flex', gap: 10, marginBottom: 28, borderBottom: '1px solid var(--border)' }}>
+        <div style={{ display: 'flex', gap: 10, marginBottom: 28, borderBottom: '1px solid var(--border)', flexWrap: 'wrap' }}>
           <button
             onClick={() => setTab("pending")}
             style={{
@@ -220,6 +222,17 @@ function AdminPayments() {
             ✅ Approved ({approved.length})
           </button>
           <button
+            onClick={() => setTab("incomplete")}
+            style={{
+              background: 'none', border: 'none', cursor: 'pointer', padding: '10px 4px', marginRight: 20,
+              fontSize: 14, fontWeight: 600,
+              color: tab === "incomplete" ? 'var(--red)' : 'var(--text-muted)',
+              borderBottom: tab === "incomplete" ? '2px solid var(--red)' : '2px solid transparent',
+            }}
+          >
+            ⚠️ Incomplete ({incomplete.length})
+          </button>
+          <button
             onClick={() => setTab("all")}
             style={{
               background: 'none', border: 'none', cursor: 'pointer', padding: '10px 4px',
@@ -234,11 +247,56 @@ function AdminPayments() {
 
         {list.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '60px 24px', color: 'var(--text-muted)' }}>
-            <div style={{ fontSize: 48, marginBottom: 16 }}>{tab === "pending" ? "✅" : tab === "approved" ? "🗂️" : "📭"}</div>
+            <div style={{ fontSize: 48, marginBottom: 16 }}>{tab === "pending" ? "✅" : tab === "approved" ? "🗂️" : tab === "incomplete" ? "🎉" : "📭"}</div>
             <p style={{ fontSize: 16 }}>
-              {tab === "pending" ? "No pending payments — all clear!" : tab === "approved" ? "No approved registrations yet." : "No registrations found."}
+              {tab === "pending" ? "No pending payments — all clear!" : tab === "approved" ? "No approved registrations yet." : tab === "incomplete" ? "No incomplete registrations — everyone submitted!" : "No registrations found."}
             </p>
           </div>
+        ) : tab === "incomplete" ? (
+          list.map(p => (
+            <div key={p._id} style={cardStyle}>
+              <div style={{ flex: 1, minWidth: 220 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 14, flexWrap: 'wrap', gap: 8 }}>
+                  <div>
+                    <div style={{ fontSize: 17, fontWeight: 700, color: 'var(--text-primary)' }}>{p.player_name}</div>
+                    {p.player_email && <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{p.player_email}</div>}
+                    {p.username && <div style={{ fontSize: 12, color: 'var(--purple-light)' }}>@{p.username}</div>}
+                  </div>
+                  <span style={{
+                    fontSize: 11, fontWeight: 600, padding: '3px 8px', borderRadius: 6,
+                    background: 'rgba(239,68,68,0.15)', color: 'var(--red)', border: '1px solid rgba(239,68,68,0.3)',
+                  }}>
+                    ⚠️ No Proof
+                  </span>
+                </div>
+
+                <div style={{ fontSize: 13, color: 'var(--purple-light)', marginBottom: 14 }}>🏆 {p.tournament_name} · {p.game} · ₹{p.entry_fee}</div>
+
+                {p.team_name && (
+                  <div style={{ marginBottom: 14, padding: '10px 12px', background: 'var(--bg-surface)', borderRadius: 8 }}>
+                    <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.8px', color: 'var(--text-muted)', marginBottom: 4 }}>Squad — {p.team_name}</div>
+                  </div>
+                )}
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 16 }}>
+                  {p.contact && (
+                    <div>
+                      <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.8px', color: 'var(--text-muted)', marginBottom: 4 }}>Phone</div>
+                      <a href={`tel:${p.contact}`} style={{ fontFamily: 'var(--font-mono)', fontSize: 15, fontWeight: 700, color: 'var(--green)', textDecoration: 'none' }}>{p.contact}</a>
+                    </div>
+                  )}
+                  <div>
+                    <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.8px', color: 'var(--text-muted)', marginBottom: 4 }}>Payment Code</div>
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: 15, fontWeight: 700, color: 'var(--purple-light)' }}>{p.payment_code}</div>
+                  </div>
+                </div>
+
+                <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+                  Registered but never submitted proof — call to remind
+                </div>
+              </div>
+            </div>
+          ))
         ) : (
           list.map(p => (
             <PaymentCard
