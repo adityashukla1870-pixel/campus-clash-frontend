@@ -110,6 +110,7 @@ function TournamentDetails() {
       formData.append("utr", utr)
       await API.post(`/tournament/upload-payment/${registrationId}`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
+        timeout: 60000,
       })
       alert("Payment submitted! Waiting for admin approval.")
       navigate("/my-tournaments")
@@ -132,6 +133,7 @@ function TournamentDetails() {
       igFiles.forEach(f => formData.append("files", f))
       await API.post(`/tournament/upload-ig-proof/${registrationId}`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
+        timeout: 60000,
       })
       alert("Proof submitted! Waiting for admin approval.")
       navigate("/my-tournaments")
