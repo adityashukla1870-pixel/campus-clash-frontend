@@ -231,13 +231,6 @@ function Tournament() {
                     </div>
                   )}
 
-                  <div className="player-bar">
-                    <div className="player-bar-top">
-                      <span>Players Registered</span>
-                      <span>{t.players.length}</span>
-                    </div>
-                  </div>
-
                   <RegistrationTimer deadline={t.registration_end_time} />
 
                   <div className="card-actions">

@@ -293,9 +293,6 @@ function TournamentDetails() {
                   <div className="ig-label">Prize Pool</div>
                   <div className="ig-value gold">₹{tournament.prize_pool}</div>
                 </div>
-                <div className="info-grid-item" style={{ gridColumn: '1/-1' }}>
-                  <div className="ig-label">Players Registered — {tournament.players.length}</div>
-                </div>
               </div>
 
               {/* Registration timer — shows when registration closes */}
