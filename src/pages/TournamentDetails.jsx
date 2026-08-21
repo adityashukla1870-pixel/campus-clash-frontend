@@ -404,7 +404,7 @@ function TournamentDetails() {
                           disabled={teamConfirmed}
                         />
                         <span style={{fontSize:11, color:'var(--text-muted)', marginTop:4, display:'block'}}>
-                          The username they used to sign up on Campus Clash (not their in-game name)
+                          The @username shown on their Profile page (not their in-game name)
                         </span>
                       </div>
                       <div className="field-group">
