@@ -55,6 +55,7 @@ function App() {
   return (
 
     <ThemeProvider>
+    <Analytics />
     <Routes>
 
       <Route path="/" element={<LandingPage />} />
@@ -166,7 +167,6 @@ function App() {
 
     </Routes>
     </ThemeProvider>
-    <Analytics />
 
   );
 }
