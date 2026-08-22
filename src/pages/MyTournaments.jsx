@@ -123,13 +123,13 @@ function MyTournaments() {
                         </span>
                       ) : (
                         <>
-                          <button
+                           <button
                             className="btn-primary shimmer-wrap"
                             onClick={() => navigate(`/room/${t.id}`)}
                             disabled={t.status !== "approved"}
                             style={t.status !== "approved" ? {opacity:0.4,cursor:'not-allowed'} : {}}
                           >
-                            {t.status === "approved" ? <><FiSend /> Open Room</> : <><FiClock /> Awaiting Approval</>}
+                            {t.status === "approved" ? <><FiSend /> Show Details</> : <><FiClock /> Awaiting Approval</>}
                           </button>
                           {t.has_bracket && t.format !== 'full' && (
                             <button className="btn-primary" onClick={() => navigate(`/tournament/${t.id}/bracket`)}>

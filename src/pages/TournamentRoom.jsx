@@ -3,22 +3,22 @@ import { useParams, useNavigate } from "react-router-dom"
 import Navbar from "../components/Navbar"
 import API from "../api/axios"
 import { SkeletonRoom, SkeletonText } from "../components/Skeleton"
-import { FiMonitor, FiClock, FiSend } from "react-icons/fi"
+import { FiMonitor, FiClock, FiSend, FiCopy, FiCheckCircle, FiUsers, FiTarget, FiArrowLeft, FiWifi } from "react-icons/fi"
 
 function TournamentRoom() {
   const { id } = useParams()
   const navigate = useNavigate()
   const [timeLeft, setTimeLeft] = useState("")
   const [room, setRoom] = useState(null)
+  const [tournament, setTournament] = useState(null)
   const [isFullFormat, setIsFullFormat] = useState(false)
+  const [copiedId, setCopiedId] = useState(false)
+  const [copiedPass, setCopiedPass] = useState(false)
 
   useEffect(() => {
-    // Multi-stage ("full" format) tournaments release rooms per-match on the
-    // Standings page, not on this tournament-level room. Check the format
-    // first so those users get sent to the right place instead of seeing a
-    // permanent "waiting for admin" message.
     API.get(`/tournament/${id}`)
       .then(res => {
+        setTournament(res.data)
         if (res.data.format === "full") {
           setIsFullFormat(true)
           navigate(`/tournament/${id}/standings`, { replace: true })
@@ -29,7 +29,6 @@ function TournamentRoom() {
         }
       })
       .catch(() => {
-        // fall back to the old behaviour if the tournament lookup fails
         API.get(`/tournament/room/${id}`).then(r => setRoom(r.data)).catch(console.error)
       })
   }, [id, navigate])
@@ -38,40 +37,35 @@ function TournamentRoom() {
     if (!room || !room.room_id) return
     const interval = setInterval(() => {
       const diff = new Date(room.match_start_time).getTime() - Date.now()
-      if (diff <= 0) { setTimeLeft("Match Started"); clearInterval(interval); return }
-      const minutes = Math.floor((diff / 60000) % 60)
-      const seconds = Math.floor((diff / 1000) % 60)
-      setTimeLeft(`${String(minutes).padStart(2,'0')} : ${String(seconds).padStart(2,'0')}`)
+      if (diff <= 0) { setTimeLeft("LIVE"); clearInterval(interval); return }
+      const hrs = Math.floor(diff / 3600000)
+      const mins = Math.floor((diff / 60000) % 60)
+      const secs = Math.floor((diff / 1000) % 60)
+      setTimeLeft(`${String(hrs).padStart(2,'0')}:${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`)
     }, 1000)
     return () => clearInterval(interval)
   }, [room])
 
-  const roomPageStyle = {
+  const copyToClipboard = (text, type) => {
+    navigator.clipboard.writeText(text)
+    if (type === 'id') { setCopiedId(true); setTimeout(() => setCopiedId(false), 2000) }
+    if (type === 'pass') { setCopiedPass(true); setTimeout(() => setCopiedPass(false), 2000) }
+  }
+
+  const pageStyle = {
     minHeight: '100vh',
-    padding: '110px 24px 60px',
+    padding: '100px 24px 60px',
     background: 'var(--bg-dark)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
   }
 
-  const cardStyle = {
-    background: 'var(--bg-card)',
-    border: '1px solid var(--border)',
-    borderRadius: 20,
-    padding: 40,
-    maxWidth: 480,
-    width: '100%',
-    textAlign: 'center',
-    position: 'relative',
-    overflow: 'hidden',
-  }
-
   if (isFullFormat || !room) {
     return (
       <>
         <Navbar />
-        <div style={roomPageStyle}>
+        <div style={pageStyle}>
           {isFullFormat ? (
             <SkeletonText width="200px" height={16} />
           ) : (
@@ -85,64 +79,217 @@ function TournamentRoom() {
     )
   }
 
+  const isLive = timeLeft === "LIVE"
+
   return (
     <>
       <Navbar />
-      <div style={roomPageStyle}>
-        <div style={cardStyle}>
-          {/* Top accent line */}
-          <div style={{position:'absolute',top:0,left:0,right:0,height:3,background:'linear-gradient(135deg,#7c3aed,#a855f7)'}}/>
+      <div style={pageStyle}>
+        <div style={{ maxWidth: 520, width: '100%' }}>
 
-          <div style={{fontSize:48,marginBottom:16}}><FiMonitor /></div>
-          <h1 style={{fontFamily:'var(--font-display)',fontSize:28,fontWeight:700,marginBottom:8}}>Match Room</h1>
+          {/* Back button */}
+          <div
+            onClick={() => navigate("/my-tournaments")}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 6, color: 'var(--text-secondary)', fontSize: 13, cursor: 'pointer', marginBottom: 20, transition: 'color 0.2s' }}
+          >
+            <FiArrowLeft size={14} /> Back to My Matches
+          </div>
 
-          {!room?.room_id ? (
-            <div style={{marginTop:24}}>
-              <div style={{
-                background:'var(--yellow-bg)',
-                border:'1px solid #facc1544',
-                borderRadius:12,
-                padding:'20px 24px',
-              }}>
-                <div style={{fontSize:32,marginBottom:8}}><FiClock /></div>
-                <p style={{color:'var(--yellow)',fontWeight:600,fontSize:16}}>Waiting for admin to release room</p>
-                <p style={{color:'var(--text-muted)',fontSize:14,marginTop:6}}>Come back shortly — details will appear here.</p>
+          {/* Main card */}
+          <div style={{
+            background: 'var(--bg-card)',
+            border: '1px solid var(--border)',
+            borderRadius: 24,
+            overflow: 'hidden',
+            position: 'relative',
+          }}>
+
+            {/* Top gradient accent */}
+            <div style={{ height: 4, background: 'linear-gradient(90deg, #7c3aed, #a855f7, #06b6d4)' }} />
+
+            {/* Header section */}
+            <div style={{ padding: '32px 32px 0', textAlign: 'center' }}>
+              {/* Live badge */}
+              {isLive && (
+                <div style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 6,
+                  background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)',
+                  borderRadius: 999, padding: '5px 14px', marginBottom: 16,
+                  fontSize: 11, fontWeight: 700, color: '#ef4444', letterSpacing: 1,
+                  textTransform: 'uppercase',
+                }}>
+                  <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#ef4444', animation: 'pulse 1.5s infinite' }} />
+                  LIVE NOW
+                </div>
+              )}
+
+              {/* Game & Tournament */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 8 }}>
+                <FiMonitor size={14} style={{ color: 'var(--cyan)' }} />
+                <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--cyan)', textTransform: 'uppercase', letterSpacing: 1 }}>
+                  {tournament?.game || "Tournament"}
+                </span>
               </div>
-            </div>
-          ) : (
-            <div style={{marginTop:24}}>
-              <div style={{
-                background:'var(--bg-surface)',
-                border:'1px solid var(--border)',
-                borderRadius:14,
-                padding:24,
-                marginBottom:16,
+
+              <h1 style={{
+                fontFamily: 'var(--font-display)', fontSize: 26, fontWeight: 800,
+                color: 'var(--text-primary)', marginBottom: 4, lineHeight: 1.2,
               }}>
-                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16,textAlign:'left'}}>
-                  <div>
-                    <div style={{fontSize:11,textTransform:'uppercase',letterSpacing:'0.8px',color:'var(--text-muted)',marginBottom:4}}>Room ID</div>
-                    <div style={{fontFamily:'var(--font-mono)',fontSize:20,fontWeight:600,color:'var(--cyan)'}}>{room.room_id}</div>
+                {tournament?.name || "Match Room"}
+              </h1>
+
+              {tournament?.entry_fee != null && (
+                <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>
+                  Entry Fee: <span style={{ color: 'var(--gold)', fontWeight: 600 }}>₹{tournament.entry_fee}</span>
+                  {tournament?.prize_pool != null && (
+                    <> · Prize Pool: <span style={{ color: 'var(--gold)', fontWeight: 600 }}>₹{tournament.prize_pool}</span></>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Room details or waiting */}
+            {!room?.room_id ? (
+              <div style={{ padding: 32 }}>
+                <div style={{
+                  background: 'linear-gradient(135deg, rgba(234,179,8,0.08), rgba(234,179,8,0.02))',
+                  border: '1px solid rgba(234,179,8,0.2)',
+                  borderRadius: 16, padding: '32px 24px', textAlign: 'center',
+                }}>
+                  <div style={{
+                    width: 64, height: 64, borderRadius: 16,
+                    background: 'rgba(234,179,8,0.1)', border: '1px solid rgba(234,179,8,0.2)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    margin: '0 auto 16px',
+                  }}>
+                    <FiClock size={28} style={{ color: 'var(--gold)' }} />
                   </div>
-                  <div>
-                    <div style={{fontSize:11,textTransform:'uppercase',letterSpacing:'0.8px',color:'var(--text-muted)',marginBottom:4}}>Password</div>
-                    <div style={{fontFamily:'var(--font-mono)',fontSize:20,fontWeight:600,color:'var(--purple-light)'}}>{room.room_password}</div>
+                  <p style={{ color: 'var(--gold)', fontWeight: 700, fontSize: 17, marginBottom: 6 }}>
+                    Waiting for Room Details
+                  </p>
+                  <p style={{ color: 'var(--text-muted)', fontSize: 13, lineHeight: 1.6 }}>
+                    Admin will release the room ID & password shortly.<br />
+                    Keep this page open — it updates automatically.
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div style={{ padding: '24px 32px 32px' }}>
+
+                {/* Room ID & Password */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 20 }}>
+                  {/* Room ID */}
+                  <div
+                    onClick={() => copyToClipboard(room.room_id, 'id')}
+                    style={{
+                      background: 'var(--bg-surface)', border: '1px solid var(--border)',
+                      borderRadius: 14, padding: '18px 16px', cursor: 'pointer',
+                      transition: 'all 0.2s', position: 'relative',
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--cyan)'; e.currentTarget.style.transform = 'translateY(-2px)' }}
+                    onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.transform = 'translateY(0)' }}
+                  >
+                    <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.8px', color: 'var(--text-muted)', marginBottom: 6, fontWeight: 600 }}>
+                      Room ID
+                    </div>
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: 22, fontWeight: 700, color: 'var(--cyan)', wordBreak: 'break-all', lineHeight: 1.3 }}>
+                      {room.room_id}
+                    </div>
+                    <div style={{ position: 'absolute', top: 12, right: 12, color: copiedId ? 'var(--green)' : 'var(--text-muted)' }}>
+                      {copiedId ? <FiCheckCircle size={14} /> : <FiCopy size={14} />}
+                    </div>
+                  </div>
+
+                  {/* Password */}
+                  <div
+                    onClick={() => copyToClipboard(room.room_password, 'pass')}
+                    style={{
+                      background: 'var(--bg-surface)', border: '1px solid var(--border)',
+                      borderRadius: 14, padding: '18px 16px', cursor: 'pointer',
+                      transition: 'all 0.2s', position: 'relative',
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--purple-light)'; e.currentTarget.style.transform = 'translateY(-2px)' }}
+                    onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.transform = 'translateY(0)' }}
+                  >
+                    <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.8px', color: 'var(--text-muted)', marginBottom: 6, fontWeight: 600 }}>
+                      Password
+                    </div>
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: 22, fontWeight: 700, color: 'var(--purple-light)', wordBreak: 'break-all', lineHeight: 1.3 }}>
+                      {room.room_password}
+                    </div>
+                    <div style={{ position: 'absolute', top: 12, right: 12, color: copiedPass ? 'var(--green)' : 'var(--text-muted)' }}>
+                      {copiedPass ? <FiCheckCircle size={14} /> : <FiCopy size={14} />}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Copy all button */}
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(`Room ID: ${room.room_id}\nPassword: ${room.room_password}`)
+                    setCopiedId(true); setCopiedPass(true)
+                    setTimeout(() => { setCopiedId(false); setCopiedPass(false) }, 2000)
+                  }}
+                  style={{
+                    width: '100%', padding: '12px', borderRadius: 12, border: '1px solid var(--border)',
+                    background: 'var(--bg-surface)', color: 'var(--text-primary)',
+                    fontSize: 13, fontWeight: 600, cursor: 'pointer', marginBottom: 20,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                    transition: 'all 0.2s',
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.background = 'var(--purple-glow)'; e.currentTarget.style.borderColor = 'var(--purple)' }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'var(--bg-surface)'; e.currentTarget.style.borderColor = 'var(--border)' }}
+                >
+                  {copiedId && copiedPass ? <><FiCheckCircle size={14} /> Copied!</> : <><FiCopy size={14} /> Copy Room ID & Password</>}
+                </button>
+
+                {/* Countdown timer */}
+                <div style={{
+                  background: isLive
+                    ? 'linear-gradient(135deg, rgba(239,68,68,0.12), rgba(239,68,68,0.04))'
+                    : 'linear-gradient(135deg, rgba(6,182,212,0.12), rgba(6,182,212,0.04))',
+                  border: `1px solid ${isLive ? 'rgba(239,68,68,0.3)' : 'rgba(6,182,212,0.3)'}`,
+                  borderRadius: 16, padding: '24px 20px', textAlign: 'center',
+                }}>
+                  <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--text-muted)', marginBottom: 8, fontWeight: 600 }}>
+                    {isLive ? 'Match In Progress' : 'Match Starts In'}
+                  </div>
+                  <div style={{
+                    fontFamily: 'var(--font-mono)', fontSize: isLive ? 32 : 42,
+                    fontWeight: 800, letterSpacing: 4,
+                    color: isLive ? '#ef4444' : 'var(--cyan)',
+                  }}>
+                    {isLive ? (
+                      <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
+                        <FiWifi size={28} /> JOIN NOW
+                      </span>
+                    ) : timeLeft}
+                  </div>
+                </div>
+
+                {/* Quick tips */}
+                <div style={{ marginTop: 20, padding: '14px 16px', background: 'var(--bg-surface)', borderRadius: 10, border: '1px solid var(--border)' }}>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                    Quick Tips
+                  </div>
+                  <div style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.7 }}>
+                    • Tap Room ID or Password to copy instantly<br />
+                    • Join the room 2-3 mins before match time<br />
+                    • Screenshot your result after the match
                   </div>
                 </div>
               </div>
-
-              <div style={{
-                background:'var(--purple-glow)',
-                border:'1px solid var(--border-glow)',
-                borderRadius:14,
-                padding:20,
-              }}>
-                <div style={{fontSize:12,textTransform:'uppercase',letterSpacing:'0.8px',color:'var(--text-muted)',marginBottom:6}}>Match Starts In</div>
-                <div style={{fontFamily:'var(--font-mono)',fontSize:40,fontWeight:600,color:'var(--cyan)',letterSpacing:4}}>{timeLeft === "Match Started" ? <><FiSend /> Match Started</> : timeLeft}</div>
-              </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
+
+      <style>{`
+        @keyframes pulse {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.5; transform: scale(0.8); }
+        }
+      `}</style>
     </>
   )
 }
