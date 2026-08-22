@@ -301,6 +301,9 @@ function Profile() {
                   )}
                   {usernameError && <span style={{ fontSize: 11, color: 'var(--red)', marginTop: 4, display: 'block' }}>{usernameError}</span>}
                   {usernameSuccess && <span style={{ fontSize: 11, color: 'var(--green)', marginTop: 4, display: 'block' }}>{usernameSuccess}</span>}
+                  <span style={{ fontSize: 11, color: 'var(--gold)', marginTop: 6, display: 'block', padding: '6px 10px', background: 'rgba(234,179,8,0.08)', borderRadius: 6, border: '1px solid rgba(234,179,8,0.2)' }}>
+                    ⚠️ Username can only be changed once in 5 months
+                  </span>
                 </div>
                 <div className="profile-field">
                   <label>Full Name</label>
