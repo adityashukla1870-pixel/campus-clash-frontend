@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { motion } from "framer-motion"
-import { FiAward, FiTarget, FiZap, FiEdit2, FiUser, FiMail, FiBookOpen, FiHash, FiLogOut, FiShield, FiTrendingUp, FiClock, FiCheckCircle, FiLink, FiAtSign, FiMonitor } from "react-icons/fi"
+import { FiAward, FiTarget, FiZap, FiEdit2, FiUser, FiMail, FiBookOpen, FiHash, FiLogOut, FiShield, FiTrendingUp, FiClock, FiCheckCircle, FiLink, FiAtSign, FiMonitor, FiRefreshCw } from "react-icons/fi"
 import Navbar from "../components/Navbar"
 import AvatarSelector from "../components/AvatarSelector"
 import API from "../api/axios"
@@ -22,6 +22,12 @@ function Profile() {
   const [success, setSuccess] = useState("")
   const [selectorOpen, setSelectorOpen] = useState(false)
   const [selectedAvatarId, setSelectedAvatarState] = useState(() => getSelectedAvatarId())
+  const [editingUsername, setEditingUsername] = useState(false)
+  const [newUsername, setNewUsername] = useState("")
+  const [usernameStatus, setUsernameStatus] = useState(null)
+  const [usernameSaving, setUsernameSaving] = useState(false)
+  const [usernameError, setUsernameError] = useState("")
+  const [usernameSuccess, setUsernameSuccess] = useState("")
 
   const loadProfile = () => {
     Promise.all([
@@ -40,9 +46,33 @@ function Profile() {
     })
   }
 
+  const checkUsernameStatus = () => {
+    API.get("/auth/username-change-status").then(res => setUsernameStatus(res.data)).catch(() => {})
+  }
+
+  const handleChangeUsername = async () => {
+    if (!newUsername.trim()) { setUsernameError("Enter a username"); return }
+    setUsernameSaving(true)
+    setUsernameError("")
+    setUsernameSuccess("")
+    try {
+      const res = await API.post("/auth/change-username", { username: newUsername.trim() })
+      setUsernameSuccess("Username changed successfully!")
+      setProfile(prev => ({ ...prev, username: res.data.username }))
+      setNewUsername("")
+      setEditingUsername(false)
+      checkUsernameStatus()
+    } catch (err) {
+      setUsernameError(err.response?.data?.error || "Failed to change username")
+    } finally {
+      setUsernameSaving(false)
+    }
+  }
+
   useEffect(() => {
     initAvatarLibrary()
     loadProfile()
+    checkUsernameStatus()
   }, [])
 
   // Sync current user's selected avatar to the global registry on mount
@@ -198,8 +228,70 @@ function Profile() {
                     </div>
                   </div>
                 ))}
+            </div>
+
+            {profile.username && !editingUsername && (
+              <button
+                onClick={() => { setEditingUsername(true); setUsernameError(""); setUsernameSuccess("") }}
+                style={{
+                  marginTop: 14, padding: '8px 16px', borderRadius: 10,
+                  border: '1px solid var(--border)', background: 'var(--bg-surface)',
+                  color: 'var(--text-secondary)', fontSize: 12, fontWeight: 600,
+                  cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                }}
+              >
+                <FiRefreshCw size={12} /> Change Username
+              </button>
+            )}
+
+            {editingUsername && (
+              <div style={{
+                marginTop: 14, background: 'var(--bg-surface)', border: '1px solid var(--border)',
+                borderRadius: 12, padding: 16, width: '100%', maxWidth: 320,
+              }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 10 }}>Change Username</div>
+                <input
+                  value={newUsername}
+                  onChange={(e) => setNewUsername(e.target.value)}
+                  placeholder="New username"
+                  style={{
+                    width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid var(--border)',
+                    background: 'var(--bg-card)', color: 'var(--text-primary)', fontSize: 14, marginBottom: 8,
+                  }}
+                />
+                {usernameError && <div style={{ fontSize: 11, color: 'var(--red)', marginBottom: 8 }}>{usernameError}</div>}
+                {usernameSuccess && <div style={{ fontSize: 11, color: 'var(--green)', marginBottom: 8 }}>{usernameSuccess}</div>}
+                {usernameStatus && !usernameStatus.can_change && (
+                  <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 8 }}>
+                    You can change again in {usernameStatus.days_remaining} days
+                  </div>
+                )}
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <button
+                    onClick={handleChangeUsername}
+                    disabled={usernameSaving || (usernameStatus && !usernameStatus.can_change)}
+                    style={{
+                      flex: 1, padding: '8px 12px', borderRadius: 8, border: 'none',
+                      background: 'var(--grad-purple)', color: '#fff', fontSize: 12, fontWeight: 600,
+                      cursor: usernameSaving ? 'not-allowed' : 'pointer', opacity: (usernameStatus && !usernameStatus.can_change) ? 0.5 : 1,
+                    }}
+                  >
+                    {usernameSaving ? "Saving..." : "Save"}
+                  </button>
+                  <button
+                    onClick={() => { setEditingUsername(false); setNewUsername(""); setUsernameError(""); setUsernameSuccess("") }}
+                    style={{
+                      padding: '8px 12px', borderRadius: 8, border: '1px solid var(--border)',
+                      background: 'transparent', color: 'var(--text-muted)', fontSize: 12, fontWeight: 600,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Cancel
+                  </button>
+                </div>
               </div>
-            </motion.div>
+            )}
+          </motion.div>
           )}
 
           {/* Account Details */}
@@ -215,6 +307,10 @@ function Profile() {
 
             {!editing ? (
               <div className="profile-details-list">
+                <div className="profile-detail-row">
+                  <span className="detail-label"><FiAtSign size={14} /> Username</span>
+                  <span className="detail-value" style={{ color: 'var(--purple-light)' }}>@{profile.username || "—"}</span>
+                </div>
                 <div className="profile-detail-row">
                   <span className="detail-label"><FiUser size={14} /> Full Name</span>
                   <span className="detail-value">{profile.name || "—"}</span>
