@@ -63,7 +63,7 @@ function Profile() {
       setEditingUsername(false)
       checkUsernameStatus()
     } catch (err) {
-      setUsernameError(err.response?.data?.error || "Failed to change username")
+      setUsernameError(err.response?.data?.error || err.message || "Failed to change username")
     } finally {
       setUsernameSaving(false)
     }
