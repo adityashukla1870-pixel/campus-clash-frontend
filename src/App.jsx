@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
+import { Analytics } from "@vercel/analytics/react";
 import { initAvatarLibrary } from "./data/avatarRepository";
 
 import LandingPage from "./pages/LandingPage"
@@ -165,6 +166,7 @@ function App() {
 
     </Routes>
     </ThemeProvider>
+    <Analytics />
 
   );
 }
