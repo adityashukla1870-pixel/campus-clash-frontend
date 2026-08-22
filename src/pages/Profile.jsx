@@ -229,68 +229,6 @@ function Profile() {
                   </div>
                 ))}
             </div>
-
-            {profile.username && !editingUsername && (
-              <button
-                onClick={() => { setEditingUsername(true); setUsernameError(""); setUsernameSuccess("") }}
-                style={{
-                  marginTop: 14, padding: '8px 16px', borderRadius: 10,
-                  border: '1px solid var(--border)', background: 'var(--bg-surface)',
-                  color: 'var(--text-secondary)', fontSize: 12, fontWeight: 600,
-                  cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-                }}
-              >
-                <FiRefreshCw size={12} /> Change Username
-              </button>
-            )}
-
-            {editingUsername && (
-              <div style={{
-                marginTop: 14, background: 'var(--bg-surface)', border: '1px solid var(--border)',
-                borderRadius: 12, padding: 16, width: '100%', maxWidth: 320,
-              }}>
-                <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 10 }}>Change Username</div>
-                <input
-                  value={newUsername}
-                  onChange={(e) => setNewUsername(e.target.value)}
-                  placeholder="New username"
-                  style={{
-                    width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid var(--border)',
-                    background: 'var(--bg-card)', color: 'var(--text-primary)', fontSize: 14, marginBottom: 8,
-                  }}
-                />
-                {usernameError && <div style={{ fontSize: 11, color: 'var(--red)', marginBottom: 8 }}>{usernameError}</div>}
-                {usernameSuccess && <div style={{ fontSize: 11, color: 'var(--green)', marginBottom: 8 }}>{usernameSuccess}</div>}
-                {usernameStatus && !usernameStatus.can_change && (
-                  <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 8 }}>
-                    You can change again in {usernameStatus.days_remaining} days
-                  </div>
-                )}
-                <div style={{ display: 'flex', gap: 8 }}>
-                  <button
-                    onClick={handleChangeUsername}
-                    disabled={usernameSaving || (usernameStatus && !usernameStatus.can_change)}
-                    style={{
-                      flex: 1, padding: '8px 12px', borderRadius: 8, border: 'none',
-                      background: 'var(--grad-purple)', color: '#fff', fontSize: 12, fontWeight: 600,
-                      cursor: usernameSaving ? 'not-allowed' : 'pointer', opacity: (usernameStatus && !usernameStatus.can_change) ? 0.5 : 1,
-                    }}
-                  >
-                    {usernameSaving ? "Saving..." : "Save"}
-                  </button>
-                  <button
-                    onClick={() => { setEditingUsername(false); setNewUsername(""); setUsernameError(""); setUsernameSuccess("") }}
-                    style={{
-                      padding: '8px 12px', borderRadius: 8, border: '1px solid var(--border)',
-                      background: 'transparent', color: 'var(--text-muted)', fontSize: 12, fontWeight: 600,
-                      cursor: 'pointer',
-                    }}
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            )}
           </motion.div>
           )}
 
@@ -331,6 +269,40 @@ function Profile() {
             ) : (
               <form className="profile-edit-form" onSubmit={handleSave}>
                 <div className="profile-field">
+                  <label>Username</label>
+                  <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                    <input
+                      value={editingUsername ? newUsername : (profile.username || "")}
+                      onChange={(e) => { setNewUsername(e.target.value); setEditingUsername(true) }}
+                      placeholder="Your username"
+                      disabled={usernameStatus && !usernameStatus.can_change}
+                      style={{ flex: 1 }}
+                    />
+                    {editingUsername && (
+                      <button
+                        type="button"
+                        onClick={handleChangeUsername}
+                        disabled={usernameSaving || !newUsername.trim() || (usernameStatus && !usernameStatus.can_change)}
+                        style={{
+                          padding: '10px 14px', borderRadius: 8, border: 'none',
+                          background: 'var(--grad-purple)', color: '#fff', fontSize: 12, fontWeight: 600,
+                          cursor: 'pointer', whiteSpace: 'nowrap',
+                          opacity: (usernameSaving || !newUsername.trim() || (usernameStatus && !usernameStatus.can_change)) ? 0.5 : 1,
+                        }}
+                      >
+                        {usernameSaving ? "..." : "Update"}
+                      </button>
+                    )}
+                  </div>
+                  {usernameStatus && !usernameStatus.can_change && (
+                    <span style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4, display: 'block' }}>
+                      Can change in {usernameStatus.days_remaining} days
+                    </span>
+                  )}
+                  {usernameError && <span style={{ fontSize: 11, color: 'var(--red)', marginTop: 4, display: 'block' }}>{usernameError}</span>}
+                  {usernameSuccess && <span style={{ fontSize: 11, color: 'var(--green)', marginTop: 4, display: 'block' }}>{usernameSuccess}</span>}
+                </div>
+                <div className="profile-field">
                   <label>Full Name</label>
                   <input
                     value={form.name}
@@ -365,7 +337,7 @@ function Profile() {
                   <button
                     type="button"
                     className="btn-cancel"
-                    onClick={() => { setEditing(false); setForm({ name: profile.name, college: profile.college, game_uid: profile.game_uid }); setError(""); setSuccess("") }}
+                    onClick={() => { setEditing(false); setEditingUsername(false); setNewUsername(""); setUsernameError(""); setUsernameSuccess(""); setForm({ name: profile.name, college: profile.college, game_uid: profile.game_uid }); setError(""); setSuccess("") }}
                   >
                     Cancel
                   </button>
