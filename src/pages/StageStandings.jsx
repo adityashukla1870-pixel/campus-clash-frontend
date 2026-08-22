@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
-import { FiCheckCircle, FiCircle, FiStar, FiKey, FiAward, FiTarget, FiMonitor, FiArrowLeft } from "react-icons/fi"
+import { FiCheckCircle, FiCircle, FiStar, FiKey, FiAward, FiTarget, FiMonitor, FiArrowLeft, FiLock, FiZap, FiShield } from "react-icons/fi"
 import Navbar from "../components/Navbar"
 import API from "../api/axios"
 import { SkeletonTable, SkeletonText, SkeletonBlock, SkeletonButton } from "../components/Skeleton"
@@ -135,6 +135,24 @@ function StageStandings() {
   const [tab, setTab] = useState("stages")
   const [statTab, setStatTab] = useState("overall")
   const [loading, setLoading] = useState(true)
+  const [countdown, setCountdown] = useState({ days: 0, hrs: 0, min: 0, sec: 0 })
+
+  useEffect(() => {
+    if (!tournament?.scheduled_time) return
+    const tick = () => {
+      const diff = new Date(tournament.scheduled_time).getTime() - Date.now()
+      if (diff <= 0) { setCountdown({ days: 0, hrs: 0, min: 0, sec: 0 }); return }
+      setCountdown({
+        days: Math.floor(diff / 86400000),
+        hrs: Math.floor((diff / 3600000) % 24),
+        min: Math.floor((diff / 60000) % 60),
+        sec: Math.floor((diff / 1000) % 60),
+      })
+    }
+    tick()
+    const interval = setInterval(tick, 1000)
+    return () => clearInterval(interval)
+  }, [tournament])
 
   useEffect(() => {
     Promise.all([
@@ -226,7 +244,132 @@ function StageStandings() {
 
         {tab === "stages" && (
           stages.length === 0 ? (
-            <div className="stage-block"><p className="standings-empty">Stages haven't started yet — check back once the admin kicks things off.</p></div>
+            <div style={{
+              background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 20,
+              padding: '48px 32px', textAlign: 'center', position: 'relative', overflow: 'hidden',
+            }}>
+              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: 'linear-gradient(90deg, #7c3aed, #a855f7, #06b6d4)' }} />
+
+              {/* Status badge */}
+              <div style={{
+                display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 16px',
+                background: 'rgba(6,182,212,0.1)', border: '1px solid rgba(6,182,212,0.25)',
+                borderRadius: 999, fontSize: 11, fontWeight: 700, color: 'var(--cyan)',
+                letterSpacing: 1, textTransform: 'uppercase', marginBottom: 24,
+              }}>
+                <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--cyan)' }} />
+                Upcoming
+              </div>
+
+              {/* Animated icon */}
+              <div style={{
+                width: 80, height: 80, borderRadius: 20,
+                background: 'linear-gradient(135deg, rgba(124,58,237,0.15), rgba(168,85,247,0.08))',
+                border: '1px solid rgba(124,58,237,0.25)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                margin: '0 auto 20px', fontSize: 36,
+              }}>
+                <FiZap style={{ color: 'var(--purple-light)' }} />
+              </div>
+
+              {/* Title */}
+              <h2 style={{
+                fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 800,
+                color: 'var(--text-primary)', marginBottom: 8, textTransform: 'uppercase',
+                letterSpacing: 1,
+              }}>
+                Battlefield Preparing
+              </h2>
+              <p style={{ color: 'var(--text-muted)', fontSize: 14, maxWidth: 360, margin: '0 auto 28px', lineHeight: 1.6 }}>
+                The tournament stages are being prepared. Matchups & standings will appear here once the admin starts the tournament.
+              </p>
+
+              {/* Countdown */}
+              <div style={{
+                display: 'flex', justifyContent: 'center', gap: 12, marginBottom: 36,
+              }}>
+                {[
+                  { val: countdown.days, label: 'DAYS' },
+                  { val: countdown.hrs, label: 'HRS' },
+                  { val: countdown.min, label: 'MIN' },
+                  { val: countdown.sec, label: 'SEC' },
+                ].map((item, i) => (
+                  <div key={i} style={{ textAlign: 'center' }}>
+                    <div style={{
+                      fontFamily: 'var(--font-mono)', fontSize: 32, fontWeight: 800,
+                      color: 'var(--cyan)', minWidth: 64, padding: '12px 8px',
+                      background: 'rgba(6,182,212,0.08)', border: '1px solid rgba(6,182,212,0.2)',
+                      borderRadius: 12, letterSpacing: 2,
+                    }}>
+                      {String(item.val).padStart(2, '0')}
+                    </div>
+                    <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 6, fontWeight: 600, letterSpacing: 1 }}>
+                      {item.label}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Tournament Journey */}
+              <div style={{
+                background: 'var(--bg-surface)', border: '1px solid var(--border)',
+                borderRadius: 14, padding: '24px 20px', maxWidth: 440, margin: '0 auto',
+              }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 18 }}>
+                  Tournament Journey
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0 }}>
+                  {/* Step 1 - Registration */}
+                  <div style={{ textAlign: 'center', flex: 1 }}>
+                    <div style={{
+                      width: 44, height: 44, borderRadius: 12,
+                      background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.3)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      margin: '0 auto 8px', color: 'var(--green)',
+                    }}>
+                      <FiCheckCircle size={20} />
+                    </div>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--green)' }}>Registration</div>
+                  </div>
+
+                  {/* Connector 1 */}
+                  <div style={{ width: 40, height: 2, background: 'var(--border)', marginBottom: 24 }} />
+
+                  {/* Step 2 - Stages */}
+                  <div style={{ textAlign: 'center', flex: 1 }}>
+                    <div style={{
+                      width: 44, height: 44, borderRadius: 12,
+                      background: 'rgba(234,179,8,0.12)', border: '1px solid rgba(234,179,8,0.3)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      margin: '0 auto 8px', color: 'var(--gold)',
+                    }}>
+                      <FiLock size={20} />
+                    </div>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--gold)' }}>Stages</div>
+                  </div>
+
+                  {/* Connector 2 */}
+                  <div style={{ width: 40, height: 2, background: 'var(--border)', marginBottom: 24 }} />
+
+                  {/* Step 3 - Finals */}
+                  <div style={{ textAlign: 'center', flex: 1 }}>
+                    <div style={{
+                      width: 44, height: 44, borderRadius: 12,
+                      background: 'rgba(124,58,237,0.12)', border: '1px solid rgba(124,58,237,0.3)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      margin: '0 auto 8px', color: 'var(--purple-light)',
+                    }}>
+                      <FiAward size={20} />
+                    </div>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--purple-light)' }}>Finals</div>
+                  </div>
+                </div>
+              </div>
+
+              <p style={{ color: 'var(--text-muted)', fontSize: 13, marginTop: 20 }}>
+                Your battlefield awaits. <FiTarget size={13} style={{ verticalAlign: 'middle' }} />
+              </p>
+            </div>
           ) : (
             [...stages].reverse().map(s => <StageView key={s.id} stageSummary={s} />)
           )
