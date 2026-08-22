@@ -191,7 +191,6 @@ function StageStandings() {
     { key: "overall", label: "Overall", Icon: FiAward },
     { key: "team_frags", label: "Team Frags", Icon: FiTarget },
     { key: "individual_frags", label: "Individual Frags", Icon: FiTarget },
-    { key: "chicken_dinners", label: "Chicken Dinners", Icon: FiAward },
     { key: "mvp_leaderboard", label: "MVPs", Icon: FiStar },
   ]
 
@@ -210,10 +209,6 @@ function StageStandings() {
       case "individual_frags":
         return <StatTable rows={stats.individual_frags} columns={[
           { key: "rank", label: "#" }, { key: "name", label: "Player" }, { key: "team_name", label: "Team" }, { key: "total_kills", label: "Kills" }
-        ]} />
-      case "chicken_dinners":
-        return <StatTable rows={stats.chicken_dinners} columns={[
-          { key: "rank", label: "#" }, { key: "name", label: "Team" }, { key: "chicken_dinners", label: "Wins" }
         ]} />
       case "mvp_leaderboard":
         return <StatTable rows={stats.mvp_leaderboard} columns={[
