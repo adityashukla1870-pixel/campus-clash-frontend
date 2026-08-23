@@ -21,7 +21,12 @@ function MatchCard({ match, isSquad, onChanged }) {
     if (!roomDraft.room_id || !roomDraft.password) { alert("Room ID and password required"); return }
     setBusy(true)
     try {
-      await API.post(`/cross-pod/matches/${match.id}/room`, roomDraft)
+      await API.post(`/cross-pod/matches/${match.id}/room`, {
+        room_id: roomDraft.room_id,
+        password: roomDraft.password,
+        start_time: roomDraft.start_time,
+        map: roomDraft.map || null
+      })
       onChanged()
     } catch (err) {
       alert(err.response?.data?.error || "Failed to release room")
@@ -79,6 +84,9 @@ function MatchCard({ match, isSquad, onChanged }) {
 
       {!match.room_id && match.status !== 'completed' && (
         <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', marginBottom: 8 }}>
+          <input placeholder="Map name" style={{ flex: 1, minWidth: 80, fontSize: 12 }}
+            value={roomDraft.map || ""}
+            onChange={e => setRoomDraft(prev => ({ ...prev, map: e.target.value }))} />
           <input placeholder="Room ID" style={{ flex: 1, minWidth: 80, fontSize: 12 }}
             onChange={e => setRoomDraft(prev => ({ ...prev, room_id: e.target.value }))} />
           <input placeholder="Password" style={{ flex: 1, minWidth: 80, fontSize: 12 }}
