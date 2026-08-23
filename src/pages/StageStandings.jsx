@@ -318,7 +318,6 @@ function StageStandings() {
         {/* ─── TABS ─── */}
         <div className="page-tabs">
           {hasRR && <span className={tab === "rr" ? "page-tab active" : "page-tab"} onClick={() => setTab("rr")}>🏆 Round Robin</span>}
-          <span className={tab === "stages" ? "page-tab active" : "page-tab"} onClick={() => setTab("stages")}>By Stage</span>
           <span className={tab === "stats" ? "page-tab active" : "page-tab"} onClick={() => setTab("stats")}>Tournament Stats</span>
         </div>
 
