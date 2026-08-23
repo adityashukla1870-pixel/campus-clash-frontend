@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
-import { FiCheckCircle, FiCircle, FiStar, FiKey, FiArrowRight, FiTarget, FiAward, FiChevronDown, FiChevronUp, FiInfo, FiClock, FiZap, FiTrophy } from "react-icons/fi"
+import { FiCheckCircle, FiCircle, FiStar, FiKey, FiArrowRight, FiTarget, FiAward, FiChevronDown, FiChevronUp, FiInfo, FiClock, FiZap } from "react-icons/fi"
 import Navbar from "../components/Navbar"
 import API from "../api/axios"
 import { SkeletonTable, SkeletonText, SkeletonBlock } from "../components/Skeleton"
@@ -11,7 +11,7 @@ function HowItWorks() {
   const steps = [
     { icon: <FiTarget />, title: "3 Groups", desc: "15 teams split into Group A, B, C (5 each)" },
     { icon: <FiZap />, title: "9 Matches", desc: "Each group plays the other 2 groups — 3 matches per pairing" },
-    { icon: <FiTrophy />, title: "Overall Winner", desc: "All teams ranked together on one leaderboard. Top 3 win!" },
+    { icon: <FiAward />, title: "Overall Winner", desc: "All teams ranked together on one leaderboard. Top 3 win!" },
   ]
   return (
     <div style={{
