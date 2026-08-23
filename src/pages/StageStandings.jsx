@@ -271,7 +271,7 @@ function StageStandings() {
   const [stages, setStages] = useState([])
   const [stats, setStats] = useState(null)
   const [tab, setTab] = useState("rr")
-  const [statTab, setStatTab] = useState("overall")
+  const [statTab, setStatTab] = useState("team_frags")
   const [loading, setLoading] = useState(true)
   const [countdown, setCountdown] = useState({ days: 0, hrs: 0, min: 0, sec: 0 })
 
@@ -343,7 +343,6 @@ function StageStandings() {
   const pct = matchesTotal > 0 ? (matchesDone / matchesTotal) * 100 : 0
 
   const statTabs = [
-    { key: "overall", label: "Overall", Icon: FiAward },
     { key: "team_frags", label: "Team Frags", Icon: FiTarget },
     { key: "individual_frags", label: "Individual Frags", Icon: FiTarget },
     { key: "mvp_leaderboard", label: "MVPs", Icon: FiStar },
@@ -352,7 +351,6 @@ function StageStandings() {
   const renderStatTable = () => {
     if (!stats) return null
     switch (statTab) {
-      case "overall": return <StatTable rows={stats.overall_leaderboard} columns={[{ key: "rank", label: "#" }, { key: "name", label: "Team" }, { key: "matches_played", label: "M" }, { key: "total_kills", label: "Kills" }, { key: "total_points", label: "Points" }]} />
       case "team_frags": return <StatTable rows={stats.team_frags} columns={[{ key: "rank", label: "#" }, { key: "name", label: "Team" }, { key: "total_kills", label: "Total Kills" }]} />
       case "individual_frags": return <StatTable rows={stats.individual_frags} columns={[{ key: "rank", label: "#" }, { key: "name", label: "Player" }, { key: "team_name", label: "Team" }, { key: "total_kills", label: "Kills" }]} />
       case "mvp_leaderboard": return <StatTable rows={stats.mvp_leaderboard} columns={[{ key: "rank", label: "#" }, { key: "name", label: "Player" }, { key: "team_name", label: "Team" }, { key: "count", label: "MVP Awards" }]} />
@@ -390,7 +388,7 @@ function StageStandings() {
         )}
 
         {/* ─── TABS ─── */}
-        <div className="page-tabs">
+        <div className="page-tabs" style={{ justifyContent: 'center' }}>
           {hasRR && <span className={tab === "rr" ? "page-tab active" : "page-tab"} onClick={() => setTab("rr")}>🏆 Round Robin</span>}
           <span className={tab === "stats" ? "page-tab active" : "page-tab"} onClick={() => setTab("stats")}>Tournament Stats</span>
         </div>
@@ -473,6 +471,28 @@ function StageStandings() {
               </div>
             </motion.div>
 
+            {/* Group-wise */}
+            {Object.keys(groupStandings).length > 0 && (
+              <div style={{ marginTop: 14 }}>
+                <button onClick={() => setShowGroups(!showGroups)} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 600, padding: '8px 0' }}>
+                  {showGroups ? <FiChevronUp /> : <FiChevronDown />} View Group-wise Standings
+                </button>
+                {showGroups && (
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 10, marginTop: 8 }}>
+                    {Object.entries(groupStandings).map(([groupName, teams]) => (
+                      <div key={groupName} className="pod-block">
+                        <div className="pod-block-header"><h3>{groupName}</h3><span style={{ fontSize: 10, color: 'var(--text-muted)' }}>{teams.length} teams</span></div>
+                        <table className="standings-table" style={{ fontSize: 11 }}>
+                          <thead><tr><th>#</th><th>Team</th><th>M</th><th>Kills</th><th>Pts</th></tr></thead>
+                          <tbody>{teams.map(s => <tr key={s.registration_id}><td>{s.rank}</td><td>{s.name}</td><td>{s.matches_played}</td><td>{s.total_kills}</td><td className="points-cell">{s.total_points}</td></tr>)}</tbody>
+                        </table>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Matches */}
             <motion.div
               className="stage-block"
@@ -495,28 +515,6 @@ function StageStandings() {
                 )
               })}
             </motion.div>
-
-            {/* Group-wise */}
-            {Object.keys(groupStandings).length > 0 && (
-              <div style={{ marginTop: 14 }}>
-                <button onClick={() => setShowGroups(!showGroups)} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 600, padding: '8px 0' }}>
-                  {showGroups ? <FiChevronUp /> : <FiChevronDown />} View Group-wise Standings
-                </button>
-                {showGroups && (
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 10, marginTop: 8 }}>
-                    {Object.entries(groupStandings).map(([groupName, teams]) => (
-                      <div key={groupName} className="pod-block">
-                        <div className="pod-block-header"><h3>{groupName}</h3><span style={{ fontSize: 10, color: 'var(--text-muted)' }}>{teams.length} teams</span></div>
-                        <table className="standings-table" style={{ fontSize: 11 }}>
-                          <thead><tr><th>#</th><th>Team</th><th>M</th><th>Kills</th><th>Pts</th></tr></thead>
-                          <tbody>{teams.map(s => <tr key={s.registration_id}><td>{s.rank}</td><td>{s.name}</td><td>{s.matches_played}</td><td>{s.total_kills}</td><td className="points-cell">{s.total_points}</td></tr>)}</tbody>
-                        </table>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
 
             {rrDetail.status === 'completed' && (
               <div style={{ background: 'rgba(0,200,120,0.08)', border: '1px solid rgba(0,200,120,0.25)', borderRadius: 10, padding: 14, textAlign: 'center', marginTop: 14 }}>
