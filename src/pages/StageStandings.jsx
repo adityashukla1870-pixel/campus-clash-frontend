@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
+import { motion } from "framer-motion"
 import { FiCheckCircle, FiCircle, FiStar, FiKey, FiAward, FiTarget, FiMonitor, FiArrowLeft, FiLock, FiZap, FiChevronDown, FiChevronUp, FiArrowRight } from "react-icons/fi"
 import Navbar from "../components/Navbar"
 import API from "../api/axios"
 import { SkeletonTable, SkeletonText, SkeletonBlock, SkeletonButton } from "../components/Skeleton"
 import "./StageStandings.css"
+import "./Leaderboard.css"
 
 /* ─── Pod View (per group) ─── */
 function PodView({ podSummary, advanceCount }) {
@@ -120,21 +122,65 @@ function HowItWorks() {
   )
 }
 
-/* ─── Podium Card ─── */
-function PodiumCard({ team, rank }) {
+/* ─── Podium Card (animated) ─── */
+function PodiumCard({ team, rank, delay = 0 }) {
   const medals = ['🥇', '🥈', '🥉']
-  const borders = ['var(--gold)', '#c0c0c0', '#cd7f32']
+  const tierClass = rank === 0 ? "gold" : rank === 1 ? "silver" : "bronze"
+  const blockHeight = rank === 0 ? 170 : rank === 1 ? 130 : 100
+
   return (
-    <div style={{
-      flex: 1, minWidth: 120, background: 'var(--bg-surface)', border: `2px solid ${borders[rank]}`,
-      borderRadius: 14, padding: '16px 10px', textAlign: 'center',
-      order: rank === 0 ? 1 : rank === 1 ? 0 : 2
-    }}>
-      <div style={{ fontSize: 30, marginBottom: 2 }}>{medals[rank]}</div>
-      <div style={{ fontWeight: 700, fontSize: 13, lineHeight: 1.2, marginBottom: 2 }}>{team.name}</div>
-      <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 6 }}>{team.pod_name}</div>
-      <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--gold)' }}>{team.total_points}</div>
-      <div style={{ fontSize: 10, color: 'var(--text-secondary)', marginTop: 2 }}>{team.total_kills} kills · {team.matches_played} matches</div>
+    <div className={`lb-podium-block-wrapper rank-${rank + 1}`}>
+      <motion.div
+        className="lb-podium-player-info"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: delay + 0.4, ease: [0.16, 1, 0.3, 1] }}
+      >
+        <motion.div
+          className={`lb-podium-avatar tier-${tierClass}`}
+          initial={{ scale: 0, rotate: -180 }}
+          animate={{ scale: 1, rotate: 0 }}
+          transition={{ type: "spring", stiffness: 200, damping: 15, delay: delay + 0.2 }}
+          whileHover={{ scale: 1.1 }}
+        >
+          <span className="lb-podium-avatar-initials">{medals[rank]}</span>
+          <motion.span
+            className="lb-podium-rank-badge"
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", stiffness: 300, damping: 15, delay: delay + 0.6 }}
+          >{rank + 1}</motion.span>
+        </motion.div>
+        <span className="lb-podium-name">{team.name}</span>
+        <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>{team.pod_name}</span>
+      </motion.div>
+      <motion.div
+        className={`lb-podium-block tier-${tierClass}`}
+        initial={{ height: 0, opacity: 0 }}
+        animate={{ height: blockHeight, opacity: 1 }}
+        transition={{ duration: 0.6, delay: delay, ease: [0.16, 1, 0.3, 1] }}
+      >
+        <div className="lb-podium-block-accent" />
+        <div className="lb-podium-block-shadow-left" />
+        <div className="lb-podium-block-shadow-right" />
+        <span className="lb-podium-watermark">{medals[rank]}</span>
+        <motion.div
+          className="lb-podium-points"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: delay + 0.8 }}
+        >
+          {team.total_points} <span style={{ fontSize: 10, opacity: 0.7 }}>pts</span>
+        </motion.div>
+        <motion.span
+          className="lb-podium-points-arrow"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3, delay: delay + 1.0 }}
+        >
+          {team.total_kills} kills · {team.matches_played} matches
+        </motion.span>
+      </motion.div>
     </div>
   )
 }
@@ -351,15 +397,27 @@ function StageStandings() {
 
             {/* Podium */}
             {rrStandings.length >= 3 && (
-              <div style={{ display: 'flex', gap: 8, marginBottom: 18, flexWrap: 'wrap' }}>
-                <PodiumCard team={rrStandings[1]} rank={1} />
-                <PodiumCard team={rrStandings[0]} rank={0} />
-                <PodiumCard team={rrStandings[2]} rank={2} />
-              </div>
+              <motion.div
+                className="lb-podium-container"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.6, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              >
+                <div className="lb-podium">
+                  <PodiumCard team={rrStandings[1]} rank={1} delay={0.5} />
+                  <PodiumCard team={rrStandings[0]} rank={0} delay={0.2} />
+                  <PodiumCard team={rrStandings[2]} rank={2} delay={0.7} />
+                </div>
+              </motion.div>
             )}
 
             {/* Overall leaderboard */}
-            <div className="stage-block">
+            <motion.div
+              className="stage-block"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.8 }}
+            >
               <div className="stage-block-header">
                 <h2><FiAward style={{ color: 'var(--gold)' }} /> Overall Rankings</h2>
                 <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>All Groups Combined</span>
@@ -382,10 +440,16 @@ function StageStandings() {
                   </tbody>
                 </table>
               </div>
-            </div>
+            </motion.div>
 
             {/* Matches */}
-            <div className="stage-block" style={{ marginTop: 14 }}>
+            <motion.div
+              className="stage-block"
+              style={{ marginTop: 14 }}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 1.0 }}
+            >
               <div className="stage-block-header"><h2>Matches</h2></div>
               {Object.entries(matchGroups).map(([pairName, matches]) => {
                 const pairDone = matches.filter(m => m.status === 'completed').length
@@ -399,7 +463,7 @@ function StageStandings() {
                   </div>
                 )
               })}
-            </div>
+            </motion.div>
 
             {/* Group-wise */}
             {Object.keys(groupStandings).length > 0 && (
