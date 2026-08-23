@@ -20,6 +20,7 @@ import Leaderboard from "./pages/Leaderboard";
 import Profile from "./pages/Profile";
 import Community from "./pages/Community";
 import StageStandings from "./pages/StageStandings";
+import CrossPodStandings from "./pages/CrossPodStandings";
 
 import AdminDashboard from "./pages/AdminDashboard"
 import AdminPayments from "./pages/AdminPayments"
@@ -28,6 +29,7 @@ import AdminCreateTournament from "./pages/AdminCreateTournament"
 import AdminWinner from "./pages/AdminWinner"
 import AdminBracket from "./pages/AdminBracket"
 import AdminStages from "./pages/AdminStages"
+import AdminCrossPod from "./pages/AdminCrossPod"
 import AdminAvatarLibrary from "./pages/AdminAvatarLibrary"
 import AdminUsers from "./pages/AdminUsers"
 import ThemeProvider from "./theme/ThemeProvider"
@@ -138,6 +140,15 @@ function App() {
       />
 
       <Route
+        path="/tournament/:id/cross-pod"
+        element={
+          <ProtectedRoute>
+            <CrossPodStandings/>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
   path="/my-tournaments"
   element={
     <ProtectedRoute>
@@ -161,6 +172,7 @@ function App() {
       <Route path="/admin/winner" element={<AdminRoute><AdminWinner /></AdminRoute>} />
       <Route path="/admin/bracket" element={<AdminRoute><AdminBracket /></AdminRoute>} />
       <Route path="/admin/stages" element={<AdminRoute><AdminStages /></AdminRoute>} />
+      <Route path="/admin/cross-pod" element={<AdminRoute><AdminCrossPod /></AdminRoute>} />
       <Route path="/admin/avatars" element={<AdminRoute><AdminAvatarLibrary /></AdminRoute>} />
       <Route path="/admin/users" element={<AdminRoute><AdminUsers /></AdminRoute>} />
 
