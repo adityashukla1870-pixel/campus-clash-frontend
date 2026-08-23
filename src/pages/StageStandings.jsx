@@ -6,7 +6,6 @@ import Navbar from "../components/Navbar"
 import API from "../api/axios"
 import { SkeletonTable, SkeletonText, SkeletonBlock, SkeletonButton } from "../components/Skeleton"
 import "./StageStandings.css"
-import "./Leaderboard.css"
 
 /* ─── Pod View (per group) ─── */
 function PodView({ podSummary, advanceCount }) {
@@ -125,58 +124,87 @@ function HowItWorks() {
 /* ─── Podium Card (animated) ─── */
 function PodiumCard({ team, rank, delay = 0 }) {
   const medals = ['🥇', '🥈', '🥉']
-  const tierClass = rank === 0 ? "gold" : rank === 1 ? "silver" : "bronze"
-  const blockHeight = rank === 0 ? 170 : rank === 1 ? 130 : 100
+  const borders = ['var(--gold)', '#c0c0c0', '#cd7f32']
+  const glows = ['rgba(212,175,55,0.25)', 'rgba(203,213,225,0.2)', 'rgba(205,127,50,0.2)']
+  const blockH = rank === 0 ? 100 : rank === 1 ? 70 : 50
 
   return (
-    <div className={`lb-podium-block-wrapper rank-${rank + 1}`}>
+    <div style={{
+      flex: 1, minWidth: 0, maxWidth: 150,
+      display: 'flex', flexDirection: 'column', alignItems: 'center',
+      order: rank === 0 ? 1 : rank === 1 ? 0 : 2
+    }}>
+      {/* Avatar + name section */}
       <motion.div
-        className="lb-podium-player-info"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: delay + 0.4, ease: [0.16, 1, 0.3, 1] }}
+        style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, marginBottom: 10 }}
       >
         <motion.div
-          className={`lb-podium-avatar tier-${tierClass}`}
           initial={{ scale: 0, rotate: -180 }}
           animate={{ scale: 1, rotate: 0 }}
-          transition={{ type: "spring", stiffness: 200, damping: 15, delay: delay + 0.2 }}
-          whileHover={{ scale: 1.1 }}
+          transition={{ type: 'spring', stiffness: 200, damping: 15, delay: delay + 0.2 }}
+          style={{
+            width: 56, height: 56, borderRadius: '50%',
+            background: 'linear-gradient(135deg, var(--bg-surface), var(--bg-card))',
+            border: `3px solid ${borders[rank]}`,
+            boxShadow: `0 0 18px ${glows[rank]}`,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 22, position: 'relative'
+          }}
         >
-          <span className="lb-podium-avatar-initials">{medals[rank]}</span>
+          {medals[rank]}
           <motion.span
-            className="lb-podium-rank-badge"
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
-            transition={{ type: "spring", stiffness: 300, damping: 15, delay: delay + 0.6 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 15, delay: delay + 0.6 }}
+            style={{
+              position: 'absolute', top: -4, right: -4,
+              width: 20, height: 20, borderRadius: '50%',
+              background: borders[rank], display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 10, fontWeight: 800, color: rank === 0 ? '#af7c04' : '#333',
+              border: '2px solid var(--bg-dark)'
+            }}
           >{rank + 1}</motion.span>
         </motion.div>
-        <span className="lb-podium-name">{team.name}</span>
-        <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>{team.pod_name}</span>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontWeight: 700, fontSize: 13, color: 'var(--text-primary)', lineHeight: 1.2 }}>{team.name}</div>
+          <div style={{ fontSize: 10, color: 'var(--text-muted)' }}>{team.pod_name}</div>
+        </div>
       </motion.div>
+
+      {/* Block section */}
       <motion.div
-        className={`lb-podium-block tier-${tierClass}`}
         initial={{ height: 0, opacity: 0 }}
-        animate={{ height: blockHeight, opacity: 1 }}
+        animate={{ height: blockH, opacity: 1 }}
         transition={{ duration: 0.6, delay: delay, ease: [0.16, 1, 0.3, 1] }}
+        style={{
+          width: '100%', borderRadius: '6px 6px 0 0', position: 'relative', overflow: 'hidden',
+          background: `linear-gradient(180deg, var(--bg-card) 0%, var(--bg-surface) 100%)`,
+          boxShadow: `0 -3px 0 0 ${glows[rank]}, inset 0 1px 0 ${glows[rank]}`,
+          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2
+        }}
       >
-        <div className="lb-podium-block-accent" />
-        <div className="lb-podium-block-shadow-left" />
-        <div className="lb-podium-block-shadow-right" />
-        <span className="lb-podium-watermark">{medals[rank]}</span>
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: borders[rank], opacity: 0.7 }} />
+        <div style={{ position: 'absolute', top: 0, left: 0, bottom: 0, width: 4, background: 'rgba(0,0,0,0.25)' }} />
+        <div style={{ position: 'absolute', top: 0, right: 0, bottom: 0, width: 4, background: 'rgba(255,255,255,0.03)' }} />
         <motion.div
-          className="lb-podium-points"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: delay + 0.8 }}
+          style={{
+            background: 'var(--purple-glow)', border: '1px solid var(--border)',
+            borderRadius: 6, padding: '3px 10px', fontSize: 14, fontWeight: 700, color: 'var(--gold)'
+          }}
         >
-          {team.total_points} <span style={{ fontSize: 10, opacity: 0.7 }}>pts</span>
+          {team.total_points} pts
         </motion.div>
         <motion.span
-          className="lb-podium-points-arrow"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3, delay: delay + 1.0 }}
+          style={{ fontSize: 10, color: 'var(--text-muted)', textAlign: 'center' }}
         >
           {team.total_kills} kills · {team.matches_played} matches
         </motion.span>
@@ -398,12 +426,15 @@ function StageStandings() {
             {/* Podium */}
             {rrStandings.length >= 3 && (
               <motion.div
-                className="lb-podium-container"
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.6, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                style={{
+                  background: 'var(--bg-card)', border: '1px solid var(--border)',
+                  borderRadius: 16, padding: '28px 20px 0', overflow: 'hidden', marginBottom: 16
+                }}
               >
-                <div className="lb-podium">
+                <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'center', gap: 8 }}>
                   <PodiumCard team={rrStandings[1]} rank={1} delay={0.5} />
                   <PodiumCard team={rrStandings[0]} rank={0} delay={0.2} />
                   <PodiumCard team={rrStandings[2]} rank={2} delay={0.7} />
