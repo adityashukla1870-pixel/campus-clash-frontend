@@ -97,7 +97,7 @@ function MatchCard({ match }) {
           <span style={{
             background: 'var(--bg-surface)', borderRadius: 6, padding: '2px 8px',
             fontSize: 11, color: 'var(--text-muted)', fontWeight: 600
-          }}>VS</span>
+          }}>&</span>
           <span style={{ fontWeight: 700, fontSize: 14 }}>
             {match.pod_b_name}
           </span>

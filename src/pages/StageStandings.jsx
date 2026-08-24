@@ -242,7 +242,7 @@ function CrossPodMatchCard({ match }) {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <span style={{ fontWeight: 700, fontSize: 13 }}>{match.pod_a_name}</span>
-          <span style={{ background: 'var(--bg-surface)', borderRadius: 4, padding: '1px 6px', fontSize: 10, color: 'var(--text-muted)', fontWeight: 600 }}>VS</span>
+          <span style={{ background: 'var(--bg-surface)', borderRadius: 4, padding: '1px 6px', fontSize: 10, color: 'var(--text-muted)', fontWeight: 600 }}>&</span>
           <span style={{ fontWeight: 700, fontSize: 13 }}>{match.pod_b_name}</span>
         </div>
         <span style={{ fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 99, background: st.bg, color: st.color }}>{st.label}</span>
