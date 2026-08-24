@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
-import { FiCheckCircle, FiCircle, FiStar, FiKey, FiArrowRight, FiTarget, FiAward, FiChevronDown, FiChevronUp, FiInfo, FiClock, FiZap } from "react-icons/fi"
+import { FiCheckCircle, FiCircle, FiStar, FiKey, FiArrowRight, FiTarget, FiAward, FiChevronDown, FiChevronUp, FiInfo, FiClock, FiZap, FiGrid, FiUser } from "react-icons/fi"
 import Navbar from "../components/Navbar"
 import API from "../api/axios"
 import { SkeletonTable, SkeletonText, SkeletonBlock } from "../components/Skeleton"
@@ -157,6 +157,39 @@ function MatchCard({ match }) {
               </div>
             )}
           </div>
+
+          {/* Slot Assignments */}
+          {match.slot_assignments && Object.keys(match.slot_assignments).length > 0 && (
+            <div style={{ marginTop: 10, borderTop: '1px solid rgba(0,180,255,0.15)', paddingTop: 8 }}>
+              <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.5, color: 'var(--cyan)', marginBottom: 6, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
+                <FiGrid size={10} /> Lobby Slots
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 4 }}>
+                {Object.entries(match.slot_assignments)
+                  .sort(([a], [b]) => parseInt(a) - parseInt(b))
+                  .map(([slot, data]) => (
+                    <div key={slot} style={{
+                      background: 'rgba(0,0,0,0.2)', borderRadius: 6,
+                      padding: '6px 8px', display: 'flex', alignItems: 'center', gap: 6
+                    }}>
+                      <div style={{
+                        width: 20, height: 20, borderRadius: 4,
+                        background: 'linear-gradient(135deg, #7c3aed, #06b6d4)',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontSize: 9, fontWeight: 700, color: 'white', flexShrink: 0
+                      }}>
+                        {slot}
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {data.team_name}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
 

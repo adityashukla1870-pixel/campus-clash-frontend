@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { FiCheckCircle, FiPlus, FiKey, FiClock, FiStar, FiTrash2, FiSend, FiTarget, FiArrowRight, FiChevronDown, FiChevronUp, FiAward } from "react-icons/fi"
+import { FiCheckCircle, FiPlus, FiKey, FiClock, FiStar, FiTrash2, FiSend, FiTarget, FiArrowRight, FiChevronDown, FiChevronUp, FiAward, FiGrid } from "react-icons/fi"
 import API from "../api/axios"
 import AdminTopBar from "../components/AdminTopBar"
 import { SkeletonText, SkeletonTable, SkeletonBlock } from "../components/Skeleton"
@@ -9,6 +9,8 @@ function MatchCard({ match, isSquad, onChanged }) {
   const [resultDrafts, setResultDrafts] = useState({})
   const [busy, setBusy] = useState(false)
   const [participants, setParticipants] = useState([])
+  const [slotAssignments, setSlotAssignments] = useState({})
+  const [showSlots, setShowSlots] = useState(false)
 
   useEffect(() => {
     API.get(`/cross-pod/matches/${match.id}`).then(res => {
@@ -25,7 +27,8 @@ function MatchCard({ match, isSquad, onChanged }) {
         room_id: roomDraft.room_id,
         password: roomDraft.password,
         start_time: roomDraft.start_time,
-        map: roomDraft.map || null
+        map: roomDraft.map || null,
+        slot_assignments: slotAssignments
       })
       onChanged()
     } catch (err) {
@@ -33,6 +36,18 @@ function MatchCard({ match, isSquad, onChanged }) {
     } finally {
       setBusy(false)
     }
+  }
+
+  const handleSlotChange = (slot, registrationId) => {
+    const newAssignments = { ...slotAssignments }
+    if (registrationId) {
+      const existingSlot = Object.entries(newAssignments).find(([s, r]) => r === registrationId && s !== slot)
+      if (existingSlot) delete newAssignments[existingSlot[0]]
+      newAssignments[slot] = registrationId
+    } else {
+      delete newAssignments[slot]
+    }
+    setSlotAssignments(newAssignments)
   }
 
   const submitResults = async () => {
@@ -83,17 +98,58 @@ function MatchCard({ match, isSquad, onChanged }) {
       {match.map && <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 6 }}>Map: {match.map}</div>}
 
       {!match.room_id && match.status !== 'completed' && (
-        <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', marginBottom: 8 }}>
-          <input placeholder="Map name" style={{ flex: 1, minWidth: 80, fontSize: 12 }}
-            value={roomDraft.map || ""}
-            onChange={e => setRoomDraft(prev => ({ ...prev, map: e.target.value }))} />
-          <input placeholder="Room ID" style={{ flex: 1, minWidth: 80, fontSize: 12 }}
-            onChange={e => setRoomDraft(prev => ({ ...prev, room_id: e.target.value }))} />
-          <input placeholder="Password" style={{ flex: 1, minWidth: 80, fontSize: 12 }}
-            onChange={e => setRoomDraft(prev => ({ ...prev, password: e.target.value }))} />
-          <input type="datetime-local" style={{ fontSize: 12 }}
-            onChange={e => setRoomDraft(prev => ({ ...prev, start_time: e.target.value }))} />
-          <button className="btn-secondary" style={{ fontSize: 12 }} disabled={busy} onClick={releaseRoom}>Release</button>
+        <div style={{ marginBottom: 8 }}>
+          <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', marginBottom: 8 }}>
+            <input placeholder="Map name" style={{ flex: 1, minWidth: 80, fontSize: 12 }}
+              value={roomDraft.map || ""}
+              onChange={e => setRoomDraft(prev => ({ ...prev, map: e.target.value }))} />
+            <input placeholder="Room ID" style={{ flex: 1, minWidth: 80, fontSize: 12 }}
+              onChange={e => setRoomDraft(prev => ({ ...prev, room_id: e.target.value }))} />
+            <input placeholder="Password" style={{ flex: 1, minWidth: 80, fontSize: 12 }}
+              onChange={e => setRoomDraft(prev => ({ ...prev, password: e.target.value }))} />
+            <input type="datetime-local" style={{ fontSize: 12 }}
+              onChange={e => setRoomDraft(prev => ({ ...prev, start_time: e.target.value }))} />
+            <button className="btn-secondary" style={{ fontSize: 12 }} disabled={busy} onClick={releaseRoom}>Release</button>
+          </div>
+
+          {/* Slot Assignment Toggle */}
+          {participants.length > 0 && (
+            <div>
+              <button onClick={() => setShowSlots(!showSlots)}
+                style={{ background: 'none', border: 'none', color: 'var(--cyan)', cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, fontWeight: 600, padding: '4px 0' }}>
+                <FiGrid size={12} />
+                {showSlots ? 'Hide' : 'Assign'} Lobby Slots ({Object.keys(slotAssignments).length}/10 filled)
+              </button>
+
+              {showSlots && (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(220px,1fr))', gap: 6, marginTop: 6 }}>
+                  {Array.from({ length: 10 }, (_, i) => i + 1).map(slot => (
+                    <div key={slot} style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 8, padding: '8px 10px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+                        <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--cyan)', textTransform: 'uppercase', letterSpacing: 0.5 }}>Slot {slot}</span>
+                        <span style={{ fontSize: 10, color: slotAssignments[slot] ? 'var(--green)' : 'var(--text-muted)' }}>
+                          {slotAssignments[slot] ? '✓' : '—'}
+                        </span>
+                      </div>
+                      <select
+                        value={slotAssignments[slot] || ""}
+                        onChange={(e) => handleSlotChange(String(slot), e.target.value || null)}
+                        style={{ width: '100%', padding: '6px 8px', borderRadius: 6, background: 'var(--bg-dark)',
+                          border: '1px solid var(--border)', color: 'var(--text-primary)', fontSize: 11, cursor: 'pointer' }}>
+                        <option value="">— Empty —</option>
+                        {participants.map(p => (
+                          <option key={p.registration_id} value={p.registration_id}>
+                            {p.name} ({p.pod_name})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
 
