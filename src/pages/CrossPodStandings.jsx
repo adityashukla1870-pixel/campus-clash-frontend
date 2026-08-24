@@ -10,7 +10,7 @@ import "./StageStandings.css"
 function HowItWorks() {
   const steps = [
     { icon: <FiTarget />, title: "3 Groups", desc: "15 teams split into Group A, B, C (5 each)" },
-    { icon: <FiZap />, title: "9 Matches", desc: "Each group plays the other 2 groups — 3 matches per pairing" },
+    { icon: <FiZap />, title: "9 Matches", desc: "Group AB, AC, BC — 3 matches per group pairing" },
     { icon: <FiAward />, title: "Overall Winner", desc: "All teams ranked together on one leaderboard. Top 3 win!" },
   ]
   return (
@@ -220,11 +220,21 @@ function CrossPodStandings() {
     return () => clearInterval(interval)
   }, [detail?.id])
 
-  // Group matches by pairing
+  // Group matches by pairing (Group AB, Group AC, Group BC)
+  const getGroupPairName = (nameA, nameB) => {
+    const extractLetter = (name) => {
+      const match = name.match(/Group\s*([A-C])/i)
+      return match ? match[1].toUpperCase() : name
+    }
+    const letterA = extractLetter(nameA)
+    const letterB = extractLetter(nameB)
+    const sorted = [letterA, letterB].sort().join('')
+    return `Group ${sorted}`
+  }
   const matchGroups = {}
   if (detail?.matches) {
     detail.matches.forEach(m => {
-      const key = [m.pod_a_name, m.pod_b_name].sort().join(" vs ")
+      const key = getGroupPairName(m.pod_a_name, m.pod_b_name)
       if (!matchGroups[key]) matchGroups[key] = []
       matchGroups[key].push(m)
     })
