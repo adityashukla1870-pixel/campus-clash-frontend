@@ -243,6 +243,18 @@ function TournamentRoom() {
                   {copiedId && copiedPass ? <><FiCheckCircle size={14} /> Copied!</> : <><FiCopy size={14} /> Copy Room ID & Password</>}
                 </button>
 
+                {/* Match timings */}
+                {room.match_start_time && (
+                  <div style={{ padding: '12px 16px', background: 'var(--bg-surface)', borderRadius: 10, marginBottom: 16, border: '1px solid var(--border)' }}>
+                    <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.5px', color: 'var(--text-muted)', marginBottom: 6, fontWeight: 600 }}>
+                      Match Schedule
+                    </div>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>
+                      <span>Match Start:</span> {new Date(room.match_start_time).toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit', hour12: false })} PM
+                    </div>
+                  </div>
+                )}
+
                 {/* Countdown timer */}
                 <div style={{
                   background: isLive

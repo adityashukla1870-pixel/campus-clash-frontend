@@ -221,6 +221,19 @@ function CrossPodMatchCard({ match }) {
     : isLive ? { bg: 'rgba(0,180,255,0.1)', color: 'var(--cyan)', label: 'Live' }
     : { bg: 'var(--bg-surface)', color: 'var(--text-muted)', label: 'Upcoming' }
 
+  const defaultTimings = {
+    1: { idRelease: '8:20 PM', matchStart: '8:30 PM' },
+    2: { idRelease: '9:00 PM', matchStart: '9:10 PM' },
+    3: { idRelease: '9:40 PM', matchStart: '9:50 PM' },
+    4: { idRelease: '8:20 PM', matchStart: '8:30 PM' },
+    5: { idRelease: '9:00 PM', matchStart: '9:10 PM' },
+    6: { idRelease: '9:40 PM', matchStart: '9:50 PM' },
+    7: { idRelease: '8:20 PM', matchStart: '8:30 PM' },
+    8: { idRelease: '9:00 PM', matchStart: '9:10 PM' },
+    9: { idRelease: '9:40 PM', matchStart: '9:50 PM' },
+  }
+  const timing = defaultTimings[match.match_number]
+
   return (
     <div style={{
       background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 10, padding: 12, marginBottom: 8,
@@ -234,7 +247,21 @@ function CrossPodMatchCard({ match }) {
         </div>
         <span style={{ fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 99, background: st.bg, color: st.color }}>{st.label}</span>
       </div>
-      <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 4 }}>Match {match.match_number}{match.map && ` · ${match.map}`}</div>
+      <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 6 }}>Match {match.match_number}{match.map && ` · ${match.map}`}</div>
+
+      {!isDone && !isLive && timing && (
+        <div style={{ display: 'flex', gap: 10, marginBottom: 4 }}>
+          <div style={{ flex: 1, background: 'rgba(255,185,87,0.08)', border: '1px solid rgba(255,185,87,0.2)', borderRadius: 6, padding: '6px 8px', textAlign: 'center' }}>
+            <div style={{ fontSize: 8, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 2 }}>ID & Password</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#ffb957' }}>{timing.idRelease}</div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', color: 'var(--text-muted)', fontSize: 14 }}>»</div>
+          <div style={{ flex: 1, background: 'rgba(0,200,120,0.06)', border: '1px solid rgba(0,200,120,0.2)', borderRadius: 6, padding: '6px 8px', textAlign: 'center' }}>
+            <div style={{ fontSize: 8, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 2 }}>Match Start</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--green)' }}>{timing.matchStart}</div>
+          </div>
+        </div>
+      )}
 
       {isLive && (
         <div style={{ background: 'rgba(0,180,255,0.06)', border: '1px solid rgba(0,180,255,0.2)', borderRadius: 6, padding: '8px 10px', marginBottom: 4 }}>
