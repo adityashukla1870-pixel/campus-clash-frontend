@@ -10,7 +10,7 @@ import "./StageStandings.css"
 function HowItWorks() {
   const steps = [
     { icon: <FiTarget />, title: "3 Groups", desc: "15 teams split into Group A, B, C (5 each)" },
-    { icon: <FiZap />, title: "9 Matches", desc: "Group AB, AC, BC — 3 matches per group pairing" },
+    { icon: <FiZap />, title: "9 Matches", desc: "3 days, 3 matches each — Round Robin format" },
     { icon: <FiAward />, title: "Overall Winner", desc: "All teams ranked together on one leaderboard. Top 3 win!" },
   ]
   return (
@@ -220,7 +220,7 @@ function CrossPodStandings() {
     return () => clearInterval(interval)
   }, [detail?.id])
 
-  // Group matches by pairing (Group AB, Group AC, Group BC)
+  // Group matches by Day (Day 1, Day 2, Day 3)
   const getGroupPairName = (nameA, nameB) => {
     const extractLetter = (name) => {
       const match = name.match(/Group\s*([A-C])/i)
@@ -231,10 +231,30 @@ function CrossPodStandings() {
     const sorted = [letterA, letterB].sort().join('')
     return `Group ${sorted}`
   }
+
+  const daySchedule = {
+    1: [
+      { match_number: 1, group: 'AB', map: 'Bermuda' },
+      { match_number: 2, group: 'AC', map: 'Purgatory' },
+      { match_number: 3, group: 'BC', map: 'Kalahari' },
+    ],
+    2: [
+      { match_number: 4, group: 'BC', map: 'Bermuda' },
+      { match_number: 5, group: 'AB', map: 'Purgatory' },
+      { match_number: 6, group: 'AC', map: 'Kalahari' },
+    ],
+    3: [
+      { match_number: 7, group: 'AC', map: 'Bermuda' },
+      { match_number: 8, group: 'BC', map: 'Purgatory' },
+      { match_number: 9, group: 'AB', map: 'Kalahari' },
+    ],
+  }
+
   const matchGroups = {}
   if (detail?.matches) {
     detail.matches.forEach(m => {
-      const key = getGroupPairName(m.pod_a_name, m.pod_b_name)
+      const dayNum = Math.ceil(m.match_number / 3)
+      const key = `Day ${dayNum}`
       if (!matchGroups[key]) matchGroups[key] = []
       matchGroups[key].push(m)
     })
@@ -434,23 +454,40 @@ function CrossPodStandings() {
             {/* ─── TAB: MATCHES ─── */}
             {activeTab === 'matches' && (
               <div>
-                {Object.entries(matchGroups).map(([pairName, matches]) => {
-                  const pairDone = matches.filter(m => m.status === 'completed').length
+                {Object.entries(matchGroups).map(([dayName, matches]) => {
+                  const dayDone = matches.filter(m => m.status === 'completed').length
+                  const dayNum = parseInt(dayName.split(' ')[1])
                   return (
-                    <div key={pairName} style={{ marginBottom: 18 }}>
+                    <div key={dayName} style={{ marginBottom: 20 }}>
                       <div style={{
                         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                        marginBottom: 8
+                        marginBottom: 10, padding: '10px 14px', borderRadius: 10,
+                        background: dayDone === matches.length ? 'rgba(0,200,120,0.08)' : 'rgba(255,185,87,0.08)',
+                        border: `1px solid ${dayDone === matches.length ? 'rgba(0,200,120,0.2)' : 'rgba(255,185,87,0.2)'}`
                       }}>
-                        <span style={{ fontSize: 14, fontWeight: 700 }}>{pairName}</span>
+                        <div>
+                          <span style={{ fontSize: 15, fontWeight: 800, color: dayDone === matches.length ? 'var(--green)' : '#ffb957' }}>{dayName}</span>
+                          <span style={{ fontSize: 11, color: 'var(--text-muted)', marginLeft: 10 }}>Let the battle begin!</span>
+                        </div>
                         <span style={{
-                          fontSize: 11, padding: '2px 8px', borderRadius: 99,
-                          background: pairDone === matches.length ? 'rgba(0,200,120,0.12)' : 'var(--bg-surface)',
-                          color: pairDone === matches.length ? 'var(--green)' : 'var(--text-muted)',
+                          fontSize: 11, padding: '3px 10px', borderRadius: 99,
+                          background: dayDone === matches.length ? 'rgba(0,200,120,0.12)' : 'var(--bg-surface)',
+                          color: dayDone === matches.length ? 'var(--green)' : 'var(--text-muted)',
                           fontWeight: 600
-                        }}>{pairDone}/{matches.length}</span>
+                        }}>{dayDone}/{matches.length}</span>
                       </div>
-                      {matches.map(m => <MatchCard key={m.id} match={m} />)}
+                      {daySchedule[dayNum]?.map((sched) => {
+                        const match = matches.find(m => m.match_number === sched.match_number)
+                        if (!match) return null
+                        return (
+                          <div key={match.id} style={{ marginBottom: 10, paddingLeft: 14, borderLeft: '2px solid var(--border)', marginLeft: 10 }}>
+                            <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 4, fontWeight: 600 }}>
+                              Match {sched.match_number} — {sched.group} on {sched.map}
+                            </div>
+                            <MatchCard match={match} />
+                          </div>
+                        )
+                      })}
                     </div>
                   )
                 })}
