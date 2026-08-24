@@ -232,24 +232,6 @@ function CrossPodStandings() {
     return `Group ${sorted}`
   }
 
-  const daySchedule = {
-    1: [
-      { match_number: 1, group: 'AB', map: 'Bermuda' },
-      { match_number: 2, group: 'AC', map: 'Purgatory' },
-      { match_number: 3, group: 'BC', map: 'Kalahari' },
-    ],
-    2: [
-      { match_number: 4, group: 'BC', map: 'Bermuda' },
-      { match_number: 5, group: 'AB', map: 'Purgatory' },
-      { match_number: 6, group: 'AC', map: 'Kalahari' },
-    ],
-    3: [
-      { match_number: 7, group: 'AC', map: 'Bermuda' },
-      { match_number: 8, group: 'BC', map: 'Purgatory' },
-      { match_number: 9, group: 'AB', map: 'Kalahari' },
-    ],
-  }
-
   const matchGroups = {}
   if (detail?.matches) {
     detail.matches.forEach(m => {
@@ -456,7 +438,6 @@ function CrossPodStandings() {
               <div>
                 {Object.entries(matchGroups).map(([dayName, matches]) => {
                   const dayDone = matches.filter(m => m.status === 'completed').length
-                  const dayNum = parseInt(dayName.split(' ')[1])
                   return (
                     <div key={dayName} style={{ marginBottom: 20 }}>
                       <div style={{
@@ -476,18 +457,14 @@ function CrossPodStandings() {
                           fontWeight: 600
                         }}>{dayDone}/{matches.length}</span>
                       </div>
-                      {daySchedule[dayNum]?.map((sched) => {
-                        const match = matches.find(m => m.match_number === sched.match_number)
-                        if (!match) return null
-                        return (
-                          <div key={match.id} style={{ marginBottom: 10, paddingLeft: 14, borderLeft: '2px solid var(--border)', marginLeft: 10 }}>
-                            <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 4, fontWeight: 600 }}>
-                              Match {sched.match_number} — {sched.group} on {sched.map}
-                            </div>
-                            <MatchCard match={match} />
+                      {matches.map(m => (
+                        <div key={m.id} style={{ marginBottom: 10, paddingLeft: 14, borderLeft: '2px solid var(--border)', marginLeft: 10 }}>
+                          <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 4, fontWeight: 600 }}>
+                            Match {m.match_number} — {getGroupPairName(m.pod_a_name, m.pod_b_name)}{m.map && ` on ${m.map}`}
                           </div>
-                        )
-                      })}
+                          <MatchCard match={m} />
+                        </div>
+                      ))}
                     </div>
                   )
                 })}

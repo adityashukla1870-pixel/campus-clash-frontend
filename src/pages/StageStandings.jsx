@@ -337,24 +337,6 @@ function StageStandings() {
     return `Group ${sorted}`
   }
 
-  const daySchedule = {
-    1: [
-      { match_number: 1, group: 'AB', map: 'Bermuda' },
-      { match_number: 2, group: 'AC', map: 'Purgatory' },
-      { match_number: 3, group: 'BC', map: 'Kalahari' },
-    ],
-    2: [
-      { match_number: 4, group: 'BC', map: 'Bermuda' },
-      { match_number: 5, group: 'AB', map: 'Purgatory' },
-      { match_number: 6, group: 'AC', map: 'Kalahari' },
-    ],
-    3: [
-      { match_number: 7, group: 'AC', map: 'Bermuda' },
-      { match_number: 8, group: 'BC', map: 'Purgatory' },
-      { match_number: 9, group: 'AB', map: 'Kalahari' },
-    ],
-  }
-
   const matchGroups = {}
   rrDetail?.matches?.forEach(m => {
     const dayNum = Math.ceil(m.match_number / 3)
@@ -534,7 +516,6 @@ function StageStandings() {
               <div className="stage-block-header"><h2>Matches</h2></div>
               {Object.entries(matchGroups).map(([dayName, matches]) => {
                 const dayDone = matches.filter(m => m.status === 'completed').length
-                const dayNum = parseInt(dayName.split(' ')[1])
                 return (
                   <div key={dayName} style={{ marginBottom: 18 }}>
                     <div style={{
@@ -549,18 +530,14 @@ function StageStandings() {
                       </div>
                       <span style={{ fontSize: 10, padding: '2px 7px', borderRadius: 99, background: dayDone === matches.length ? 'rgba(0,200,120,0.12)' : 'var(--bg-surface)', color: dayDone === matches.length ? 'var(--green)' : 'var(--text-muted)', fontWeight: 600 }}>{dayDone}/{matches.length}</span>
                     </div>
-                    {daySchedule[dayNum]?.map((sched, idx) => {
-                      const match = matches.find(m => m.match_number === sched.match_number)
-                      if (!match) return null
-                      return (
-                        <div key={match.id} style={{ marginBottom: 6, paddingLeft: 12, borderLeft: '2px solid var(--border)', marginLeft: 8 }}>
-                          <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 2 }}>
-                            Match {sched.match_number} — {sched.group} on {sched.map}
-                          </div>
-                          <CrossPodMatchCard match={match} />
+                    {matches.map(m => (
+                      <div key={m.id} style={{ marginBottom: 6, paddingLeft: 12, borderLeft: '2px solid var(--border)', marginLeft: 8 }}>
+                        <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 2 }}>
+                          Match {m.match_number} — {getGroupPairName(m.pod_a_name, m.pod_b_name)}{m.map && ` on ${m.map}`}
                         </div>
-                      )
-                    })}
+                        <CrossPodMatchCard match={m} />
+                      </div>
+                    ))}
                   </div>
                 )
               })}
