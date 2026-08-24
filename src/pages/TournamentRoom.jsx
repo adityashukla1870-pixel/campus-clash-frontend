@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom"
 import Navbar from "../components/Navbar"
 import API from "../api/axios"
 import { SkeletonRoom, SkeletonText } from "../components/Skeleton"
-import { FiMonitor, FiClock, FiSend, FiCopy, FiCheckCircle, FiUsers, FiTarget, FiArrowLeft, FiWifi } from "react-icons/fi"
+import { FiMonitor, FiClock, FiSend, FiCopy, FiCheckCircle, FiUsers, FiTarget, FiArrowLeft, FiWifi, FiGrid, FiUser } from "react-icons/fi"
 
 function TournamentRoom() {
   const { id } = useParams()
@@ -242,6 +242,48 @@ function TournamentRoom() {
                 >
                   {copiedId && copiedPass ? <><FiCheckCircle size={14} /> Copied!</> : <><FiCopy size={14} /> Copy Room ID & Password</>}
                 </button>
+
+                {/* Slot Assignments */}
+                {room.slot_assignments && Object.keys(room.slot_assignments).length > 0 && (
+                  <div style={{ marginBottom: 20 }}>
+                    <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.5px', color: 'var(--text-muted)', marginBottom: 10, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <FiGrid size={12} style={{ color: 'var(--cyan)' }} />
+                      Lobby Slot Assignments
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8 }}>
+                      {Object.entries(room.slot_assignments)
+                        .sort(([a], [b]) => parseInt(a) - parseInt(b))
+                        .map(([slot, data]) => (
+                          <div
+                            key={slot}
+                            style={{
+                              background: 'var(--bg-surface)', border: '1px solid var(--border)',
+                              borderRadius: 10, padding: '12px 14px',
+                              display: 'flex', alignItems: 'center', gap: 10,
+                            }}
+                          >
+                            <div style={{
+                              width: 28, height: 28, borderRadius: 6,
+                              background: 'linear-gradient(135deg, #7c3aed, #06b6d4)',
+                              display: 'flex', alignItems: 'center', justifyContent: 'center',
+                              fontSize: 11, fontWeight: 700, color: 'white', flexShrink: 0
+                            }}>
+                              {slot}
+                            </div>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                {data.team_name}
+                              </div>
+                              <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 2 }}>
+                                Slot {slot}
+                              </div>
+                            </div>
+                            <FiUser size={14} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                )}
 
                 {/* Match timings */}
                 {room.match_start_time && (
