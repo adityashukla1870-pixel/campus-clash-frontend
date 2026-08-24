@@ -24,6 +24,7 @@ function AdminDashboard() {
   const [tournaments, setTournaments] = useState([])
   const [pending, setPending] = useState([])
   const [loading, setLoading] = useState(true)
+  const [fixingStats, setFixingStats] = useState(false)
 
   useEffect(() => {
     Promise.all([
@@ -34,6 +35,19 @@ function AdminDashboard() {
       setPending(Array.isArray(pRes.data) ? pRes.data : [])
     }).catch(console.error).finally(() => setLoading(false))
   }, [])
+
+  const fixKillStats = async () => {
+    if (!confirm("This will recalculate ALL player kills from match results. Continue?")) return
+    setFixingStats(true)
+    try {
+      const res = await API.post("/stages/admin/fix-kill-stats")
+      alert(res.data?.message || "Done! Leaderboard fixed.")
+    } catch (err) {
+      alert(err.response?.data?.error || "Failed")
+    } finally {
+      setFixingStats(false)
+    }
+  }
 
   const liveCount = tournaments.filter(t => t.status === "in_progress").length
   const totalPlayers = tournaments.reduce((sum, t) => sum + (t.players?.length || 0), 0)
@@ -108,6 +122,20 @@ function AdminDashboard() {
                 </div>
               ))}
             </div>
+
+            {/* Fix Kill Stats button */}
+            <button
+              onClick={fixKillStats}
+              disabled={fixingStats}
+              style={{
+                width: '100%', padding: '12px', borderRadius: 12, border: '1px solid rgba(239,68,68,0.3)',
+                background: 'rgba(239,68,68,0.08)', color: '#ef4444',
+                fontSize: 13, fontWeight: 600, cursor: 'pointer', marginTop: 16,
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+              }}
+            >
+              {fixingStats ? "Fixing..." : "Recalculate All Player Kills (Leaderboard Fix)"}
+            </button>
 
             {/* Pending payments preview */}
             {pending.length > 0 && (
