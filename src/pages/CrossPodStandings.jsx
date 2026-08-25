@@ -157,9 +157,6 @@ function MatchCard({ match }) {
               </div>
             )}
           </div>
-
-          </div>
-
         </div>
       )}
 
