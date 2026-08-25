@@ -394,6 +394,21 @@ function AdminCrossPod() {
   const hasRR = roundRobins.length > 0
   const allDone = detail?.matches?.every(m => m.status === 'completed')
 
+  const fixPairings = async () => {
+    if (!detail?.id) return
+    if (!confirm("This will fix match pairings to follow the correct rotating format (Day 1: AB/AC/BC, Day 2: BC/AB/AC, Day 3: AC/BC/AB). Already played matches won't be affected. Continue?")) return
+    setBusy(true)
+    try {
+      const res = await API.post(`/cross-pod/${detail.id}/fix-pairings`)
+      alert(res.data.message)
+      loadRR(selected)
+    } catch (err) {
+      alert(err.response?.data?.error || "Failed to fix pairings")
+    } finally {
+      setBusy(false)
+    }
+  }
+
   // Group matches by pairing
   const matchGroups = {}
   if (detail?.matches) {
@@ -470,6 +485,11 @@ function AdminCrossPod() {
                   )}
                   {detail?.status === 'active' && (
                     <button className="btn-danger" onClick={deleteRR}><FiTrash2 /> Delete</button>
+                  )}
+                  {detail?.status === 'active' && (
+                    <button className="btn-secondary" disabled={busy} onClick={fixPairings} style={{ fontSize: 12 }}>
+                      Fix Match Pairings
+                    </button>
                   )}
                   <span style={{ fontSize: 12, color: 'var(--text-muted)', alignSelf: 'center', marginLeft: 8 }}>
                     {detail?.matches?.filter(m => m.status === 'completed').length || 0} / {detail?.matches?.length || 0} matches done
