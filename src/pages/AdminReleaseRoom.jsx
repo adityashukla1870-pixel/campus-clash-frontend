@@ -29,8 +29,9 @@ function AdminReleaseRoom() {
       const res = await API.get(`/tournament/admin/${tournamentId}/approved-teams`)
       setTeams(res.data.teams || [])
       setShowSlots(true)
-      // Reset slot assignments
-      setSlotAssignments({})
+      // Load existing slot assignments
+      const roomRes = await API.get(`/tournament/room/${tournamentId}`)
+      setSlotAssignments(roomRes.data.slot_assignments || {})
     } catch {
       alert("Failed to load teams")
     } finally {
@@ -77,6 +78,18 @@ function AdminReleaseRoom() {
       })
       alert("Room Released")
     } catch { alert("Failed to release room") }
+    finally { setLoading(false) }
+  }
+
+  const handleUpdateSlots = async () => {
+    if (!selectedId) return
+    setLoading(true)
+    try {
+      await API.post(`/tournament/admin/update-slots/${selectedId}`, {
+        slot_assignments: slotAssignments
+      })
+      alert("Slots updated!")
+    } catch { alert("Failed to update slots") }
     finally { setLoading(false) }
   }
 
@@ -175,6 +188,11 @@ function AdminReleaseRoom() {
                 <button className="btn-primary" style={{width:'100%',justifyContent:'center',marginTop:4}} onClick={handleSubmit} disabled={loading || !selectedId || !roomId || !password}>
                   {loading ? "Releasing..." : <><FiRadio /> Release Room</>}
                 </button>
+                {showSlots && (
+                  <button className="btn-secondary" style={{width:'100%',justifyContent:'center',marginTop:8}} onClick={handleUpdateSlots} disabled={loading || !selectedId}>
+                    {loading ? "Updating..." : <><FiGrid /> Update Slots Only</>}
+                  </button>
+                )}
               </div>
             </div>
           </>
