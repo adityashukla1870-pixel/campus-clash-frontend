@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { FiSearch, FiKey, FiUser, FiCheckCircle, FiX } from "react-icons/fi"
+import { FiSearch, FiKey, FiUser, FiCheckCircle, FiX, FiEdit2 } from "react-icons/fi"
 import API from "../api/axios"
 import AdminTopBar from "../components/AdminTopBar"
 
@@ -13,6 +13,11 @@ function AdminUsers() {
   const [newPassword, setNewPassword] = useState("")
   const [resetting, setResetting] = useState(false)
   const [resetMsg, setResetMsg] = useState("")
+
+  const [nameModal, setNameModal] = useState(null)
+  const [newInGameName, setNewInGameName] = useState("")
+  const [changingName, setChangingName] = useState(false)
+  const [nameMsg, setNameMsg] = useState("")
 
   const searchUsers = async () => {
     if (!query.trim()) return
@@ -50,6 +55,29 @@ function AdminUsers() {
       setResetMsg(err.response?.data?.error || "Failed to reset password")
     } finally {
       setResetting(false)
+    }
+  }
+
+  const handleNameChange = async () => {
+    if (!newInGameName.trim()) { setNameMsg("Enter a name"); return }
+    setChangingName(true)
+    setNameMsg("")
+    try {
+      const res = await API.post("/auth/admin/change-in-game-name", {
+        user_id: nameModal._id,
+        new_name: newInGameName.trim()
+      })
+      setNameMsg(res.data.message)
+      setTimeout(() => {
+        setNameModal(null)
+        setNewInGameName("")
+        setNameMsg("")
+        searchUsers()
+      }, 1500)
+    } catch (err) {
+      setNameMsg(err.response?.data?.error || "Failed to change name")
+    } finally {
+      setChangingName(false)
     }
   }
 
@@ -118,16 +146,28 @@ function AdminUsers() {
                       </span>
                     </td>
                     <td style={{ padding: '10px 14px' }}>
-                      <button
-                        onClick={() => { setResetModal(u); setNewPassword(""); setResetMsg("") }}
-                        style={{
-                          padding: '6px 12px', borderRadius: 8, border: 'none', cursor: 'pointer',
-                          background: 'rgba(245,158,11,0.15)', color: '#f59e0b', fontWeight: 600,
-                          fontSize: 12, display: 'flex', alignItems: 'center', gap: 4
-                        }}
-                      >
-                        <FiKey size={13} /> Reset Password
-                      </button>
+                      <div style={{ display: 'flex', gap: 6 }}>
+                        <button
+                          onClick={() => { setNameModal(u); setNewInGameName(""); setNameMsg("") }}
+                          style={{
+                            padding: '6px 12px', borderRadius: 8, border: 'none', cursor: 'pointer',
+                            background: 'rgba(59,130,246,0.15)', color: '#3b82f6', fontWeight: 600,
+                            fontSize: 12, display: 'flex', alignItems: 'center', gap: 4
+                          }}
+                        >
+                          <FiEdit2 size={13} /> Change Name
+                        </button>
+                        <button
+                          onClick={() => { setResetModal(u); setNewPassword(""); setResetMsg("") }}
+                          style={{
+                            padding: '6px 12px', borderRadius: 8, border: 'none', cursor: 'pointer',
+                            background: 'rgba(245,158,11,0.15)', color: '#f59e0b', fontWeight: 600,
+                            fontSize: 12, display: 'flex', alignItems: 'center', gap: 4
+                          }}
+                        >
+                          <FiKey size={13} /> Reset Password
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -195,6 +235,69 @@ function AdminUsers() {
               }}
             >
               {resetting ? "Setting..." : "Set New Password"}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Change In-Game Name Modal */}
+      {nameModal && (
+        <div style={{
+          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
+        }} onClick={() => { setNameModal(null); setNewInGameName(""); setNameMsg("") }}>
+          <div
+            style={{
+              background: 'var(--bg-surface)', border: '1px solid var(--border)',
+              borderRadius: 16, padding: 28, width: '100%', maxWidth: 400
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <h3 style={{ margin: 0, fontSize: 18 }}>Change In-Game Name</h3>
+              <FiX style={{ cursor: 'pointer', color: 'var(--text-muted)' }} onClick={() => { setNameModal(null); setNewInGameName(""); setNameMsg("") }} />
+            </div>
+
+            <p style={{ fontSize: 13, color: 'var(--text-secondary)', margin: '0 0 6px' }}>
+              Player: <strong>{nameModal.name}</strong> ({nameModal.email})
+            </p>
+            <p style={{ fontSize: 12, color: 'var(--text-muted)', margin: '0 0 16px' }}>
+              Current in-game name: <strong>{nameModal.name}</strong>
+            </p>
+
+            <input
+              type="text"
+              placeholder="New in-game name"
+              value={newInGameName}
+              onChange={e => setNewInGameName(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && handleNameChange()}
+              style={{
+                width: '100%', padding: '12px 14px', borderRadius: 10,
+                border: '1px solid var(--border)', background: 'var(--bg-card)',
+                color: 'var(--text-primary)', fontSize: 14, outline: 'none', marginBottom: 12
+              }}
+            />
+
+            {nameMsg && (
+              <p style={{
+                fontSize: 13, margin: '0 0 12px',
+                color: nameMsg.includes("changed") ? 'var(--green)' : '#ef4444'
+              }}>
+                {nameMsg.includes("changed") ? <FiCheckCircle style={{ verticalAlign: -2, marginRight: 4 }} /> : null}
+                {nameMsg}
+              </p>
+            )}
+
+            <button
+              onClick={handleNameChange}
+              disabled={changingName || !newInGameName.trim()}
+              style={{
+                width: '100%', padding: 14, borderRadius: 10, border: 'none', cursor: 'pointer',
+                background: 'var(--grad-purple)', color: '#fff', fontWeight: 700,
+                fontSize: 14, opacity: changingName || !newInGameName.trim() ? 0.6 : 1
+              }}
+            >
+              {changingName ? "Changing..." : "Change Name"}
             </button>
           </div>
         </div>
