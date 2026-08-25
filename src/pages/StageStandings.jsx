@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { motion } from "framer-motion"
-import { FiCheckCircle, FiCircle, FiStar, FiKey, FiAward, FiTarget, FiMonitor, FiArrowLeft, FiLock, FiZap, FiChevronDown, FiChevronUp, FiArrowRight } from "react-icons/fi"
+import { FiCheckCircle, FiCircle, FiStar, FiKey, FiAward, FiTarget, FiMonitor, FiArrowLeft, FiLock, FiZap, FiChevronDown, FiChevronUp, FiArrowRight, FiGrid } from "react-icons/fi"
 import Navbar from "../components/Navbar"
 import API from "../api/axios"
 import { SkeletonTable, SkeletonText, SkeletonBlock, SkeletonButton } from "../components/Skeleton"
@@ -270,6 +270,28 @@ function CrossPodMatchCard({ match }) {
             <div><div style={{ fontSize: 9, color: 'var(--text-muted)' }}>ROOM ID</div><div style={{ fontFamily: 'var(--font-mono)', fontSize: 13, fontWeight: 700, color: 'var(--cyan)' }}>{match.room_id}</div></div>
             <div><div style={{ fontSize: 9, color: 'var(--text-muted)' }}>PASSWORD</div><div style={{ fontFamily: 'var(--font-mono)', fontSize: 13, fontWeight: 700, color: 'var(--cyan)' }}>{match.room_password}</div></div>
             {match.match_start_time && <div><div style={{ fontSize: 9, color: 'var(--text-muted)' }}>STARTS</div><div style={{ fontSize: 12, fontWeight: 600 }}>{new Date(match.match_start_time).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</div></div>}
+          </div>
+        </div>
+      )}
+
+      {match.slot_assignments && Object.keys(match.slot_assignments).length > 0 && (
+        <div style={{ background: 'rgba(124,58,237,0.06)', border: '1px solid rgba(124,58,237,0.2)', borderRadius: 6, padding: '8px 10px', marginBottom: 4 }}>
+          <div style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: 0.5, color: 'var(--purple)', marginBottom: 4, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
+            <FiGrid size={10} /> Lobby Slots
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 3 }}>
+            {Object.entries(match.slot_assignments)
+              .sort(([a], [b]) => parseInt(a) - parseInt(b))
+              .map(([slot, data]) => (
+                <div key={slot} style={{ background: 'rgba(0,0,0,0.2)', borderRadius: 4, padding: '4px 6px', display: 'flex', alignItems: 'center', gap: 5 }}>
+                  <div style={{ width: 18, height: 18, borderRadius: 4, background: 'linear-gradient(135deg, #7c3aed, #06b6d4)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 8, fontWeight: 700, color: 'white', flexShrink: 0 }}>
+                    {slot}
+                  </div>
+                  <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {data.team_name}
+                  </div>
+                </div>
+              ))}
           </div>
         </div>
       )}
