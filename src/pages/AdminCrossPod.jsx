@@ -165,11 +165,11 @@ function MatchCard({ match, isSquad, onChanged }) {
                   </div>
                 ))}
               </div>
-              {match.room_id && (
-                <button className="btn-secondary" style={{ fontSize: 12, marginTop: 8 }} disabled={busy} onClick={updateSlots}>
-                  Update Slots
+              <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+                <button className="btn-secondary" style={{ fontSize: 12 }} disabled={busy} onClick={updateSlots}>
+                  {busy ? "Saving..." : "Update Slots"}
                 </button>
-              )}
+              </div>
             </div>
           )}
         </div>
