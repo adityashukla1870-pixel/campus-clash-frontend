@@ -104,6 +104,13 @@ body.has-sidebar {
 /* Selection */
 ::selection { background: var(--purple-glow); color: var(--purple-light); }
 
+/* Focus — gold ring per the elevation system (Level: focus/high-priority).
+   :focus-visible only, so mouse users never see it; keyboard users always do. */
+:focus-visible {
+  outline: 2px solid var(--purple-light);
+  outline-offset: 2px;
+}
+
 /* Utility */
 .page-wrapper {
   min-height: 100vh;

@@ -24,10 +24,11 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  font-family: var(--font-display);
-  font-size: 18px;
+  font-family: var(--font-label);
+  font-size: 14px;
   font-weight: 600;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
   color: var(--text-secondary);
   white-space: nowrap;
   transition: color 0.2s;
@@ -40,13 +41,15 @@
   color: var(--purple-light);
 }
 
+/* Small chip → chamfered shape per the shape language (no border-radius
+   on the same element). */
 .ticker-icon {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 36px;
   height: 36px;
-  border-radius: 10px;
+  clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
   background: var(--bg-card);
   border: 1px solid var(--border);
   font-size: 18px;
@@ -59,7 +62,12 @@
   to   { transform: translateX(-50%); }
 }
 
+/* Reduced motion: stop the marquee, let the row sit static. */
+@media (prefers-reduced-motion: reduce) {
+  .ticker-track { animation: none; }
+}
+
 @media (max-width: 768px) {
-  .ticker-item { font-size: 15px; }
+  .ticker-item { font-size: 12.5px; }
   .ticker-track { gap: 36px; }
 }

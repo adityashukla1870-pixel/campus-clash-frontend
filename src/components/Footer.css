@@ -47,7 +47,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 10px;
+  /* small chip → chamfered shape per the shape language */
+  clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
   background: var(--bg-card);
   border: 1px solid var(--border);
   color: var(--text-secondary);
@@ -77,7 +78,7 @@
   transition: color 0.2s;
   width: fit-content;
 }
-.footer-col span:hover { color: var(--cyan-light); }
+.footer-col span:hover { color: var(--purple-light); }
 
 .footer-bottom {
   max-width: 1100px;
