@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { FiSearch, FiKey, FiUser, FiCheckCircle, FiX, FiEdit2 } from "react-icons/fi"
+import { FiSearch, FiKey, FiUser, FiCheckCircle, FiX, FiEdit2, FiAward } from "react-icons/fi"
 import API from "../api/axios"
 import AdminTopBar from "../components/AdminTopBar"
 
@@ -18,6 +18,10 @@ function AdminUsers() {
   const [newInGameName, setNewInGameName] = useState("")
   const [changingName, setChangingName] = useState(false)
   const [nameMsg, setNameMsg] = useState("")
+
+  const [titleModal, setTitleModal] = useState(null)
+  const [resettingTitle, setResettingTitle] = useState(false)
+  const [titleMsg, setTitleMsg] = useState("")
 
   const searchUsers = async () => {
     if (!query.trim()) return
@@ -78,6 +82,27 @@ function AdminUsers() {
       setNameMsg(err.response?.data?.error || "Failed to change name")
     } finally {
       setChangingName(false)
+    }
+  }
+
+  const handleResetTitle = async () => {
+    setResettingTitle(true)
+    setTitleMsg("")
+    try {
+      const res = await API.post("/player-stats/admin/reset-player-stats", {
+        user_id: titleModal._id,
+        stat: "tournaments_won",
+        game: "GLOBAL"
+      })
+      setTitleMsg(res.data.message)
+      setTimeout(() => {
+        setTitleModal(null)
+        setTitleMsg("")
+      }, 1500)
+    } catch (err) {
+      setTitleMsg(err.response?.data?.error || "Failed to reset title")
+    } finally {
+      setResettingTitle(false)
     }
   }
 
@@ -156,6 +181,16 @@ function AdminUsers() {
                           }}
                         >
                           <FiEdit2 size={13} /> Change Name
+                        </button>
+                        <button
+                          onClick={() => { setTitleModal(u); setTitleMsg("") }}
+                          style={{
+                            padding: '6px 12px', borderRadius: 8, border: 'none', cursor: 'pointer',
+                            background: 'rgba(239,68,68,0.15)', color: '#ef4444', fontWeight: 600,
+                            fontSize: 12, display: 'flex', alignItems: 'center', gap: 4
+                          }}
+                        >
+                          <FiAward size={13} /> Reset Title
                         </button>
                         <button
                           onClick={() => { setResetModal(u); setNewPassword(""); setResetMsg("") }}
@@ -298,6 +333,54 @@ function AdminUsers() {
               }}
             >
               {changingName ? "Changing..." : "Change Name"}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Reset Title Modal */}
+      {titleModal && (
+        <div style={{
+          position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
+        }} onClick={() => { setTitleModal(null); setTitleMsg("") }}>
+          <div
+            style={{
+              background: 'var(--bg-surface)', border: '1px solid var(--border)',
+              borderRadius: 16, padding: 28, width: '100%', maxWidth: 400
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <h3 style={{ margin: 0, fontSize: 18 }}>Reset Title</h3>
+              <FiX style={{ cursor: 'pointer', color: 'var(--text-muted)' }} onClick={() => { setTitleModal(null); setTitleMsg("") }} />
+            </div>
+
+            <p style={{ fontSize: 13, color: 'var(--text-secondary)', margin: '0 0 16px' }}>
+              Remove global tournament title from <strong>{titleModal.name}</strong>?
+              <br /><span style={{ fontSize: 12, color: 'var(--text-muted)' }}>Kills and other stats will not be affected.</span>
+            </p>
+
+            {titleMsg && (
+              <p style={{
+                fontSize: 13, margin: '0 0 12px',
+                color: titleMsg.includes("Reset") ? 'var(--green)' : '#ef4444'
+              }}>
+                {titleMsg.includes("Reset") ? <FiCheckCircle style={{ verticalAlign: -2, marginRight: 4 }} /> : null}
+                {titleMsg}
+              </p>
+            )}
+
+            <button
+              onClick={handleResetTitle}
+              disabled={resettingTitle}
+              style={{
+                width: '100%', padding: 14, borderRadius: 10, border: 'none', cursor: 'pointer',
+                background: '#ef4444', color: '#fff', fontWeight: 700,
+                fontSize: 14, opacity: resettingTitle ? 0.6 : 1
+              }}
+            >
+              {resettingTitle ? "Removing..." : "Remove Title"}
             </button>
           </div>
         </div>
