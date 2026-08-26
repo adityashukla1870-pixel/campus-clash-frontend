@@ -89,7 +89,7 @@ function AdminUsers() {
     setResettingTitle(true)
     setTitleMsg("")
     try {
-      const res = await API.post("/player-stats/admin/reset-player-stats", {
+      const res = await API.post("/stats/admin/reset-player-stats", {
         user_id: titleModal._id,
         stat: "tournaments_won",
         game: "GLOBAL"
