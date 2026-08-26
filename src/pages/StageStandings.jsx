@@ -102,8 +102,12 @@ function StatTable({ columns, rows }) {
 }
 
 /* ─── How It Works (cross-pod) ─── */
-function HowItWorks() {
-  const steps = [
+function HowItWorks({ hasFullLobby }) {
+  const steps = hasFullLobby ? [
+    { icon: <FiTarget />, title: "12 Teams", desc: "All qualified teams compete together" },
+    { icon: <FiZap />, title: "9 Matches", desc: "Day 1-2: Group matches · Day 3: Full Lobby" },
+    { icon: <FiAward />, title: "Overall Winner", desc: "All teams ranked together. Top 3 win!" },
+  ] : [
     { icon: <FiTarget />, title: "3 Groups", desc: "15 teams split into Group A, B, C (5 each)" },
     { icon: <FiZap />, title: "9 Matches", desc: "3 days, 3 matches each — Round Robin format" },
     { icon: <FiAward />, title: "Overall Winner", desc: "All teams ranked together. Top 3 win!" },
@@ -217,6 +221,7 @@ function PodiumCard({ team, rank, delay = 0 }) {
 function CrossPodMatchCard({ match }) {
   const isLive = !!match.room_id && match.status !== 'completed'
   const isDone = match.status === 'completed'
+  const isFullLobby = match.full_lobby
   const st = isDone ? { bg: 'rgba(0,200,120,0.1)', color: 'var(--green)', label: 'Done' }
     : isLive ? { bg: 'rgba(0,180,255,0.1)', color: 'var(--cyan)', label: 'Live' }
     : { bg: 'var(--bg-surface)', color: 'var(--text-muted)', label: 'Upcoming' }
@@ -231,23 +236,42 @@ function CrossPodMatchCard({ match }) {
     7: { idRelease: '8:20 PM', matchStart: '8:30 PM' },
     8: { idRelease: '9:00 PM', matchStart: '9:10 PM' },
     9: { idRelease: '9:40 PM', matchStart: '9:50 PM' },
+    10: { idRelease: '8:20 PM', matchStart: '8:30 PM' },
+    11: { idRelease: '9:00 PM', matchStart: '9:10 PM' },
+    12: { idRelease: '9:40 PM', matchStart: '9:50 PM' },
   }
   const timing = defaultTimings[match.match_number]
 
   return (
     <div style={{
       background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 10, padding: 12, marginBottom: 8,
-      borderColor: isLive ? 'var(--cyan)' : isDone ? 'rgba(0,200,120,0.3)' : 'var(--border)'
+      borderColor: isLive ? 'var(--cyan)' : isDone ? 'rgba(0,200,120,0.3)' : isFullLobby ? 'rgba(255,185,87,0.3)' : 'var(--border)'
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <span style={{ fontWeight: 700, fontSize: 13 }}>{match.pod_a_name}</span>
-          <span style={{ background: 'var(--bg-surface)', borderRadius: 4, padding: '1px 6px', fontSize: 10, color: 'var(--text-muted)', fontWeight: 600 }}>&</span>
-          <span style={{ fontWeight: 700, fontSize: 13 }}>{match.pod_b_name}</span>
+          {isFullLobby ? (
+            <>
+              <span style={{ padding: '2px 8px', borderRadius: 99, background: 'rgba(255,185,87,0.15)', color: '#ffb957', fontWeight: 700, fontSize: 11 }}>FULL LOBBY</span>
+              <span style={{ fontWeight: 700, fontSize: 13, color: 'var(--gold)' }}>All 12 Teams</span>
+            </>
+          ) : (
+            <>
+              <span style={{ fontWeight: 700, fontSize: 13 }}>{match.pod_a_name}</span>
+              <span style={{ background: 'var(--bg-surface)', borderRadius: 4, padding: '1px 6px', fontSize: 10, color: 'var(--text-muted)', fontWeight: 600 }}>&</span>
+              <span style={{ fontWeight: 700, fontSize: 13 }}>{match.pod_b_name}</span>
+            </>
+          )}
         </div>
         <span style={{ fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 99, background: st.bg, color: st.color }}>{st.label}</span>
       </div>
-      <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 6 }}>Match {match.match_number}{match.map && ` · ${match.map}`}</div>
+      <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
+        Match {match.match_number}
+        {match.map && (
+          <>
+            <span style={{ padding: '1px 6px', borderRadius: 4, background: isFullLobby ? 'rgba(255,185,87,0.1)' : 'var(--bg-surface)', fontSize: 10, fontWeight: 600 }}>{match.map}</span>
+          </>
+        )}
+      </div>
 
       {!isDone && !isLive && timing && (
         <div style={{ display: 'flex', gap: 10, marginBottom: 4 }}>
@@ -376,6 +400,7 @@ function StageStandings() {
 
   // Group matches by Day (Day 1, Day 2, Day 3)
   const getGroupPairName = (nameA, nameB) => {
+    if (!nameA || !nameB || nameA === "All Teams") return "Full Lobby"
     const extractLetter = (name) => {
       const match = name.match(/Group\s*([A-C])/i)
       return match ? match[1].toUpperCase() : name
@@ -420,6 +445,7 @@ function StageStandings() {
   }
 
   const hasRR = rrDetail && rrStandings.length > 0
+  const hasFullLobby = rrDetail?.matches?.some(m => m.full_lobby)
 
   if (loading) {
     return (
@@ -458,7 +484,7 @@ function StageStandings() {
         {tab === "rr" && hasRR && (
           <>
             {/* How it works */}
-            <HowItWorks />
+            <HowItWorks hasFullLobby={hasFullLobby} />
 
             {/* Progress */}
             <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 12, padding: '10px 14px', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 12 }}>

@@ -7,8 +7,12 @@ import { SkeletonTable, SkeletonText, SkeletonBlock } from "../components/Skelet
 import "./StageStandings.css"
 
 /* ─── How It Works cards ─── */
-function HowItWorks() {
-  const steps = [
+function HowItWorks({ hasFullLobby }) {
+  const steps = hasFullLobby ? [
+    { icon: <FiTarget />, title: "12 Teams", desc: "All qualified teams compete together" },
+    { icon: <FiZap />, title: "9 Matches", desc: "Day 1-2: Group matches · Day 3: Full Lobby" },
+    { icon: <FiAward />, title: "Overall Winner", desc: "All teams ranked together on one leaderboard. Top 3 win!" },
+  ] : [
     { icon: <FiTarget />, title: "3 Groups", desc: "15 teams split into Group A, B, C (5 each)" },
     { icon: <FiZap />, title: "9 Matches", desc: "3 days, 3 matches each — Round Robin format" },
     { icon: <FiAward />, title: "Overall Winner", desc: "All teams ranked together on one leaderboard. Top 3 win!" },
@@ -62,6 +66,7 @@ function MatchProgress({ done, total }) {
 function MatchCard({ match }) {
   const isLive = !!match.room_id && match.status !== 'completed'
   const isDone = match.status === 'completed'
+  const isFullLobby = match.full_lobby
 
   const statusStyle = isDone
     ? { bg: 'rgba(0,200,120,0.1)', color: 'var(--green)', label: 'Completed' }
@@ -79,6 +84,9 @@ function MatchCard({ match }) {
     7: { idRelease: '8:20 PM', matchStart: '8:30 PM' },
     8: { idRelease: '9:00 PM', matchStart: '9:10 PM' },
     9: { idRelease: '9:40 PM', matchStart: '9:50 PM' },
+    10: { idRelease: '8:20 PM', matchStart: '8:30 PM' },
+    11: { idRelease: '9:00 PM', matchStart: '9:10 PM' },
+    12: { idRelease: '9:40 PM', matchStart: '9:50 PM' },
   }
   const timing = defaultTimings[match.match_number]
 
@@ -86,21 +94,30 @@ function MatchCard({ match }) {
     <div style={{
       background: 'var(--bg-card)', border: '1px solid var(--border)',
       borderRadius: 12, padding: 14, marginBottom: 10,
-      borderColor: isLive ? 'var(--cyan)' : isDone ? 'rgba(0,200,120,0.3)' : 'var(--border)'
+      borderColor: isLive ? 'var(--cyan)' : isDone ? 'rgba(0,200,120,0.3)' : isFullLobby ? 'rgba(255,185,87,0.3)' : 'var(--border)'
     }}>
       {/* Header row */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ fontWeight: 700, fontSize: 14 }}>
-            {match.pod_a_name}
-          </span>
-          <span style={{
-            background: 'var(--bg-surface)', borderRadius: 6, padding: '2px 8px',
-            fontSize: 11, color: 'var(--text-muted)', fontWeight: 600
-          }}>&</span>
-          <span style={{ fontWeight: 700, fontSize: 14 }}>
-            {match.pod_b_name}
-          </span>
+          {isFullLobby ? (
+            <>
+              <span style={{ padding: '2px 8px', borderRadius: 99, background: 'rgba(255,185,87,0.15)', color: '#ffb957', fontWeight: 700, fontSize: 11 }}>FULL LOBBY</span>
+              <span style={{ fontWeight: 700, fontSize: 14, color: 'var(--gold)' }}>All 12 Teams</span>
+            </>
+          ) : (
+            <>
+              <span style={{ fontWeight: 700, fontSize: 14 }}>
+                {match.pod_a_name}
+              </span>
+              <span style={{
+                background: 'var(--bg-surface)', borderRadius: 6, padding: '2px 8px',
+                fontSize: 11, color: 'var(--text-muted)', fontWeight: 600
+              }}>&</span>
+              <span style={{ fontWeight: 700, fontSize: 14 }}>
+                {match.pod_b_name}
+              </span>
+            </>
+          )}
         </div>
         <span style={{
           fontSize: 11, fontWeight: 600, padding: '3px 10px', borderRadius: 99,
@@ -111,8 +128,11 @@ function MatchCard({ match }) {
       </div>
 
       {/* Match number + map */}
-      <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 8 }}>
-        Match {match.match_number} {match.map && <>· {match.map}</>}
+      <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+        Match {match.match_number}
+        {match.map && (
+          <span style={{ padding: '1px 6px', borderRadius: 4, background: isFullLobby ? 'rgba(255,185,87,0.1)' : 'var(--bg-surface)', fontSize: 10, fontWeight: 600 }}>{match.map}</span>
+        )}
       </div>
 
       {/* Timings — UPCOMING */}
@@ -286,6 +306,7 @@ function CrossPodStandings() {
 
   // Group matches by Day (Day 1, Day 2, Day 3)
   const getGroupPairName = (nameA, nameB) => {
+    if (!nameA || !nameB || nameA === "All Teams") return "Full Lobby"
     const extractLetter = (name) => {
       const match = name.match(/Group\s*([A-C])/i)
       return match ? match[1].toUpperCase() : name
@@ -316,6 +337,7 @@ function CrossPodStandings() {
   const matchesDone = detail?.matches?.filter(m => m.status === 'completed').length || 0
   const matchesTotal = detail?.matches?.length || 0
   const liveMatch = detail?.matches?.find(m => m.room_id && m.status !== 'completed')
+  const hasFullLobby = detail?.matches?.some(m => m.full_lobby)
 
   if (loading) {
     return (
@@ -375,7 +397,7 @@ function CrossPodStandings() {
         {detail && (
           <>
             {/* ─── HOW IT WORKS ─── */}
-            <HowItWorks />
+            <HowItWorks hasFullLobby={hasFullLobby} />
 
             {/* ─── PROGRESS ─── */}
             <MatchProgress done={matchesDone} total={matchesTotal} />

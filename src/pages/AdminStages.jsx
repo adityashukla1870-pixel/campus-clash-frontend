@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { FiCheckCircle, FiPlus, FiKey, FiClock, FiStar, FiAward, FiTrash2, FiFileText, FiDownload, FiSend, FiTarget } from "react-icons/fi"
+import { FiCheckCircle, FiPlus, FiKey, FiClock, FiStar, FiAward, FiTrash2, FiFileText, FiDownload, FiSend, FiTarget, FiXCircle, FiRotateCcw } from "react-icons/fi"
 import API from "../api/axios"
 import AdminTopBar from "../components/AdminTopBar"
 import { SkeletonText, SkeletonTable, SkeletonBlock, SkeletonCard } from "../components/Skeleton"
@@ -371,6 +371,7 @@ function FinalParticipantsPanel({ tournamentId, tournament, onGrouped }) {
   const [podCount, setPodCount] = useState("2")
   const [seedStrategy, setSeedStrategy] = useState("random")
   const [busy, setBusy] = useState(false)
+  const [disqualifying, setDisqualifying] = useState(null)
 
   const load = () => {
     setLoading(true)
@@ -395,6 +396,34 @@ function FinalParticipantsPanel({ tournamentId, tournament, onGrouped }) {
       window.URL.revokeObjectURL(url)
     } catch (err) {
       alert("Failed to download final list")
+    }
+  }
+
+  const disqualifyTeam = async (registrationId, teamName) => {
+    if (!confirm(`Disqualify "${teamName}"? They will be removed from all matches.`)) return
+    setDisqualifying(registrationId)
+    try {
+      await API.post(`/tournament/admin/disqualify/${registrationId}`)
+      load()
+      onGrouped()
+    } catch (err) {
+      alert(err.response?.data?.error || "Failed to disqualify team")
+    } finally {
+      setDisqualifying(null)
+    }
+  }
+
+  const requalifyTeam = async (registrationId, teamName) => {
+    if (!confirm(`Re-qualify "${teamName}"?`)) return
+    setDisqualifying(registrationId)
+    try {
+      await API.post(`/tournament/admin/re-qualify/${registrationId}`)
+      load()
+      onGrouped()
+    } catch (err) {
+      alert(err.response?.data?.error || "Failed to re-qualify team")
+    } finally {
+      setDisqualifying(null)
     }
   }
 
@@ -451,16 +480,19 @@ function FinalParticipantsPanel({ tournamentId, tournament, onGrouped }) {
   if (loading) return <SkeletonBlock height={180} style={{ borderRadius: 16, marginBottom: 24 }} />
   if (!data) return null
 
+  const approvedParticipants = (data.participants || []).filter(p => p.payment_status !== "disqualified")
+  const disqualifiedParticipants = (data.participants || []).filter(p => p.payment_status === "disqualified")
+
   return (
     <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 16, padding: 22, marginBottom: 24 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10, marginBottom: 10 }}>
         <div>
           <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 18 }}><FiFileText /> Final Participant List</h3>
           <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>
-            {data.count} approved {data.count === 1 ? 'entry' : 'entries'} ·{' '}
+            {approvedParticipants.length} approved · {disqualifiedParticipants.length} disqualified ·{' '}
             {data.registration_open
               ? <span style={{ color: 'var(--gold)' }}>Registration still open</span>
-              : <span style={{ color: 'var(--cyan)' }}>Registration closed — list locked in</span>}
+              : <span style={{ color: 'var(--cyan)' }}>Registration closed</span>}
           </p>
         </div>
         <button className="btn-secondary" onClick={downloadCsv} disabled={data.count === 0}><FiDownload /> Download CSV</button>
@@ -474,6 +506,60 @@ function FinalParticipantsPanel({ tournamentId, tournament, onGrouped }) {
         </p>
       ) : (
         <>
+          {/* Approved Participants */}
+          <div style={{ overflowX: 'auto', marginBottom: 14 }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+              <thead>
+                <tr style={{ color: 'var(--text-muted)', textAlign: 'left', borderBottom: '1px solid var(--border)' }}>
+                  <th style={{ padding: '6px 8px' }}>Team / Player</th>
+                  <th style={{ padding: '6px 8px' }}>Status</th>
+                  <th style={{ padding: '6px 8px', textAlign: 'right' }}>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {approvedParticipants.map(p => (
+                  <tr key={p.registration_id} style={{ borderBottom: '1px solid var(--border)' }}>
+                    <td style={{ padding: '6px 8px' }}>{p.team_name || p.player_name}</td>
+                    <td style={{ padding: '6px 8px' }}>
+                      <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 99, background: 'rgba(0,200,120,0.1)', color: 'var(--green)' }}>Approved</span>
+                    </td>
+                    <td style={{ padding: '6px 8px', textAlign: 'right' }}>
+                      <button
+                        onClick={() => disqualifyTeam(p.registration_id, p.team_name || p.player_name)}
+                        disabled={disqualifying === p.registration_id}
+                        style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', color: '#ef4444', borderRadius: 6, padding: '4px 10px', fontSize: 11, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
+                      >
+                        <FiXCircle size={12} /> Disqualify
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Disqualified Participants */}
+          {disqualifiedParticipants.length > 0 && (
+            <div style={{ marginTop: 14, padding: 14, background: 'rgba(239,68,68,0.05)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 10 }}>
+              <h4 style={{ fontSize: 14, fontWeight: 700, color: '#ef4444', marginBottom: 10 }}>Disqualified Teams</h4>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {disqualifiedParticipants.map(p => (
+                  <div key={p.registration_id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', background: 'var(--bg-surface)', borderRadius: 8, opacity: 0.7 }}>
+                    <span style={{ fontSize: 13 }}>{p.team_name || p.player_name}</span>
+                    <button
+                      onClick={() => requalifyTeam(p.registration_id, p.team_name || p.player_name)}
+                      disabled={disqualifying === p.registration_id}
+                      style={{ background: 'rgba(0,200,120,0.1)', border: '1px solid rgba(0,200,120,0.3)', color: 'var(--green)', borderRadius: 6, padding: '4px 10px', fontSize: 11, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
+                    >
+                      <FiRotateCcw size={12} /> Re-qualify
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Stage Creation Form */}
           <div style={{ display: 'flex', gap: 14, alignItems: 'flex-end', flexWrap: 'wrap', margin: '16px 0' }}>
             <div className="field-group" style={{ marginBottom: 0 }}>
               <label>Stage Name</label>
