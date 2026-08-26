@@ -318,8 +318,12 @@ function CrossPodStandings() {
   }
 
   const matchGroups = {}
+  const hasFullLobby = detail?.matches?.some(m => m.full_lobby)
   if (detail?.matches) {
     detail.matches.forEach(m => {
+      // Skip old Day 3 group matches when full-lobby matches exist
+      if (hasFullLobby && !m.full_lobby && m.match_number > 6) return
+
       const dayNum = Math.ceil(m.match_number / 3)
       const key = `Day ${dayNum}`
       if (!matchGroups[key]) matchGroups[key] = []
@@ -337,7 +341,6 @@ function CrossPodStandings() {
   const matchesDone = detail?.matches?.filter(m => m.status === 'completed').length || 0
   const matchesTotal = detail?.matches?.length || 0
   const liveMatch = detail?.matches?.find(m => m.room_id && m.status !== 'completed')
-  const hasFullLobby = detail?.matches?.some(m => m.full_lobby)
 
   if (loading) {
     return (

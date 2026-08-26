@@ -452,8 +452,12 @@ function AdminCrossPod() {
 
   // Group matches by pairing (or Full Lobby)
   const matchGroups = {}
+  const hasFullLobby = detail?.matches?.some(m => m.full_lobby)
   if (detail?.matches) {
     detail.matches.forEach(m => {
+      // Skip old Day 3 group matches when full-lobby matches exist
+      if (hasFullLobby && !m.full_lobby && m.match_number > 6) return
+
       let key
       if (m.full_lobby) {
         key = "Full Lobby (All Teams)"

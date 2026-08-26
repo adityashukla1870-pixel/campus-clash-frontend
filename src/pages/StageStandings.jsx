@@ -412,7 +412,11 @@ function StageStandings() {
   }
 
   const matchGroups = {}
+  const hasFullLobby = rrDetail?.matches?.some(m => m.full_lobby)
   rrDetail?.matches?.forEach(m => {
+    // Skip old Day 3 group matches when full-lobby matches exist
+    if (hasFullLobby && !m.full_lobby && m.match_number > 6) return
+
     const dayNum = Math.ceil(m.match_number / 3)
     const key = `Day ${dayNum}`
     if (!matchGroups[key]) matchGroups[key] = []
@@ -445,7 +449,6 @@ function StageStandings() {
   }
 
   const hasRR = rrDetail && rrStandings.length > 0
-  const hasFullLobby = rrDetail?.matches?.some(m => m.full_lobby)
 
   if (loading) {
     return (
