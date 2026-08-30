@@ -126,6 +126,8 @@ function Community() {
   const [lfgMic, setLfgMic] = useState(true)
   const [lfgSlots, setLfgSlots] = useState(1)
 
+  const [reviews, setReviews] = useState([])
+
   const socketRef = useRef(null)
   const bottomRef = useRef(null)
   const fileInputRef = useRef(null)
@@ -145,6 +147,12 @@ function Community() {
       .then(res => setChannels(res.data || []))
       .catch(() => {})
       .finally(() => setLoading(false))
+  }, [])
+
+  useEffect(() => {
+    API.get("/feedbacks/community")
+      .then(res => setReviews(Array.isArray(res.data) ? res.data : []))
+      .catch(() => {})
   }, [])
 
   // Socket lifecycle — connect once
@@ -785,6 +793,46 @@ function Community() {
           </aside>
         </div>
       </div>
+
+      {reviews.length > 0 && (
+        <div style={{ maxWidth: 800, margin: "32px auto", padding: "0 24px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
+            <FiStar style={{ color: "#f59e0b" }} />
+            <h2 style={{ fontSize: 20, fontWeight: 700, color: "var(--text-primary)", margin: 0 }}>Player Reviews</h2>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            {reviews.slice(0, 10).map(r => (
+              <div key={r.id} style={{
+                background: "var(--bg-card, rgba(255,255,255,0.05))",
+                border: "1px solid var(--border, rgba(255,255,255,0.1))",
+                borderRadius: 12, padding: "14px 18px",
+              }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <span style={{
+                      width: 28, height: 28, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center",
+                      background: ACCENTS[Math.abs(r.user_id?.charCodeAt?.(0) || 0) % ACCENTS.length],
+                      color: "#fff", fontSize: 12, fontWeight: 700,
+                    }}>
+                      {(r.username || "?")[0].toUpperCase()}
+                    </span>
+                    <span style={{ fontWeight: 600, color: "var(--text-primary)", fontSize: 14 }}>{r.username}</span>
+                  </div>
+                  <div style={{ display: "flex", gap: 2 }}>
+                    {[1,2,3,4,5].map(s => (
+                      <FiStar key={s} size={12} style={{ color: s <= r.rating ? "#f59e0b" : "var(--text-muted)" }} fill={s <= r.rating ? "#f59e0b" : "none"} />
+                    ))}
+                  </div>
+                </div>
+                {r.comment && (
+                  <p style={{ color: "var(--text-secondary)", fontSize: 13, margin: "0 0 4px", lineHeight: 1.5 }}>{r.comment}</p>
+                )}
+                <span style={{ fontSize: 11, color: "var(--text-muted)" }}>{r.tournament_name}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {reportTarget && (
         <div className="modal-overlay" onClick={() => setReportTarget(null)}>

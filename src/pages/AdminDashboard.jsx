@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { FiUsers, FiZap, FiDollarSign, FiClock, FiArrowRight, FiMonitor, FiAward, FiTarget, FiAperture, FiCrosshair, FiUserCheck } from "react-icons/fi"
+import { FiUsers, FiZap, FiDollarSign, FiClock, FiArrowRight, FiMonitor, FiAward, FiTarget, FiAperture, FiCrosshair, FiUserCheck, FiStar } from "react-icons/fi"
 import AdminTopBar from "../components/AdminTopBar"
 import SpotlightGlow from "../components/SpotlightGlow"
 import API from "../api/axios"
@@ -17,6 +17,7 @@ const adminActions = [
   { Icon: FiTarget, label: "Cross-Pod Round Robin", desc: "Pair groups head-to-head in combined lobbies", path: "/admin/cross-pod", color: "#06b6d4" },
   { Icon: FiAperture, label: "Avatar Library", desc: "Manage avatars available to players", path: "/admin/avatars", color: "#d4af37" },
   { Icon: FiUserCheck, label: "User Management", desc: "Search users & reset passwords", path: "/admin/users", color: "#06b6d4" },
+  { Icon: FiStar, label: "Player Feedback", desc: "Review & approve player feedback", path: "/admin/feedback", color: "#f59e0b" },
 ]
 
 function AdminDashboard() {
