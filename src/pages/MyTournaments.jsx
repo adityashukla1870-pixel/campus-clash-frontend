@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef, useCallback } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
-import { FiFlag, FiCheckCircle, FiClock, FiTarget, FiUsers, FiMonitor, FiAward, FiHeart, FiSend, FiMessageSquare, FiStar, FiX } from "react-icons/fi"
+import { FiFlag, FiCheckCircle, FiClock, FiTarget, FiUsers, FiMonitor, FiAward, FiHeart, FiSend, FiMessageSquare, FiStar, FiX, FiZap, FiCalendar } from "react-icons/fi"
 import Navbar from "../components/Navbar"
 import API from "../api/axios"
 import { SkeletonCard, SkeletonText } from "../components/Skeleton"
@@ -19,6 +19,7 @@ function MyTournaments() {
   const [feedbackSuccess, setFeedbackSuccess] = useState(false)
   const [feedbackError, setFeedbackError] = useState("")
   const [myFeedbacks, setMyFeedbacks] = useState([])
+  const [now, setNow] = useState(Date.now())
 
   useEffect(() => {
     const token = localStorage.getItem("token")
@@ -34,7 +35,24 @@ function MyTournaments() {
       .catch(() => {})
   }, [])
 
+  useEffect(() => {
+    const interval = setInterval(() => setNow(Date.now()), 1000)
+    return () => clearInterval(interval)
+  }, [])
+
   const hasFeedback = (tournamentId) => myFeedbacks.some(f => f.tournament_id === tournamentId)
+
+  const getCountdown = (targetTime) => {
+    if (!targetTime) return null
+    const diff = new Date(targetTime).getTime() - now
+    if (diff <= 0) return { text: "LIVE NOW", live: true }
+    const d = Math.floor(diff / 86400000)
+    const h = Math.floor((diff % 86400000) / 3600000)
+    const m = Math.floor((diff % 3600000) / 60000)
+    const s = Math.floor((diff % 60000) / 1000)
+    if (d > 0) return { text: `${d}d ${h}h ${m}m`, live: false }
+    return { text: `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`, live: false }
+  }
 
   const openFeedback = (tournament) => {
     setFeedbackModal(tournament)
@@ -116,6 +134,18 @@ function MyTournaments() {
                     {statusChip(t.status)}
                   </div>
 
+                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 10 }}>
+                    <span style={{ fontSize: 11, padding: '3px 8px', borderRadius: 6, fontWeight: 600, background: 'rgba(6,182,212,0.15)', color: 'var(--cyan)', border: '1px solid rgba(6,182,212,0.25)', display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <FiMonitor size={10} /> {t.game}
+                    </span>
+                    <span style={{ fontSize: 11, padding: '3px 8px', borderRadius: 6, fontWeight: 600, background: t.mode === 'squad' ? 'rgba(124,58,237,0.15)' : 'rgba(168,85,247,0.15)', color: t.mode === 'squad' ? 'var(--cyan)' : 'var(--purple-light)', border: `1px solid ${t.mode === 'squad' ? 'rgba(6,182,212,0.25)' : 'rgba(168,85,247,0.25)'}`, display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <FiUsers size={10} /> {t.mode === 'squad' ? `Squad (${t.team_size})` : 'Solo'}
+                    </span>
+                    <span style={{ fontSize: 11, padding: '3px 8px', borderRadius: 6, fontWeight: 600, background: t.format === 'full' ? 'rgba(234,179,8,0.15)' : 'rgba(6,182,212,0.08)', color: t.format === 'full' ? 'var(--gold)' : 'var(--text-muted)', border: `1px solid ${t.format === 'full' ? 'rgba(234,179,8,0.25)' : 'var(--border)'}`, display: 'flex', alignItems: 'center', gap: 4 }}>
+                      {t.format === 'full' ? <><FiAward size={10} /> Multi-Stage</> : <><FiZap size={10} /> Quick Match</>}
+                    </span>
+                  </div>
+
                   <div className="mt-meta">
                     {t.team_name && (
                       <div className="mt-meta-item">
@@ -135,10 +165,6 @@ function MyTournaments() {
                       </div>
                     )}
                     <div className="mt-meta-item">
-                      <span className="meta-label uppercase-label">Game</span>
-                      <span className="meta-value"><FiMonitor /> {t.game}</span>
-                    </div>
-                    <div className="mt-meta-item">
                       <span className="meta-label uppercase-label">Entry Fee</span>
                       <span className="meta-value">₹{t.entry_fee}</span>
                     </div>
@@ -147,6 +173,42 @@ function MyTournaments() {
                       <span className="meta-value gold">₹{t.prize_pool}</span>
                     </div>
                   </div>
+
+                  {t.scheduled_time && t.status !== "completed" && (() => {
+                    const countdown = getCountdown(t.scheduled_time)
+                    return countdown && (
+                      <div style={{
+                        background: countdown.live
+                          ? 'linear-gradient(135deg, rgba(239,68,68,0.12), rgba(239,68,68,0.04))'
+                          : 'linear-gradient(135deg, rgba(6,182,212,0.12), rgba(6,182,212,0.04))',
+                        border: `1px solid ${countdown.live ? 'rgba(239,68,68,0.3)' : 'rgba(6,182,212,0.3)'}`,
+                        borderRadius: 12, padding: '12px 14px', marginBottom: 10, display: 'flex',
+                        alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8,
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <FiCalendar size={14} style={{ color: countdown.live ? '#ef4444' : 'var(--cyan)' }} />
+                          <div>
+                            <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.5, color: 'var(--text-muted)', fontWeight: 600 }}>
+                              {countdown.live ? 'Match In Progress' : 'Match Starts In'}
+                            </div>
+                            <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 2 }}>
+                              {new Date(t.scheduled_time).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })} at{' '}
+                              {new Date(t.scheduled_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </div>
+                          </div>
+                        </div>
+                        <div style={{
+                          fontFamily: 'var(--font-mono)', fontSize: countdown.live ? 14 : 18,
+                          fontWeight: 800, letterSpacing: 2,
+                          color: countdown.live ? '#ef4444' : 'var(--cyan)',
+                          background: countdown.live ? 'rgba(239,68,68,0.1)' : 'rgba(6,182,212,0.1)',
+                          padding: '4px 10px', borderRadius: 8,
+                        }}>
+                          {countdown.text}
+                        </div>
+                      </div>
+                    )
+                  })()}
 
                   {t.status === "completed" && (
                     <div className={`winner-banner${t.is_winner ? '' : ' loser'}`}>
@@ -179,6 +241,13 @@ function MyTournaments() {
                             style={t.status !== "approved" ? {opacity:0.4,cursor:'not-allowed'} : {}}
                           >
                             {t.status === "approved" ? <><FiSend /> Show Details</> : <><FiClock /> Awaiting Approval</>}
+                          </button>
+                          <button
+                            className="btn-primary"
+                            onClick={() => navigate(`/tournament/${t.id}`)}
+                            style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)' }}
+                          >
+                            <FiTarget /> View Tournament
                           </button>
                           {t.has_bracket && t.format !== 'full' && (
                             <button className="btn-primary" onClick={() => navigate(`/tournament/${t.id}/bracket`)}>
