@@ -118,9 +118,14 @@ the rest of the app instead of drifting into its own style.
 
 - ✅ Global tokens (colors, fonts, new utility classes) — applied app-wide.
 - ✅ Login (`Login.jsx` / `Login.css`) — rebuilt as the pilot screen.
-- ⏳ Remaining Stitch screens to port: landing page, sign up, tournaments,
-  leaderboard, profile, admin dashboard, and a new "dashboard" screen
-  (doesn't map to an existing page yet — needs a route + nav entry).
+- ✅ Register (`Register.jsx` / `Register.css`) — reuses Login's auth-card system.
+- ✅ Landing page components — Hero, Features, HowItWorks, Stats, LandingNavbar,
+  GamesTicker, CTA, Footer all on the Gold Standard system (label voice for
+  nav links + ticker, chamfered small chips, focus-visible rings, reduced-motion
+  stops on the ticker marquee + CTA glow).
+- ⏳ Remaining screens to port: My Tournaments, Tournament Room, Stage
+  Standings, admin layout shell, and shared components (NotificationBell,
+  PlayerMiniCard, Skeleton, LoadingScreen, SpotlightGlow).
 - Older, not-yet-touched pages still use the old color *values* only where
   they hadn't been rebranded — but since the CSS variables are global,
   everything already renders in the new gold/black palette. Fonts, chamfers,

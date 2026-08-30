@@ -51,17 +51,39 @@
   justify-content: center;
 }
 .landing-nav-links a {
-  font-family: var(--font-body);
-  font-size: 14.5px;
-  font-weight: 500;
+  font-family: var(--font-label);
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
   color: var(--text-secondary);
   text-decoration: none;
+  padding: 6px 2px;
+  position: relative;
   transition: color 0.2s;
+  white-space: nowrap;
+}
+/* Gold underline draw-in on hover — the brand accent, used sparingly */
+.landing-nav-links a::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 100%;
+  bottom: 0;
+  height: 2px;
+  background: var(--grad-purple);
+  transition: right 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .landing-nav-links a:hover { color: var(--purple-light); }
+.landing-nav-links a:hover::after { right: 0; }
 
 @media (max-width: 767px) {
   .landing-nav-links { display: none; }
+}
+
+/* Very narrow screens: drop the text-only Login link so the primary CTA
+   never wraps to two lines or overflows. */
+@media (max-width: 420px) {
+  .landing-nav-login { display: none; }
 }
 
 .landing-nav-actions {
@@ -74,13 +96,16 @@
 .landing-nav-login {
   background: none;
   border: none;
-  font-family: var(--font-body);
-  font-size: 14.5px;
+  font-family: var(--font-label);
+  font-size: 12.5px;
   font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
   color: var(--text-secondary);
   cursor: pointer;
   padding: 8px 4px;
   transition: color 0.2s;
+  white-space: nowrap;
 }
 .landing-nav-login:hover { color: var(--text-primary); }
 

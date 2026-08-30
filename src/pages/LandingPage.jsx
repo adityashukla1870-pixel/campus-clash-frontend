@@ -1,3 +1,4 @@
+import "./LandingPage.css";
 import LandingNavbar from "../components/LandingNavbar";
 import Hero from "../components/Hero";
 import GamesTicker from "../components/GamesTicker";

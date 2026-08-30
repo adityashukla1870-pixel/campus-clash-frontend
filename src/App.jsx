@@ -1,63 +1,78 @@
-import { useEffect } from "react";
+import { useEffect, lazy, Suspense } from "react";
 import { Routes, Route } from "react-router-dom";
 import { Analytics } from "@vercel/analytics/react";
 import { initAvatarLibrary } from "./data/avatarRepository";
-
-import LandingPage from "./pages/LandingPage"
-import Dashboard from "./pages/Dashboard";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import ForgotPassword from "./pages/ForgotPassword";
-import ResetPassword from "./pages/ResetPassword";
-import Tournament from "./pages/Tournament";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminRoute from "./components/AdminRoute";
-import TournamentDetails from "./pages/TournamentDetails";
-import MyTournaments from "./pages/MyTournaments"
-import TournamentRoom from "./pages/TournamentRoom";
-import Bracket from "./pages/Bracket";
-import Leaderboard from "./pages/Leaderboard";
-import Profile from "./pages/Profile";
-import Community from "./pages/Community";
-import StageStandings from "./pages/StageStandings";
-import CrossPodStandings from "./pages/CrossPodStandings";
+import ThemeProvider from "./theme/ThemeProvider";
 
-import AdminDashboard from "./pages/AdminDashboard"
-import AdminPayments from "./pages/AdminPayments"
-import AdminReleaseRoom from "./pages/AdminReleaseRoom"
-import AdminCreateTournament from "./pages/AdminCreateTournament"
-import AdminWinner from "./pages/AdminWinner"
-import AdminBracket from "./pages/AdminBracket"
-import AdminStages from "./pages/AdminStages"
-import AdminCrossPod from "./pages/AdminCrossPod"
-import AdminAvatarLibrary from "./pages/AdminAvatarLibrary"
-import AdminUsers from "./pages/AdminUsers"
-import ThemeProvider from "./theme/ThemeProvider"
+const LandingPage = lazy(() => import("./pages/LandingPage"));
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const Login = lazy(() => import("./pages/Login"));
+const Register = lazy(() => import("./pages/Register"));
+const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+const Tournament = lazy(() => import("./pages/Tournament"));
+const TournamentDetails = lazy(() => import("./pages/TournamentDetails"));
+const MyTournaments = lazy(() => import("./pages/MyTournaments"));
+const TournamentRoom = lazy(() => import("./pages/TournamentRoom"));
+const Bracket = lazy(() => import("./pages/Bracket"));
+const Leaderboard = lazy(() => import("./pages/Leaderboard"));
+const Profile = lazy(() => import("./pages/Profile"));
+const Community = lazy(() => import("./pages/Community"));
+const StageStandings = lazy(() => import("./pages/StageStandings"));
+const CrossPodStandings = lazy(() => import("./pages/CrossPodStandings"));
 
+const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
+const AdminPayments = lazy(() => import("./pages/AdminPayments"));
+const AdminReleaseRoom = lazy(() => import("./pages/AdminReleaseRoom"));
+const AdminCreateTournament = lazy(() => import("./pages/AdminCreateTournament"));
+const AdminWinner = lazy(() => import("./pages/AdminWinner"));
+const AdminBracket = lazy(() => import("./pages/AdminBracket"));
+const AdminStages = lazy(() => import("./pages/AdminStages"));
+const AdminCrossPod = lazy(() => import("./pages/AdminCrossPod"));
+const AdminAvatarLibrary = lazy(() => import("./pages/AdminAvatarLibrary"));
+const AdminUsers = lazy(() => import("./pages/AdminUsers"));
+const AdminFeedback = lazy(() => import("./pages/AdminFeedback"));
+
+function LoadingFallback() {
+  return (
+    <div style={{
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      height: "100vh",
+      background: "#0a0a0f",
+      color: "#fff",
+      fontFamily: "Inter, sans-serif",
+    }}>
+      <div style={{ textAlign: "center" }}>
+        <div style={{
+          width: 48,
+          height: 48,
+          border: "4px solid rgba(255,255,255,0.1)",
+          borderTop: "4px solid #7c3aed",
+          borderRadius: "50%",
+          animation: "spin 0.8s linear infinite",
+          margin: "0 auto 16px",
+        }} />
+        <p style={{ opacity: 0.7 }}>Loading...</p>
+      </div>
+    </div>
+  );
+}
 
 function App() {
 
-  // When the browser restores a page from the back/forward cache (bfcache),
-  // it repaints the exact frozen DOM instead of re-running React's route
-  // guards — so a stale "logged in" or "logged out" view can flash on
-  // screen. Forcing a reload on restore makes every back/forward navigation
-  // re-check localStorage fresh, so Login/ProtectedRoute/AdminRoute always
-  // reflect the real auth state.
   useEffect(() => {
-    initAvatarLibrary()
-    const handlePageShow = (event) => {
-      if (event.persisted) {
-        window.location.reload();
-      }
-    };
-    window.addEventListener("pageshow", handlePageShow);
-    return () => window.removeEventListener("pageshow", handlePageShow);
+    initAvatarLibrary();
   }, []);
 
   return (
 
     <ThemeProvider>
     <Analytics />
+    <Suspense fallback={<LoadingFallback />}>
     <Routes>
 
       <Route path="/" element={<LandingPage />} />
@@ -175,9 +190,11 @@ function App() {
       <Route path="/admin/cross-pod" element={<AdminRoute><AdminCrossPod /></AdminRoute>} />
       <Route path="/admin/avatars" element={<AdminRoute><AdminAvatarLibrary /></AdminRoute>} />
       <Route path="/admin/users" element={<AdminRoute><AdminUsers /></AdminRoute>} />
+      <Route path="/admin/feedback" element={<AdminRoute><AdminFeedback /></AdminRoute>} />
 
 
     </Routes>
+    </Suspense>
     </ThemeProvider>
 
   );

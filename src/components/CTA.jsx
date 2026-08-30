@@ -1,4 +1,4 @@
-import { FaGamepad, FaArrowRight } from "react-icons/fa"
+import { FiZap, FiArrowRight } from "react-icons/fi"
 import { useNavigate } from "react-router-dom"
 import { motion } from "framer-motion"
 import Reveal from "./Reveal"
@@ -19,7 +19,7 @@ function CTA() {
             whileTap={{ scale: 0.97 }}
             onClick={() => navigate("/register")}
           >
-            <FaGamepad /> Create Free Account
+            <FiZap /> Create Free Account
           </motion.button>
           <motion.button
             className="btn-secondary"
@@ -27,7 +27,7 @@ function CTA() {
             whileTap={{ scale: 0.97 }}
             onClick={() => navigate("/login")}
           >
-            I already have an account <FaArrowRight />
+            I already have an account <FiArrowRight />
           </motion.button>
         </div>
       </Reveal>
