@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { motion } from "framer-motion"
-import { FiCheckCircle, FiCircle, FiStar, FiKey, FiAward, FiTarget, FiMonitor, FiArrowLeft, FiLock, FiZap, FiChevronDown, FiChevronUp, FiArrowRight, FiGrid } from "react-icons/fi"
+import { FiCheckCircle, FiCircle, FiStar, FiKey, FiAward, FiTarget, FiMonitor, FiArrowLeft, FiLock, FiZap, FiChevronDown, FiChevronUp, FiArrowRight, FiGrid, FiCalendar, FiClock, FiUsers, FiUser } from "react-icons/fi"
 import Navbar from "../components/Navbar"
 import API from "../api/axios"
 import { SkeletonTable, SkeletonText, SkeletonBlock, SkeletonButton } from "../components/Skeleton"
@@ -449,6 +449,7 @@ function StageStandings() {
   }
 
   const hasRR = rrDetail && rrStandings.length > 0
+  const hasNoData = !hasRR && stages.length === 0
 
   if (loading) {
     return (
@@ -468,20 +469,140 @@ function StageStandings() {
     <>
       <Navbar />
       <div className="standings-page">
-        <div className="standings-back" onClick={() => navigate(`/tournament/${id}`)}><FiArrowLeft /> Back to Tournament</div>
+        <div className="standings-back" onClick={() => navigate("/my-tournaments")}><FiArrowLeft /> Back to My Matches</div>
 
         {tournament && (
           <>
             <h1 className="standings-title">{tournament.name}</h1>
             <p className="standings-subtitle"><FiMonitor /> {tournament.game} — Tournament Standings</p>
+
+            <div style={{ display: 'flex', gap: 6, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 20 }}>
+              <span style={{ fontSize: 11, padding: '4px 10px', borderRadius: 6, fontWeight: 600, background: 'rgba(6,182,212,0.15)', color: 'var(--cyan)', border: '1px solid rgba(6,182,212,0.25)', display: 'flex', alignItems: 'center', gap: 4 }}>
+                <FiMonitor size={10} /> {tournament.game}
+              </span>
+              <span style={{ fontSize: 11, padding: '4px 10px', borderRadius: 6, fontWeight: 600, background: tournament.mode === 'squad' ? 'rgba(124,58,237,0.15)' : 'rgba(168,85,247,0.15)', color: tournament.mode === 'squad' ? 'var(--cyan)' : 'var(--purple-light)', border: `1px solid ${tournament.mode === 'squad' ? 'rgba(6,182,212,0.25)' : 'rgba(168,85,247,0.25)'}`, display: 'flex', alignItems: 'center', gap: 4 }}>
+                <FiUsers size={10} /> {tournament.mode === 'squad' ? `Squad (${tournament.team_size})` : 'Solo'}
+              </span>
+              <span style={{ fontSize: 11, padding: '4px 10px', borderRadius: 6, fontWeight: 600, background: 'rgba(234,179,8,0.15)', color: 'var(--gold)', border: '1px solid rgba(234,179,8,0.25)', display: 'flex', alignItems: 'center', gap: 4 }}>
+                <FiAward size={10} /> Multi-Stage
+              </span>
+            </div>
           </>
         )}
 
+        {hasNoData && tournament && (
+          <div style={{ maxWidth: 540, width: '100%', margin: '0 auto' }}>
+
+            {tournament.scheduled_time && (
+              <div style={{
+                background: 'var(--bg-card)', border: '1px solid var(--border)',
+                borderRadius: 16, padding: '20px', marginBottom: 16, textAlign: 'center',
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 12 }}>
+                  <FiCalendar size={16} style={{ color: 'var(--cyan)' }} />
+                  <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.5, color: 'var(--text-muted)', fontWeight: 600 }}>
+                    Match Starts In
+                  </div>
+                </div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 14 }}>
+                  {new Date(tournament.scheduled_time).toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })} at{' '}
+                  {new Date(tournament.scheduled_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'center', gap: 10 }}>
+                  {[{ val: countdown.days, label: 'DAYS' }, { val: countdown.hrs, label: 'HRS' }, { val: countdown.min, label: 'MIN' }, { val: countdown.sec, label: 'SEC' }].map((item, i) => (
+                    <div key={i} style={{ textAlign: 'center' }}>
+                      <div style={{ fontFamily: 'var(--font-mono)', fontSize: 28, fontWeight: 800, color: 'var(--cyan)', minWidth: 56, padding: '10px 6px', background: 'rgba(6,182,212,0.08)', border: '1px solid rgba(6,182,212,0.2)', borderRadius: 10 }}>
+                        {String(item.val).padStart(2, '0')}
+                      </div>
+                      <div style={{ fontSize: 9, color: 'var(--text-muted)', marginTop: 4, fontWeight: 600 }}>{item.label}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
+              <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 12, padding: '16px', textAlign: 'center' }}>
+                <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.5, color: 'var(--text-muted)', marginBottom: 4, fontWeight: 600 }}>Entry Fee</div>
+                <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--gold)' }}>₹{tournament.entry_fee}</div>
+              </div>
+              <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 12, padding: '16px', textAlign: 'center' }}>
+                <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.5, color: 'var(--text-muted)', marginBottom: 4, fontWeight: 600 }}>Prize Pool</div>
+                <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--gold)' }}>₹{tournament.prize_pool}</div>
+              </div>
+            </div>
+
+            {tournament.prize_breakdown?.length > 0 && (
+              <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 14, padding: '16px', marginBottom: 16 }}>
+                <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.5, color: 'var(--text-muted)', marginBottom: 10, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <FiAward size={12} style={{ color: 'var(--gold)' }} /> Prize Breakdown
+                </div>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                  {tournament.prize_breakdown.map((row) => (
+                    <div key={row.rank} style={{
+                      background: 'var(--bg-surface)', border: '1px solid var(--border)',
+                      borderRadius: 10, padding: '12px 16px', flex: '1 1 auto', minWidth: 90, textAlign: 'center',
+                    }}>
+                      <div style={{ fontSize: 16, marginBottom: 2 }}>{row.rank === '1' ? '🥇' : row.rank === '2' ? '🥈' : row.rank === '3' ? '🥉' : `#${row.rank}`}</div>
+                      <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--text-primary)' }}>₹{row.amount.toLocaleString()}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {tournament.points_table && (
+              <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 14, padding: '16px', marginBottom: 16 }}>
+                <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.5, color: 'var(--text-muted)', marginBottom: 10, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <FiTarget size={12} style={{ color: 'var(--cyan)' }} /> Scoring System
+                </div>
+                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 8 }}>
+                  {Object.entries(tournament.points_table)
+                    .sort((a, b) => Number(a[0]) - Number(b[0]))
+                    .map(([rank, pts]) => (
+                      <div key={rank} style={{
+                        background: 'var(--bg-surface)', border: '1px solid var(--border)',
+                        borderRadius: 8, padding: '8px 12px', textAlign: 'center',
+                      }}>
+                        <div style={{ fontSize: 10, color: 'var(--text-muted)', fontWeight: 600 }}>#{rank}</div>
+                        <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--cyan)' }}>{pts} pts</div>
+                      </div>
+                    ))}
+                </div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <FiTarget size={11} /> Per Kill: <strong style={{ color: 'var(--cyan)' }}>{tournament.kill_point_value} {tournament.kill_point_value === 1 ? 'point' : 'points'}</strong>
+                </div>
+              </div>
+            )}
+
+            <div style={{
+              background: 'linear-gradient(135deg, rgba(124,58,237,0.1), rgba(6,182,212,0.06))',
+              border: '1px solid rgba(124,58,237,0.25)', borderRadius: 14, padding: '20px', textAlign: 'center',
+            }}>
+              <div style={{
+                width: 52, height: 52, borderRadius: 14, margin: '0 auto 12px',
+                background: 'rgba(124,58,237,0.15)', border: '1px solid rgba(124,58,237,0.25)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <FiClock size={24} style={{ color: 'var(--purple-light)' }} />
+              </div>
+              <p style={{ color: 'var(--purple-light)', fontWeight: 700, fontSize: 15, marginBottom: 4 }}>
+                Matches Will Appear Here
+              </p>
+              <p style={{ color: 'var(--text-muted)', fontSize: 12, lineHeight: 1.6, maxWidth: 320, margin: '0 auto' }}>
+                Group matchups, standings, and match schedules will appear once the admin starts the tournament.
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* ─── TABS ─── */}
-        <div className="page-tabs" style={{ justifyContent: 'center' }}>
-          {hasRR && <span className={tab === "rr" ? "page-tab active" : "page-tab"} onClick={() => setTab("rr")}>🏆 Round Robin</span>}
-          <span className={tab === "stats" ? "page-tab active" : "page-tab"} onClick={() => setTab("stats")}>Tournament Stats</span>
-        </div>
+        {!hasNoData && (
+          <div className="page-tabs" style={{ justifyContent: 'center' }}>
+            {hasRR && <span className={tab === "rr" ? "page-tab active" : "page-tab"} onClick={() => setTab("rr")}>🏆 Round Robin</span>}
+            <span className={tab === "stats" ? "page-tab active" : "page-tab"} onClick={() => setTab("stats")}>Tournament Stats</span>
+          </div>
+        )}
 
         {/* ═══════ TAB: ROUND ROBIN ═══════ */}
         {tab === "rr" && hasRR && (
