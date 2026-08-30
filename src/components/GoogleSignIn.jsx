@@ -10,20 +10,33 @@ function GoogleSignIn() {
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    if (!window.google || !GOOGLE_CLIENT_ID) return
+    if (!GOOGLE_CLIENT_ID) return
 
-    window.google.accounts.id.initialize({
-      client_id: GOOGLE_CLIENT_ID,
-      callback: handleCredentialResponse,
-    })
+    function initGoogle() {
+      if (!window.google) return false
+      window.google.accounts.id.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: handleCredentialResponse,
+      })
+      window.google.accounts.id.renderButton(btnRef.current, {
+        theme: "filled_black",
+        size: "large",
+        text: "continue_with",
+        shape: "rectangular",
+        width: 300,
+      })
+      return true
+    }
 
-    window.google.accounts.id.renderButton(btnRef.current, {
-      theme: "filled_black",
-      size: "large",
-      text: "continue_with",
-      shape: "rectangular",
-      width: 300,
-    })
+    if (initGoogle()) return
+
+    const interval = setInterval(() => {
+      if (initGoogle()) clearInterval(interval)
+    }, 200)
+
+    const timeout = setTimeout(() => clearInterval(interval), 10000)
+
+    return () => { clearInterval(interval); clearTimeout(timeout) }
   }, [])
 
   async function handleCredentialResponse(response) {
