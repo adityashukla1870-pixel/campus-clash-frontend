@@ -5,7 +5,7 @@ import Navbar from "../components/Navbar"
 import API from "../api/axios"
 import { SkeletonLeaderboard, SkeletonText, SkeletonBlock } from "../components/Skeleton"
 import { getSelectedAvatarId, resolveAvatarUrl, getCurrentUserId } from "../data/avatarRepository"
-import PlayerMiniCard from "../components/PlayerMiniCard"
+import PlayerProfileCard from "../components/PlayerProfileCard"
 import "./Leaderboard.css"
 
 const TABS = [
@@ -229,7 +229,7 @@ function Leaderboard() {
       </main>
 
       {selectedPlayer && (
-        <PlayerMiniCard
+        <PlayerProfileCard
           userId={selectedPlayer.userId}
           anchorRect={selectedPlayer.rect}
           onClose={() => setSelectedPlayer(null)}

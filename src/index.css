@@ -500,3 +500,11 @@ body.has-sidebar {
   font-size: 16px;
   line-height: 1.7;
 }
+
+.pp-clickable {
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.pp-clickable:hover {
+  opacity: 0.8;
+}

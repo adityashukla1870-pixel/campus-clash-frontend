@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom"
 import { FiFlag, FiCheckCircle, FiClock, FiTarget, FiUsers, FiMonitor, FiAward, FiHeart, FiSend, FiMessageSquare, FiStar, FiX } from "react-icons/fi"
 import Navbar from "../components/Navbar"
 import API from "../api/axios"
+import PlayerProfileCard from "../components/PlayerProfileCard"
 import { SkeletonCard, SkeletonText } from "../components/Skeleton"
 import "./MyTournament.css"
 
@@ -19,6 +20,7 @@ function MyTournaments() {
   const [feedbackSuccess, setFeedbackSuccess] = useState(false)
   const [feedbackError, setFeedbackError] = useState("")
   const [myFeedbacks, setMyFeedbacks] = useState([])
+  const [selectedProfile, setSelectedProfile] = useState(null)
 
   useEffect(() => {
     const token = localStorage.getItem("token")
@@ -158,7 +160,7 @@ function MyTournaments() {
                       ) : (
                         <>
                           <p style={{color:'var(--yellow)'}}><FiHeart /> Better luck next time</p>
-                          <div className="winner-name">Winner: {t.winner}</div>
+                          <div className="winner-name pp-clickable" onClick={(e) => t.winner_id && setSelectedProfile({ userId: t.winner_id, rect: e.currentTarget.getBoundingClientRect() })}>Winner: {t.winner}</div>
                         </>
                       )}
                     </div>
@@ -272,6 +274,14 @@ function MyTournaments() {
             )}
           </div>
         </div>
+      )}
+
+      {selectedProfile && (
+        <PlayerProfileCard
+          userId={selectedProfile.userId}
+          anchorRect={selectedProfile.rect}
+          onClose={() => setSelectedProfile(null)}
+        />
       )}
     </>
   )

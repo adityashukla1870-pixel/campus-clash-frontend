@@ -29,6 +29,7 @@ import {
 } from "react-icons/fi"
 import Navbar from "../components/Navbar"
 import API from "../api/axios"
+import PlayerProfileCard from "../components/PlayerProfileCard"
 import { getRole } from "../utils/auth"
 import { SkeletonText, SkeletonBlock, SkeletonChat, SkeletonCard } from "../components/Skeleton"
 import "./Community.css"
@@ -127,6 +128,7 @@ function Community() {
   const [lfgSlots, setLfgSlots] = useState(1)
 
   const [reviews, setReviews] = useState([])
+  const [selectedProfile, setSelectedProfile] = useState(null)
 
   const socketRef = useRef(null)
   const bottomRef = useRef(null)
@@ -539,12 +541,16 @@ function Community() {
 
               {grouped.map((group, gi) => (
                 <div className="msg-group" key={gi}>
-                  <div className="msg-avatar" style={{ background: colorForUser(group.user_id) }}>
+                  <div className="msg-avatar pp-clickable" style={{ background: colorForUser(group.user_id) }}
+                  onClick={(e) => setSelectedProfile({ userId: group.user_id, rect: e.currentTarget.getBoundingClientRect() })}
+                >
                     {initials(group.name)}
                   </div>
                   <div className="msg-group-body">
                     <div className="msg-group-header">
-                      <span className="msg-name" style={{ color: colorForUser(group.user_id) }}>{group.name}</span>
+                      <span className="msg-name pp-clickable" style={{ color: colorForUser(group.user_id) }}
+                        onClick={(e) => setSelectedProfile({ userId: group.user_id, rect: e.currentTarget.getBoundingClientRect() })}
+                      >{group.name}</span>
                       {group.role === "admin" && <span className="msg-badge">ADMIN</span>}
                       {group.items[0].is_champion && <span className="msg-badge champion"><FiAward /> CHAMPION</span>}
                       <span className="msg-time">{formatTime(group.items[0].created_at)}</span>
@@ -767,7 +773,9 @@ function Community() {
               {onlineMembers.length > 0 && (
                 <div className="community-member-list">
                   {onlineMembers.slice(0, 5).map(member => (
-                    <div className="community-member" key={member.user_id}>
+                    <div className="community-member pp-clickable" key={member.user_id}
+                      onClick={(e) => setSelectedProfile({ userId: member.user_id, rect: e.currentTarget.getBoundingClientRect() })}
+                    >
                       <span className="community-member-avatar" style={{ background: colorForUser(member.user_id) }}>
                         {initials(member.name)}
                       </span>
@@ -808,7 +816,9 @@ function Community() {
                 borderRadius: 12, padding: "14px 18px",
               }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }} className="pp-clickable"
+                    onClick={(e) => setSelectedProfile({ userId: r.user_id, rect: e.currentTarget.getBoundingClientRect() })}
+                  >
                     <span style={{
                       width: 28, height: 28, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center",
                       background: ACCENTS[Math.abs(r.user_id?.charCodeAt?.(0) || 0) % ACCENTS.length],
@@ -882,6 +892,14 @@ function Community() {
             <button className="modal-close-btn" onClick={() => setShowReports(false)}>Close</button>
           </div>
         </div>
+      )}
+
+      {selectedProfile && (
+        <PlayerProfileCard
+          userId={selectedProfile.userId}
+          anchorRect={selectedProfile.rect}
+          onClose={() => setSelectedProfile(null)}
+        />
       )}
     </>
   )
