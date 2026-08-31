@@ -150,9 +150,9 @@ function Leaderboard() {
                     transition={{ duration: 0.6, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
                   >
                     <div className="lb-podium">
-                      <PodiumBlock player={podium[1]} rank={2} delay={0.6} activeTab={activeTab} />
-                      <PodiumBlock player={podium[0]} rank={1} delay={0.3} activeTab={activeTab} />
-                      <PodiumBlock player={podium[2]} rank={3} delay={0.8} activeTab={activeTab} />
+                      <PodiumBlock player={podium[1]} rank={2} delay={0.6} activeTab={activeTab} onSelect={setSelectedPlayer} />
+                      <PodiumBlock player={podium[0]} rank={1} delay={0.3} activeTab={activeTab} onSelect={setSelectedPlayer} />
+                      <PodiumBlock player={podium[2]} rank={3} delay={0.8} activeTab={activeTab} onSelect={setSelectedPlayer} />
                     </div>
                   </motion.div>
                 </section>
@@ -239,7 +239,7 @@ function Leaderboard() {
   )
 }
 
-function PodiumBlock({ player, rank, delay = 0, activeTab }) {
+function PodiumBlock({ player, rank, delay = 0, activeTab, onSelect }) {
   if (!player) return null
 
   const tierClass = rank === 1 ? "gold" : rank === 2 ? "silver" : "bronze"
@@ -286,7 +286,7 @@ function PodiumBlock({ player, rank, delay = 0, activeTab }) {
         </motion.div>
         <span
           className="lb-podium-name lb-player-clickable"
-          onClick={(e) => e.stopPropagation() || setSelectedPlayer({ userId: player.user_id, rect: e.currentTarget.getBoundingClientRect() })}
+          onClick={(e) => e.stopPropagation() || onSelect({ userId: player.user_id, rect: e.currentTarget.getBoundingClientRect() })}
         >
           {player.name}
         </span>
