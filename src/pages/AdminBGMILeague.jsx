@@ -332,7 +332,7 @@ function AdminBGMILeague() {
     }
   }
 
-  const BGMI_MAPS = ["Erangel", "Miramar", "Sanhok", "Vikendi", "Livik"]
+  const BGMI_MAPS = ["Erangel", "Miramar", "Sanhok", "Vikendi", "Livik", "Rondo"]
 
   const isSquad = tournament?.mode === "squad"
   const matches = league?.matches || []
