@@ -34,6 +34,7 @@ const AdminCrossPod = lazy(() => import("./pages/AdminCrossPod"));
 const AdminAvatarLibrary = lazy(() => import("./pages/AdminAvatarLibrary"));
 const AdminUsers = lazy(() => import("./pages/AdminUsers"));
 const AdminFeedback = lazy(() => import("./pages/AdminFeedback"));
+const AdminBGMILeague = lazy(() => import("./pages/AdminBGMILeague"));
 
 function LoadingFallback() {
   return (
@@ -191,6 +192,7 @@ function App() {
       <Route path="/admin/avatars" element={<AdminRoute><AdminAvatarLibrary /></AdminRoute>} />
       <Route path="/admin/users" element={<AdminRoute><AdminUsers /></AdminRoute>} />
       <Route path="/admin/feedback" element={<AdminRoute><AdminFeedback /></AdminRoute>} />
+      <Route path="/admin/bgmi-league" element={<AdminRoute><AdminBGMILeague /></AdminRoute>} />
 
 
     </Routes>

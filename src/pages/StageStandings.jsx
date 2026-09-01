@@ -102,8 +102,12 @@ function StatTable({ columns, rows }) {
 }
 
 /* ─── How It Works (cross-pod) ─── */
-function HowItWorks({ hasFullLobby }) {
-  const steps = hasFullLobby ? [
+function HowItWorks({ hasFullLobby, isBGMI }) {
+  const steps = isBGMI ? [
+    { icon: <FiTarget />, title: "11 Teams", desc: "All teams compete together in full lobby matches" },
+    { icon: <FiZap />, title: "9 Matches", desc: "Day 1: 3 matches · Day 2: 3 matches · Day 3: 3 matches" },
+    { icon: <FiAward />, title: "Overall Winner", desc: "All teams ranked together. Top 3 win!" },
+  ] : hasFullLobby ? [
     { icon: <FiTarget />, title: "12 Teams", desc: "All qualified teams compete together" },
     { icon: <FiZap />, title: "9 Matches", desc: "Day 1-2: Group matches · Day 3: Full Lobby" },
     { icon: <FiAward />, title: "Overall Winner", desc: "All teams ranked together. Top 3 win!" },
@@ -353,6 +357,10 @@ function StageStandings() {
   const [rrStandings, setRrStandings] = useState([])
   const [showGroups, setShowGroups] = useState(false)
 
+  // BGMI League state
+  const [bgmiLeague, setBgmiLeague] = useState(null)
+  const [bgmiStandings, setBgmiStandings] = useState([])
+
   useEffect(() => {
     if (!tournament?.scheduled_time) return
     const tick = () => {
@@ -371,8 +379,9 @@ function StageStandings() {
       API.get(`/stages/tournament/${id}`),
       API.get(`/stages/tournament/${id}/stats`),
       API.get(`/cross-pod/tournament/${id}`),
+      API.get(`/bgmi-league/tournament/${id}`),
     ])
-      .then(([tRes, sRes, stRes, rrRes]) => {
+      .then(([tRes, sRes, stRes, rrRes, bgmiRes]) => {
         setTournament(tRes.data)
         setStages(Array.isArray(sRes.data) ? sRes.data : [])
         setStats(stRes.data)
@@ -383,6 +392,10 @@ function StageStandings() {
             API.get(`/cross-pod/${latest.id}/standings`)
           ]).then(([dRes, sRes]) => { setRrDetail(dRes.data); setRrStandings(sRes.data) })
         }
+        if (bgmiRes.data) {
+          setBgmiLeague(bgmiRes.data)
+          API.get(`/bgmi-league/tournament/${id}/standings`).then(r => setBgmiStandings(r.data || []))
+        }
       })
       .catch(console.error)
       .finally(() => setLoading(false))
@@ -390,13 +403,21 @@ function StageStandings() {
 
   // Auto-refresh for live matches
   useEffect(() => {
-    if (!rrDetail?.id || !rrDetail?.matches?.some(m => m.room_id && m.status !== 'completed')) return
+    const hasLiveCrossPod = rrDetail?.id && rrDetail?.matches?.some(m => m.room_id && m.status !== 'completed')
+    const hasLiveBgmi = bgmiLeague?.id && bgmiLeague?.matches?.some(m => m.room_id && m.status !== 'completed')
+    if (!hasLiveCrossPod && !hasLiveBgmi) return
     const iv = setInterval(() => {
-      API.get(`/cross-pod/${rrDetail.id}`).then(r => setRrDetail(r.data))
-      API.get(`/cross-pod/${rrDetail.id}/standings`).then(r => setRrStandings(r.data))
+      if (hasLiveCrossPod) {
+        API.get(`/cross-pod/${rrDetail.id}`).then(r => setRrDetail(r.data))
+        API.get(`/cross-pod/${rrDetail.id}/standings`).then(r => setRrStandings(r.data))
+      }
+      if (hasLiveBgmi) {
+        API.get(`/bgmi-league/tournament/${id}`).then(r => setBgmiLeague(r.data))
+        API.get(`/bgmi-league/tournament/${id}/standings`).then(r => setBgmiStandings(r.data))
+      }
     }, 30000)
     return () => clearInterval(iv)
-  }, [rrDetail?.id])
+  }, [rrDetail?.id, bgmiLeague?.id, id])
 
   // Group matches by Day (Day 1, Day 2, Day 3)
   const getGroupPairName = (nameA, nameB) => {
@@ -448,7 +469,8 @@ function StageStandings() {
     }
   }
 
-  const hasRR = rrDetail && rrStandings.length > 0
+  const hasRR = (rrDetail && rrStandings.length > 0) || (bgmiLeague && bgmiStandings.length > 0)
+  const isBGMI = bgmiLeague && (!rrDetail || bgmiLeague.created_at > (rrDetail.created_at || ''))
   const hasNoData = !hasRR && stages.length === 0
 
   if (loading) {
@@ -483,9 +505,15 @@ function StageStandings() {
               <span style={{ fontSize: 11, padding: '4px 10px', borderRadius: 6, fontWeight: 600, background: tournament.mode === 'squad' ? 'rgba(124,58,237,0.15)' : 'rgba(168,85,247,0.15)', color: tournament.mode === 'squad' ? 'var(--cyan)' : 'var(--purple-light)', border: `1px solid ${tournament.mode === 'squad' ? 'rgba(6,182,212,0.25)' : 'rgba(168,85,247,0.25)'}`, display: 'flex', alignItems: 'center', gap: 4 }}>
                 <FiUsers size={10} /> {tournament.mode === 'squad' ? `Squad (${tournament.team_size})` : 'Solo'}
               </span>
-              <span style={{ fontSize: 11, padding: '4px 10px', borderRadius: 6, fontWeight: 600, background: 'rgba(234,179,8,0.15)', color: 'var(--gold)', border: '1px solid rgba(234,179,8,0.25)', display: 'flex', alignItems: 'center', gap: 4 }}>
-                <FiAward size={10} /> Multi-Stage
-              </span>
+              {bgmiLeague ? (
+                <span style={{ fontSize: 11, padding: '4px 10px', borderRadius: 6, fontWeight: 600, background: 'rgba(234,179,8,0.15)', color: 'var(--gold)', border: '1px solid rgba(234,179,8,0.25)', display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <FiZap size={10} /> BGMI League
+                </span>
+              ) : (
+                <span style={{ fontSize: 11, padding: '4px 10px', borderRadius: 6, fontWeight: 600, background: 'rgba(234,179,8,0.15)', color: 'var(--gold)', border: '1px solid rgba(234,179,8,0.25)', display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <FiAward size={10} /> Multi-Stage
+                </span>
+              )}
             </div>
           </>
         )}
@@ -668,7 +696,7 @@ function StageStandings() {
         {/* ─── TABS ─── */}
         {!hasNoData && (
           <div className="page-tabs" style={{ justifyContent: 'center' }}>
-            {hasRR && <span className={tab === "rr" ? "page-tab active" : "page-tab"} onClick={() => setTab("rr")}>🏆 Round Robin</span>}
+            {hasRR && <span className={tab === "rr" ? "page-tab active" : "page-tab"} onClick={() => setTab("rr")}>🏆 {isBGMI ? 'BGMI League' : 'Round Robin'}</span>}
             <span className={tab === "stats" ? "page-tab active" : "page-tab"} onClick={() => setTab("stats")}>Tournament Stats</span>
           </div>
         )}
@@ -677,7 +705,7 @@ function StageStandings() {
         {tab === "rr" && hasRR && (
           <>
             {/* How it works */}
-            <HowItWorks hasFullLobby={hasFullLobby} />
+            <HowItWorks hasFullLobby={hasFullLobby} isBGMI={isBGMI} />
 
             {/* Progress */}
             <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 12, padding: '10px 14px', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -702,7 +730,7 @@ function StageStandings() {
             )}
 
             {/* Podium */}
-            {rrStandings.length >= 3 && (
+            {(isBGMI ? bgmiStandings : rrStandings).length >= 3 && (
               <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -713,9 +741,9 @@ function StageStandings() {
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'center', gap: 8 }}>
-                  <PodiumCard team={rrStandings[1]} rank={1} delay={0.5} />
-                  <PodiumCard team={rrStandings[0]} rank={0} delay={0.2} />
-                  <PodiumCard team={rrStandings[2]} rank={2} delay={0.7} />
+                  <PodiumCard team={(isBGMI ? bgmiStandings : rrStandings)[1]} rank={1} delay={0.5} />
+                  <PodiumCard team={(isBGMI ? bgmiStandings : rrStandings)[0]} rank={0} delay={0.2} />
+                  <PodiumCard team={(isBGMI ? bgmiStandings : rrStandings)[2]} rank={2} delay={0.7} />
                 </div>
               </motion.div>
             )}
@@ -729,17 +757,17 @@ function StageStandings() {
             >
               <div className="stage-block-header">
                 <h2><FiAward style={{ color: 'var(--gold)' }} /> Overall Rankings</h2>
-                <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>All Groups Combined</span>
+                <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>{isBGMI ? 'BGMI League' : 'All Groups Combined'}</span>
               </div>
               <div className="standings-table-wrap">
                 <table className="standings-table">
-                  <thead><tr><th>#</th><th>Team</th><th>Group</th><th>M</th><th>Wins</th><th>Kills</th><th>Pts</th></tr></thead>
+                  <thead><tr><th>#</th><th>Team</th>{!isBGMI && <th>Group</th>}<th>M</th><th>Wins</th><th>Kills</th><th>Pts</th></tr></thead>
                   <tbody>
-                    {rrStandings.map((s, i) => (
+                    {(isBGMI ? bgmiStandings : rrStandings).map((s, i) => (
                       <tr key={s.registration_id} style={i < 3 ? { background: 'rgba(212,175,55,0.06)' } : {}}>
                         <td style={{ fontWeight: i < 3 ? 700 : 400 }}>{i < 3 ? ['🥇','🥈','🥉'][i] : s.rank}</td>
                         <td style={{ fontWeight: i < 3 ? 700 : 400 }}>{s.name}</td>
-                        <td style={{ fontSize: 11, color: 'var(--text-muted)' }}>{s.pod_name}</td>
+                        {!isBGMI && <td style={{ fontSize: 11, color: 'var(--text-muted)' }}>{s.pod_name}</td>}
                         <td>{s.matches_played}</td>
                         <td>{s.chicken_dinners}</td>
                         <td>{s.total_kills}</td>
@@ -782,36 +810,132 @@ function StageStandings() {
               transition={{ duration: 0.6, delay: 1.0 }}
             >
               <div className="stage-block-header"><h2>Matches</h2></div>
-              {Object.entries(matchGroups).map(([dayName, matches]) => {
-                const dayDone = matches.filter(m => m.status === 'completed').length
-                return (
-                  <div key={dayName} style={{ marginBottom: 18 }}>
-                    <div style={{
-                      display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                      marginBottom: 8, padding: '8px 12px', borderRadius: 8,
-                      background: dayDone === matches.length ? 'rgba(0,200,120,0.08)' : 'rgba(255,185,87,0.08)',
-                      border: `1px solid ${dayDone === matches.length ? 'rgba(0,200,120,0.2)' : 'rgba(255,185,87,0.2)'}`
-                    }}>
-                      <div>
-                        <span style={{ fontSize: 14, fontWeight: 800, color: dayDone === matches.length ? 'var(--green)' : '#ffb957' }}>{dayName}</span>
-                        <span style={{ fontSize: 10, color: 'var(--text-muted)', marginLeft: 8 }}>Let the battle begin!</span>
-                      </div>
-                      <span style={{ fontSize: 10, padding: '2px 7px', borderRadius: 99, background: dayDone === matches.length ? 'rgba(0,200,120,0.12)' : 'var(--bg-surface)', color: dayDone === matches.length ? 'var(--green)' : 'var(--text-muted)', fontWeight: 600 }}>{dayDone}/{matches.length}</span>
-                    </div>
-                    {matches.map(m => (
-                      <div key={m.id} style={{ marginBottom: 6, paddingLeft: 12, borderLeft: '2px solid var(--border)', marginLeft: 8 }}>
-                        <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 2 }}>
-                          Match {m.match_number} — {getGroupPairName(m.pod_a_name, m.pod_b_name)}{m.map && ` on ${m.map}`}
+              {isBGMI ? (
+                // BGMI League matches - grouped by day
+                (() => {
+                  const bgmiMatchesByDay = {}
+                  bgmiLeague?.matches?.forEach(m => {
+                    if (!bgmiMatchesByDay[m.day]) bgmiMatchesByDay[m.day] = []
+                    bgmiMatchesByDay[m.day].push(m)
+                  })
+                  return Object.entries(bgmiMatchesByDay).sort(([a], [b]) => a - b).map(([dayNum, dayMatches]) => {
+                    const dayDone = dayMatches.filter(m => m.status === 'completed').length
+                    return (
+                      <div key={dayNum} style={{ marginBottom: 18 }}>
+                        <div style={{
+                          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                          marginBottom: 8, padding: '8px 12px', borderRadius: 8,
+                          background: dayDone === dayMatches.length ? 'rgba(0,200,120,0.08)' : 'rgba(255,185,87,0.08)',
+                          border: `1px solid ${dayDone === dayMatches.length ? 'rgba(0,200,120,0.2)' : 'rgba(255,185,87,0.2)'}`
+                        }}>
+                          <div>
+                            <span style={{ fontSize: 14, fontWeight: 800, color: dayDone === dayMatches.length ? 'var(--green)' : '#ffb957' }}>Day {dayNum}</span>
+                            <span style={{ fontSize: 10, color: 'var(--text-muted)', marginLeft: 8 }}>All 11 Teams — Full Lobby</span>
+                          </div>
+                          <span style={{ fontSize: 10, padding: '2px 7px', borderRadius: 99, background: dayDone === dayMatches.length ? 'rgba(0,200,120,0.12)' : 'var(--bg-surface)', color: dayDone === dayMatches.length ? 'var(--green)' : 'var(--text-muted)', fontWeight: 600 }}>{dayDone}/{dayMatches.length}</span>
                         </div>
-                        <CrossPodMatchCard match={m} />
+                        {dayMatches.map(m => (
+                          <div key={m.id} style={{ marginBottom: 6, paddingLeft: 12, borderLeft: '2px solid var(--border)', marginLeft: 8 }}>
+                            <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 2 }}>
+                              Match {m.match_number}{m.map && ` — ${m.map}`}
+                            </div>
+                            <div style={{
+                              background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 10, padding: 12, marginBottom: 8,
+                              borderColor: m.status === 'completed' ? 'rgba(0,200,120,0.3)' : m.room_id ? 'var(--cyan)' : 'var(--border)'
+                            }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                  <span style={{ padding: '2px 8px', borderRadius: 99, background: 'rgba(255,185,87,0.15)', color: '#ffb957', fontWeight: 700, fontSize: 11 }}>FULL LOBBY</span>
+                                  <span style={{ fontWeight: 700, fontSize: 13, color: 'var(--gold)' }}>All 11 Teams</span>
+                                </div>
+                                <span style={{ fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 99,
+                                  background: m.status === 'completed' ? 'rgba(0,200,120,0.1)' : m.room_id ? 'rgba(0,180,255,0.1)' : 'var(--bg-surface)',
+                                  color: m.status === 'completed' ? 'var(--green)' : m.room_id ? 'var(--cyan)' : 'var(--text-muted)'
+                                }}>{m.status === 'completed' ? 'Done' : m.room_id ? 'Live' : 'Upcoming'}</span>
+                              </div>
+                              {m.room_id && m.status !== 'completed' && (
+                                <div style={{ background: 'rgba(0,180,255,0.06)', border: '1px solid rgba(0,180,255,0.2)', borderRadius: 6, padding: '8px 10px', marginTop: 6 }}>
+                                  <div style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: 0.5, color: 'var(--cyan)', marginBottom: 4, fontWeight: 600 }}><FiKey /> Room Details</div>
+                                  <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
+                                    <div><div style={{ fontSize: 9, color: 'var(--text-muted)' }}>ROOM ID</div><div style={{ fontFamily: 'var(--font-mono)', fontSize: 13, fontWeight: 700, color: 'var(--cyan)' }}>{m.room_id}</div></div>
+                                    <div><div style={{ fontSize: 9, color: 'var(--text-muted)' }}>PASSWORD</div><div style={{ fontFamily: 'var(--font-mono)', fontSize: 13, fontWeight: 700, color: 'var(--cyan)' }}>{m.room_password}</div></div>
+                                    {m.match_start_time && <div><div style={{ fontSize: 9, color: 'var(--text-muted)' }}>STARTS</div><div style={{ fontSize: 12, fontWeight: 600 }}>{new Date(m.match_start_time).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</div></div>}
+                                  </div>
+                                </div>
+                              )}
+                              {m.slot_assignments && Object.keys(m.slot_assignments).length > 0 && (
+                                <div style={{ background: 'rgba(124,58,237,0.06)', border: '1px solid rgba(124,58,237,0.2)', borderRadius: 6, padding: '8px 10px', marginTop: 6 }}>
+                                  <div style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: 0.5, color: 'var(--purple)', marginBottom: 4, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
+                                    <FiGrid size={10} /> Lobby Slots
+                                  </div>
+                                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 3 }}>
+                                    {Object.entries(m.slot_assignments)
+                                      .sort(([a], [b]) => parseInt(a) - parseInt(b))
+                                      .map(([slot, data]) => (
+                                        <div key={slot} style={{ background: 'rgba(0,0,0,0.2)', borderRadius: 4, padding: '4px 6px', display: 'flex', alignItems: 'center', gap: 5 }}>
+                                          <div style={{ width: 18, height: 18, borderRadius: 4, background: 'linear-gradient(135deg, #7c3aed, #06b6d4)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 8, fontWeight: 700, color: 'white', flexShrink: 0 }}>
+                                            {slot}
+                                          </div>
+                                          <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                            {data.team_name}
+                                          </div>
+                                        </div>
+                                      ))}
+                                  </div>
+                                </div>
+                              )}
+                              {m.status === 'completed' && (
+                                <div style={{ marginTop: 6 }}>
+                                  {m.mvp && <div style={{ fontSize: 10, color: 'var(--gold)', marginBottom: 2, fontWeight: 600 }}><FiStar /> MVP: {m.mvp.name} ({m.mvp.kills}k)</div>}
+                                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
+                                    {[...m.results].sort((a, b) => a.placement - b.placement).map(r => (
+                                      <span key={r.registration_id} style={{ fontSize: 10, background: 'var(--bg-surface)', borderRadius: 4, padding: '2px 6px', color: 'var(--text-secondary)' }}>
+                                        #{r.placement} {r.name} <span style={{ color: 'var(--gold)', fontWeight: 600 }}>{r.points}pts</span>
+                                      </span>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                )
-              })}
+                    )
+                  })
+                })()
+              ) : (
+                // Cross-pod matches
+                Object.entries(matchGroups).map(([dayName, matches]) => {
+                  const dayDone = matches.filter(m => m.status === 'completed').length
+                  return (
+                    <div key={dayName} style={{ marginBottom: 18 }}>
+                      <div style={{
+                        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                        marginBottom: 8, padding: '8px 12px', borderRadius: 8,
+                        background: dayDone === matches.length ? 'rgba(0,200,120,0.08)' : 'rgba(255,185,87,0.08)',
+                        border: `1px solid ${dayDone === matches.length ? 'rgba(0,200,120,0.2)' : 'rgba(255,185,87,0.2)'}`
+                      }}>
+                        <div>
+                          <span style={{ fontSize: 14, fontWeight: 800, color: dayDone === matches.length ? 'var(--green)' : '#ffb957' }}>{dayName}</span>
+                          <span style={{ fontSize: 10, color: 'var(--text-muted)', marginLeft: 8 }}>Let the battle begin!</span>
+                        </div>
+                        <span style={{ fontSize: 10, padding: '2px 7px', borderRadius: 99, background: dayDone === matches.length ? 'rgba(0,200,120,0.12)' : 'var(--bg-surface)', color: dayDone === matches.length ? 'var(--green)' : 'var(--text-muted)', fontWeight: 600 }}>{dayDone}/{matches.length}</span>
+                      </div>
+                      {matches.map(m => (
+                        <div key={m.id} style={{ marginBottom: 6, paddingLeft: 12, borderLeft: '2px solid var(--border)', marginLeft: 8 }}>
+                          <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 2 }}>
+                            Match {m.match_number} — {getGroupPairName(m.pod_a_name, m.pod_b_name)}{m.map && ` on ${m.map}`}
+                          </div>
+                          <CrossPodMatchCard match={m} />
+                        </div>
+                      ))}
+                    </div>
+                  )
+                })
+              )}
             </motion.div>
 
-            {rrDetail.status === 'completed' && (
+            {(rrDetail?.status === 'completed' || bgmiLeague?.status === 'completed') && (
               <div style={{ background: 'rgba(0,200,120,0.08)', border: '1px solid rgba(0,200,120,0.25)', borderRadius: 10, padding: 14, textAlign: 'center', marginTop: 14 }}>
                 <FiAward style={{ fontSize: 20, color: 'var(--green)', marginBottom: 4 }} />
                 <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--green)' }}>Round Robin Finalized!</div>
