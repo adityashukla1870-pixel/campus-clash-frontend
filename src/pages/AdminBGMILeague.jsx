@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { FiCheckCircle, FiKey, FiClock, FiStar, FiAward, FiTrash2, FiSend, FiTarget, FiZap, FiGrid, FiUsers, FiCalendar } from "react-icons/fi"
+import { FiCheckCircle, FiKey, FiClock, FiStar, FiAward, FiTrash2, FiSend, FiTarget, FiZap, FiGrid, FiUsers, FiCalendar, FiMap } from "react-icons/fi"
 import API from "../api/axios"
 import AdminTopBar from "../components/AdminTopBar"
 import { SkeletonText, SkeletonBlock } from "../components/Skeleton"
@@ -224,6 +224,10 @@ function AdminBGMILeague() {
   const [standings, setStandings] = useState([])
   const [busy, setBusy] = useState(false)
   const [initialLoading, setInitialLoading] = useState(true)
+  const [mapDrafts, setMapDrafts] = useState({})
+  const [showMapEditor, setShowMapEditor] = useState(false)
+  const [customMaps, setCustomMaps] = useState(Array(9).fill(""))
+  const [useCustomMaps, setUseCustomMaps] = useState(false)
 
   useEffect(() => {
     API.get("/tournament/all").then(res => setTournaments(res.data || [])).catch(console.error).finally(() => setInitialLoading(false))
@@ -254,10 +258,15 @@ function AdminBGMILeague() {
     if (!confirm("Create BGMI League with 9 matches (3 per day x 3 days)?")) return
     setBusy(true)
     try {
-      await API.post(`/bgmi-league/${selected}/create`, {
+      const payload = {
         name: `${tournament?.name || 'BGMI'} - League`,
         matches_per_day: [3, 3, 3]
-      })
+      }
+      if (useCustomMaps) {
+        const maps = customMaps.filter(m => m.trim())
+        if (maps.length > 0) payload.maps = maps
+      }
+      await API.post(`/bgmi-league/${selected}/create`, payload)
       loadLeague(selected)
     } catch (err) {
       alert(err.response?.data?.error || "Failed to create league")
@@ -309,6 +318,22 @@ function AdminBGMILeague() {
     }
   }
 
+  const saveMaps = async () => {
+    if (!league) return
+    setBusy(true)
+    try {
+      await API.put(`/bgmi-league/${league.id}/maps`, { maps: mapDrafts })
+      loadLeague(selected)
+      setShowMapEditor(false)
+    } catch (err) {
+      alert(err.response?.data?.error || "Failed to save maps")
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const BGMI_MAPS = ["Erangel", "Miramar", "Sanhok", "Vikendi", "Livik"]
+
   const isSquad = tournament?.mode === "squad"
   const matches = league?.matches || []
   const matchesByDay = {}
@@ -358,6 +383,32 @@ function AdminBGMILeague() {
                   <br />Day 1: 3 matches · Day 2: 3 matches · Day 3: 3 matches
                   <br />All teams play together in every match (Full Lobby).
                 </p>
+
+                <div style={{ marginBottom: 16 }}>
+                  <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, cursor: 'pointer', fontSize: 12, color: 'var(--text-secondary)' }}>
+                    <input type="checkbox" checked={useCustomMaps} onChange={e => setUseCustomMaps(e.target.checked)} />
+                    Set maps manually
+                  </label>
+                </div>
+
+                {useCustomMaps && (
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 6, marginBottom: 16, textAlign: 'left' }}>
+                    {customMaps.map((map, i) => (
+                      <div key={i} style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 8, padding: '6px 8px' }}>
+                        <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 2 }}>Match {i + 1} (Day {Math.floor(i / 3) + 1})</div>
+                        <select value={map} onChange={e => {
+                          const next = [...customMaps]
+                          next[i] = e.target.value
+                          setCustomMaps(next)
+                        }} style={{ width: '100%', padding: '4px 6px', borderRadius: 4, background: 'var(--bg-dark)', border: '1px solid var(--border)', color: 'var(--text-primary)', fontSize: 11 }}>
+                          <option value="">Auto</option>
+                          {BGMI_MAPS.map(m => <option key={m} value={m}>{m}</option>)}
+                        </select>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
                 <button className="btn-primary" disabled={busy} onClick={createLeague} style={{ fontSize: 14, padding: '10px 28px' }}>
                   <FiSend /> Create League (9 Matches)
                 </button>
@@ -380,6 +431,61 @@ function AdminBGMILeague() {
                     {matches.filter(m => m.status === 'completed').length} / {matches.length} matches done
                   </span>
                 </div>
+
+                {/* Map Editor */}
+                {league.status === 'active' && (
+                  <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 12, padding: 14, marginBottom: 16 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: showMapEditor ? 12 : 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <FiMap style={{ color: 'var(--cyan)', fontSize: 14 }} />
+                        <span style={{ fontWeight: 700, fontSize: 13 }}>Match Maps</span>
+                      </div>
+                      <button onClick={() => {
+                        if (!showMapEditor) {
+                          const drafts = {}
+                          matches.forEach(m => { drafts[m.match_number] = m.map || "" })
+                          setMapDrafts(drafts)
+                        }
+                        setShowMapEditor(!showMapEditor)
+                      }} style={{ background: 'none', border: 'none', color: showMapEditor ? 'var(--text-muted)' : 'var(--cyan)', cursor: 'pointer', fontSize: 11, fontWeight: 600 }}>
+                        {showMapEditor ? 'Cancel' : 'Edit Maps'}
+                      </button>
+                    </div>
+                    {!showMapEditor ? (
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                        {matches.map(m => (
+                          <span key={m.id} style={{ fontSize: 11, padding: '3px 8px', borderRadius: 6, background: 'var(--bg-surface)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 4 }}>
+                            <span style={{ color: 'var(--text-muted)' }}>M{m.match_number}:</span>
+                            <span style={{ fontWeight: 600, color: m.map ? 'var(--text-primary)' : 'var(--text-muted)' }}>{m.map || 'Not set'}</span>
+                          </span>
+                        ))}
+                      </div>
+                    ) : (
+                      <div>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 8 }}>
+                          {matches.map(m => (
+                            <div key={m.id} style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 8, padding: '8px 10px' }}>
+                              <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 4, fontWeight: 600 }}>Match {m.match_number} (Day {m.day})</div>
+                              <select value={mapDrafts[m.match_number] || ""} onChange={e => setMapDrafts(prev => ({ ...prev, [m.match_number]: e.target.value }))}
+                                style={{ width: '100%', padding: '6px 8px', borderRadius: 6, background: 'var(--bg-dark)', border: '1px solid var(--border)', color: 'var(--text-primary)', fontSize: 11, cursor: 'pointer' }}>
+                                <option value="">Select Map</option>
+                                {BGMI_MAPS.map(map => <option key={map} value={map}>{map}</option>)}
+                                <option value="custom">Custom...</option>
+                              </select>
+                              {mapDrafts[m.match_number] === 'custom' && (
+                                <input placeholder="Enter map name" style={{ width: '100%', marginTop: 4, padding: '6px 8px', borderRadius: 6, background: 'var(--bg-dark)', border: '1px solid var(--border)', color: 'var(--text-primary)', fontSize: 11 }}
+                                  onChange={e => setMapDrafts(prev => ({ ...prev, [m.match_number]: e.target.value }))} />
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                        <button className="btn-secondary" style={{ fontSize: 12, marginTop: 10 }} disabled={busy} onClick={saveMaps}>
+                          {busy ? "Saving..." : "Save Maps"}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {standings.length >= 3 && (
                   <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 16, padding: 20, marginBottom: 16 }}>
