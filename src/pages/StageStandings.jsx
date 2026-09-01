@@ -821,84 +821,151 @@ function StageStandings() {
                   return Object.entries(bgmiMatchesByDay).sort(([a], [b]) => a - b).map(([dayNum, dayMatches]) => {
                     const dayDone = dayMatches.filter(m => m.status === 'completed').length
                     return (
-                      <div key={dayNum} style={{ marginBottom: 18 }}>
+                      <div key={dayNum} style={{ marginBottom: 22 }}>
                         <div style={{
                           display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                          marginBottom: 8, padding: '8px 12px', borderRadius: 8,
+                          marginBottom: 10, padding: '10px 14px', borderRadius: 10,
                           background: dayDone === dayMatches.length ? 'rgba(0,200,120,0.08)' : 'rgba(255,185,87,0.08)',
-                          border: `1px solid ${dayDone === dayMatches.length ? 'rgba(0,200,120,0.2)' : 'rgba(255,185,87,0.2)'}`
+                          border: `1px solid ${dayDone === dayMatches.length ? 'rgba(0,200,120,0.25)' : 'rgba(255,185,87,0.25)'}`,
+                          borderLeft: `3px solid ${dayDone === dayMatches.length ? 'var(--green)' : '#ffb957'}`
                         }}>
-                          <div>
-                            <span style={{ fontSize: 14, fontWeight: 800, color: dayDone === dayMatches.length ? 'var(--green)' : '#ffb957' }}>Day {dayNum}</span>
-                            <span style={{ fontSize: 10, color: 'var(--text-muted)', marginLeft: 8 }}>All 11 Teams — Full Lobby</span>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <FiCalendar size={14} style={{ color: dayDone === dayMatches.length ? 'var(--green)' : '#ffb957' }} />
+                            <span style={{ fontSize: 15, fontWeight: 800, color: dayDone === dayMatches.length ? 'var(--green)' : '#ffb957' }}>Day {dayNum}</span>
+                            <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>All 11 Teams — Full Lobby</span>
                           </div>
-                          <span style={{ fontSize: 10, padding: '2px 7px', borderRadius: 99, background: dayDone === dayMatches.length ? 'rgba(0,200,120,0.12)' : 'var(--bg-surface)', color: dayDone === dayMatches.length ? 'var(--green)' : 'var(--text-muted)', fontWeight: 600 }}>{dayDone}/{dayMatches.length}</span>
+                          <span style={{ fontSize: 10, padding: '3px 10px', borderRadius: 99, background: dayDone === dayMatches.length ? 'rgba(0,200,120,0.15)' : 'var(--bg-surface)', color: dayDone === dayMatches.length ? 'var(--green)' : 'var(--text-muted)', fontWeight: 700 }}>
+                            {dayDone}/{dayMatches.length}
+                          </span>
                         </div>
-                        {dayMatches.map(m => (
-                          <div key={m.id} style={{ marginBottom: 6, paddingLeft: 12, borderLeft: '2px solid var(--border)', marginLeft: 8 }}>
-                            <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 2 }}>
-                              Match {m.match_number}{m.map && ` — ${m.map}`}
-                            </div>
-                            <div style={{
-                              background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 10, padding: 12, marginBottom: 8,
-                              borderColor: m.status === 'completed' ? 'rgba(0,200,120,0.3)' : m.room_id ? 'var(--cyan)' : 'var(--border)'
-                            }}>
-                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                                  <span style={{ padding: '2px 8px', borderRadius: 99, background: 'rgba(255,185,87,0.15)', color: '#ffb957', fontWeight: 700, fontSize: 11 }}>FULL LOBBY</span>
-                                  <span style={{ fontWeight: 700, fontSize: 13, color: 'var(--gold)' }}>All 11 Teams</span>
-                                </div>
-                                <span style={{ fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 99,
-                                  background: m.status === 'completed' ? 'rgba(0,200,120,0.1)' : m.room_id ? 'rgba(0,180,255,0.1)' : 'var(--bg-surface)',
-                                  color: m.status === 'completed' ? 'var(--green)' : m.room_id ? 'var(--cyan)' : 'var(--text-muted)'
-                                }}>{m.status === 'completed' ? 'Done' : m.room_id ? 'Live' : 'Upcoming'}</span>
-                              </div>
-                              {m.room_id && m.status !== 'completed' && (
-                                <div style={{ background: 'rgba(0,180,255,0.06)', border: '1px solid rgba(0,180,255,0.2)', borderRadius: 6, padding: '8px 10px', marginTop: 6 }}>
-                                  <div style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: 0.5, color: 'var(--cyan)', marginBottom: 4, fontWeight: 600 }}><FiKey /> Room Details</div>
-                                  <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
-                                    <div><div style={{ fontSize: 9, color: 'var(--text-muted)' }}>ROOM ID</div><div style={{ fontFamily: 'var(--font-mono)', fontSize: 13, fontWeight: 700, color: 'var(--cyan)' }}>{m.room_id}</div></div>
-                                    <div><div style={{ fontSize: 9, color: 'var(--text-muted)' }}>PASSWORD</div><div style={{ fontFamily: 'var(--font-mono)', fontSize: 13, fontWeight: 700, color: 'var(--cyan)' }}>{m.room_password}</div></div>
-                                    {m.match_start_time && <div><div style={{ fontSize: 9, color: 'var(--text-muted)' }}>STARTS</div><div style={{ fontSize: 12, fontWeight: 600 }}>{new Date(m.match_start_time).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</div></div>}
+                        {dayMatches.map((m, idx) => {
+                          const isLive = !!m.room_id && m.status !== 'completed'
+                          const isDone = m.status === 'completed'
+                          return (
+                            <motion.div
+                              key={m.id}
+                              initial={{ opacity: 0, x: -20 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              transition={{ duration: 0.4, delay: idx * 0.1 }}
+                              style={{
+                                marginBottom: 10, marginLeft: 10,
+                                borderLeft: `2px solid ${isDone ? 'var(--green)' : isLive ? 'var(--cyan)' : 'var(--border)'}`,
+                                paddingLeft: 14,
+                              }}
+                            >
+                              {/* Match Header */}
+                              <div style={{
+                                background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 12, overflow: 'hidden',
+                                borderColor: isDone ? 'rgba(0,200,120,0.3)' : isLive ? 'var(--cyan)' : 'var(--border)',
+                                boxShadow: isLive ? '0 0 20px rgba(6,182,212,0.1)' : 'none',
+                              }}>
+                                {/* Match Title Bar */}
+                                <div style={{
+                                  display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                                  padding: '10px 14px',
+                                  background: isDone ? 'rgba(0,200,120,0.06)' : isLive ? 'rgba(0,180,255,0.06)' : 'rgba(255,185,87,0.04)',
+                                  borderBottom: '1px solid var(--border)',
+                                }}>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                    <span style={{ fontSize: 14, fontWeight: 800, color: 'var(--gold)' }}>Match {m.match_number}</span>
+                                    <span style={{ padding: '2px 8px', borderRadius: 6, background: 'rgba(255,185,87,0.15)', color: '#ffb957', fontWeight: 700, fontSize: 10 }}>FULL LOBBY</span>
+                                    {m.map && (
+                                      <span style={{ fontSize: 11, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 4 }}>
+                                        <FiMap size={10} /> {m.map}
+                                      </span>
+                                    )}
                                   </div>
+                                  <span style={{
+                                    fontSize: 10, fontWeight: 700, padding: '3px 10px', borderRadius: 99,
+                                    background: isDone ? 'rgba(0,200,120,0.15)' : isLive ? 'rgba(0,180,255,0.15)' : 'var(--bg-surface)',
+                                    color: isDone ? 'var(--green)' : isLive ? 'var(--cyan)' : 'var(--text-muted)',
+                                    display: 'flex', alignItems: 'center', gap: 4,
+                                  }}>
+                                    {isDone && <FiCheckCircle size={10} />}
+                                    {isLive && <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--cyan)', animation: 'pulse 1.5s infinite' }} />}
+                                    {isDone ? 'Done' : isLive ? 'LIVE' : 'Upcoming'}
+                                  </span>
                                 </div>
-                              )}
-                              {m.slot_assignments && Object.keys(m.slot_assignments).length > 0 && (
-                                <div style={{ background: 'rgba(124,58,237,0.06)', border: '1px solid rgba(124,58,237,0.2)', borderRadius: 6, padding: '8px 10px', marginTop: 6 }}>
-                                  <div style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: 0.5, color: 'var(--purple)', marginBottom: 4, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
-                                    <FiGrid size={10} /> Lobby Slots
+
+                                {/* Room Details (when live) */}
+                                {isLive && (
+                                  <div style={{ padding: '10px 14px', background: 'rgba(0,180,255,0.04)', borderBottom: '1px solid var(--border)' }}>
+                                    <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'center' }}>
+                                      <div>
+                                        <div style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: 0.5, color: 'var(--text-muted)', marginBottom: 2 }}>ROOM ID</div>
+                                        <div style={{ fontFamily: 'var(--font-mono)', fontSize: 14, fontWeight: 700, color: 'var(--cyan)' }}>{m.room_id}</div>
+                                      </div>
+                                      <div>
+                                        <div style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: 0.5, color: 'var(--text-muted)', marginBottom: 2 }}>PASSWORD</div>
+                                        <div style={{ fontFamily: 'var(--font-mono)', fontSize: 14, fontWeight: 700, color: 'var(--cyan)' }}>{m.room_password}</div>
+                                      </div>
+                                      {m.match_start_time && (
+                                        <div>
+                                          <div style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: 0.5, color: 'var(--text-muted)', marginBottom: 2 }}>STARTS</div>
+                                          <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{new Date(m.match_start_time).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</div>
+                                        </div>
+                                      )}
+                                    </div>
                                   </div>
-                                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 3 }}>
-                                    {Object.entries(m.slot_assignments)
-                                      .sort(([a], [b]) => parseInt(a) - parseInt(b))
-                                      .map(([slot, data]) => (
-                                        <div key={slot} style={{ background: 'rgba(0,0,0,0.2)', borderRadius: 4, padding: '4px 6px', display: 'flex', alignItems: 'center', gap: 5 }}>
-                                          <div style={{ width: 18, height: 18, borderRadius: 4, background: 'linear-gradient(135deg, #7c3aed, #06b6d4)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 8, fontWeight: 700, color: 'white', flexShrink: 0 }}>
-                                            {slot}
+                                )}
+
+                                {/* Slot Assignments */}
+                                {m.slot_assignments && Object.keys(m.slot_assignments).length > 0 && (
+                                  <div style={{ padding: '10px 14px', borderBottom: isDone ? 'none' : '1px solid var(--border)' }}>
+                                    <div style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: 0.5, color: 'var(--purple)', marginBottom: 6, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
+                                      <FiGrid size={10} /> Lobby Slots
+                                    </div>
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 4 }}>
+                                      {Object.entries(m.slot_assignments)
+                                        .sort(([a], [b]) => parseInt(a) - parseInt(b))
+                                        .map(([slot, data]) => (
+                                          <div key={slot} style={{ background: 'var(--bg-surface)', borderRadius: 6, padding: '5px 8px', display: 'flex', alignItems: 'center', gap: 6, border: '1px solid var(--border)' }}>
+                                            <div style={{ width: 20, height: 20, borderRadius: 5, background: 'linear-gradient(135deg, #7c3aed, #06b6d4)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 800, color: 'white', flexShrink: 0 }}>
+                                              {slot}
+                                            </div>
+                                            <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                              {data.team_name}
+                                            </div>
                                           </div>
-                                          <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                            {data.team_name}
-                                          </div>
+                                        ))}
+                                    </div>
+                                  </div>
+                                )}
+
+                                {/* Results (when completed) */}
+                                {isDone && (
+                                  <div style={{ padding: '12px 14px' }}>
+                                    {/* MVP */}
+                                    {m.mvp && (
+                                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8, padding: '6px 10px', background: 'rgba(234,179,8,0.08)', borderRadius: 8, border: '1px solid rgba(234,179,8,0.2)' }}>
+                                        <FiStar size={12} style={{ color: 'var(--gold)' }} />
+                                        <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--gold)' }}>MVP: {m.mvp.name}</span>
+                                        <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>({m.mvp.kills} kills)</span>
+                                      </div>
+                                    )}
+                                    {/* Results Grid */}
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                                      {[...m.results].sort((a, b) => a.placement - b.placement).map((r, ri) => (
+                                        <div key={r.registration_id} style={{
+                                          display: 'flex', alignItems: 'center', gap: 8, padding: '6px 10px', borderRadius: 8,
+                                          background: ri < 3 ? 'rgba(234,179,8,0.06)' : 'var(--bg-surface)',
+                                          border: ri === 0 ? '1px solid rgba(234,179,8,0.3)' : ri === 1 ? '1px solid rgba(192,192,192,0.2)' : ri === 2 ? '1px solid rgba(205,127,50,0.2)' : '1px solid var(--border)',
+                                        }}>
+                                          <span style={{ fontSize: 13, width: 24, textAlign: 'center' }}>
+                                            {ri === 0 ? '🥇' : ri === 1 ? '🥈' : ri === 2 ? '🥉' : `#${r.placement}`}
+                                          </span>
+                                          <span style={{ flex: 1, fontSize: 12, fontWeight: ri < 3 ? 700 : 500 }}>{r.name}</span>
+                                          {r.kills > 0 && <span style={{ fontSize: 10, color: 'var(--text-secondary)' }}>{r.kills} kills</span>}
+                                          <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--gold)' }}>{r.points} pts</span>
                                         </div>
                                       ))}
+                                    </div>
                                   </div>
-                                </div>
-                              )}
-                              {m.status === 'completed' && (
-                                <div style={{ marginTop: 6 }}>
-                                  {m.mvp && <div style={{ fontSize: 10, color: 'var(--gold)', marginBottom: 2, fontWeight: 600 }}><FiStar /> MVP: {m.mvp.name} ({m.mvp.kills}k)</div>}
-                                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
-                                    {[...m.results].sort((a, b) => a.placement - b.placement).map(r => (
-                                      <span key={r.registration_id} style={{ fontSize: 10, background: 'var(--bg-surface)', borderRadius: 4, padding: '2px 6px', color: 'var(--text-secondary)' }}>
-                                        #{r.placement} {r.name} <span style={{ color: 'var(--gold)', fontWeight: 600 }}>{r.points}pts</span>
-                                      </span>
-                                    ))}
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        ))}
+                                )}
+                              </div>
+                            </motion.div>
+                          )
+                        })}
                       </div>
                     )
                   })
