@@ -1,18 +1,38 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import { FiCheckCircle, FiKey, FiClock, FiStar, FiAward, FiTrash2, FiSend, FiTarget, FiZap, FiGrid, FiUsers, FiCalendar, FiMap } from "react-icons/fi"
 import API from "../api/axios"
 import AdminTopBar from "../components/AdminTopBar"
 import { SkeletonText, SkeletonBlock } from "../components/Skeleton"
 
 function MatchCard({ match, isSquad, onChanged }) {
-  const [roomDraft, setRoomDraft] = useState({})
-  const [resultDrafts, setResultDrafts] = useState({})
+  const draftKey = `bgmi_draft_${match.id}`
+  const roomKey = `bgmi_room_${match.id}`
+  const [roomDraft, setRoomDraft] = useState(() => {
+    try { return JSON.parse(localStorage.getItem(roomKey)) || {} } catch { return {} }
+  })
+  const [resultDrafts, setResultDrafts] = useState(() => {
+    try { return JSON.parse(localStorage.getItem(draftKey)) || {} } catch { return {} }
+  })
   const [busy, setBusy] = useState(false)
   const [participants, setParticipants] = useState(match.participants || [])
   const [slotAssignments, setSlotAssignments] = useState(match.slot_assignments || {})
   const [showSlots, setShowSlots] = useState(false)
 
   const slotLimit = match.slot_limit || 11
+
+  // Auto-save result drafts to localStorage
+  useEffect(() => {
+    if (match.status !== 'completed' && Object.keys(resultDrafts).length > 0) {
+      localStorage.setItem(draftKey, JSON.stringify(resultDrafts))
+    }
+  }, [resultDrafts, match.status, draftKey])
+
+  // Auto-save room drafts to localStorage
+  useEffect(() => {
+    if (match.status !== 'completed' && !match.room_id && Object.keys(roomDraft).length > 0) {
+      localStorage.setItem(roomKey, JSON.stringify(roomDraft))
+    }
+  }, [roomDraft, match.status, match.room_id, roomKey])
 
   const releaseRoom = async () => {
     if (!roomDraft.room_id || !roomDraft.password) { alert("Room ID and password required"); return }
@@ -24,6 +44,8 @@ function MatchCard({ match, isSquad, onChanged }) {
         start_time: roomDraft.start_time,
         slot_assignments: slotAssignments
       })
+      localStorage.removeItem(roomKey)
+      setRoomDraft({})
       onChanged()
     } catch (err) {
       alert(err.response?.data?.error || "Failed to release room")
@@ -79,6 +101,7 @@ function MatchCard({ match, isSquad, onChanged }) {
     setBusy(true)
     try {
       await API.post(`/bgmi-league/matches/${match.id}/results`, { results })
+      localStorage.removeItem(draftKey)
       setResultDrafts({})
       onChanged()
     } catch (err) {
