@@ -360,6 +360,7 @@ function StageStandings() {
   // BGMI League state
   const [bgmiLeague, setBgmiLeague] = useState(null)
   const [bgmiStandings, setBgmiStandings] = useState([])
+  const [bgmiStats, setBgmiStats] = useState(null)
 
   useEffect(() => {
     if (!tournament?.scheduled_time) return
@@ -394,7 +395,13 @@ function StageStandings() {
         }
         if (bgmiRes.data) {
           setBgmiLeague(bgmiRes.data)
-          API.get(`/bgmi-league/tournament/${id}/standings`).then(r => setBgmiStandings(r.data || []))
+          Promise.all([
+            API.get(`/bgmi-league/tournament/${id}/standings`),
+            API.get(`/bgmi-league/tournament/${id}/stats`),
+          ]).then(([stRes, statsRes]) => {
+            setBgmiStandings(stRes.data || [])
+            setBgmiStats(statsRes.data || {})
+          })
         }
       })
       .catch(console.error)
@@ -414,10 +421,22 @@ function StageStandings() {
       if (hasLiveBgmi) {
         API.get(`/bgmi-league/tournament/${id}`).then(r => setBgmiLeague(r.data))
         API.get(`/bgmi-league/tournament/${id}/standings`).then(r => setBgmiStandings(r.data))
+        API.get(`/bgmi-league/tournament/${id}/stats`).then(r => setBgmiStats(r.data))
       }
     }, 30000)
     return () => clearInterval(iv)
-  }, [rrDetail?.id, bgmiLeague?.id, id])
+  }, [bgmiLeague?.id, id])
+
+  // Refresh BGMI league data when it exists (even without live matches)
+  useEffect(() => {
+    if (!bgmiLeague?.id) return
+    const iv = setInterval(() => {
+      API.get(`/bgmi-league/tournament/${id}`).then(r => setBgmiLeague(r.data))
+      API.get(`/bgmi-league/tournament/${id}/standings`).then(r => setBgmiStandings(r.data))
+      API.get(`/bgmi-league/tournament/${id}/stats`).then(r => setBgmiStats(r.data))
+    }, 15000)
+    return () => clearInterval(iv)
+  }, [bgmiLeague?.id, id])
 
   // Group matches by Day (Day 1, Day 2, Day 3)
   const getGroupPairName = (nameA, nameB) => {
@@ -460,18 +479,19 @@ function StageStandings() {
   ]
 
   const renderStatTable = () => {
-    if (!stats) return null
+    const s = isBGMI ? bgmiStats : stats
+    if (!s) return null
     switch (statTab) {
-      case "team_frags": return <StatTable rows={stats.team_frags} columns={[{ key: "rank", label: "#" }, { key: "name", label: "Team" }, { key: "total_kills", label: "Total Kills" }]} />
-      case "individual_frags": return <StatTable rows={stats.individual_frags} columns={[{ key: "rank", label: "#" }, { key: "name", label: "Player" }, { key: "team_name", label: "Team" }, { key: "total_kills", label: "Kills" }]} />
-      case "mvp_leaderboard": return <StatTable rows={stats.mvp_leaderboard} columns={[{ key: "rank", label: "#" }, { key: "name", label: "Player" }, { key: "team_name", label: "Team" }, { key: "count", label: "MVP Awards" }]} />
+      case "team_frags": return <StatTable rows={s.team_frags} columns={[{ key: "rank", label: "#" }, { key: "name", label: "Team" }, { key: "total_kills", label: "Total Kills" }]} />
+      case "individual_frags": return <StatTable rows={s.individual_frags} columns={[{ key: "rank", label: "#" }, { key: "name", label: "Player" }, { key: "team_name", label: "Team" }, { key: "total_kills", label: "Kills" }]} />
+      case "mvp_leaderboard": return <StatTable rows={s.mvp_leaderboard} columns={[{ key: "rank", label: "#" }, { key: "name", label: "Player" }, { key: "team_name", label: "Team" }, { key: "count", label: "MVP Awards" }]} />
       default: return null
     }
   }
 
-  const hasRR = (rrDetail && rrStandings.length > 0) || (bgmiLeague && bgmiStandings.length > 0)
-  const isBGMI = bgmiLeague && (!rrDetail || bgmiLeague.created_at > (rrDetail.created_at || ''))
-  const hasNoData = !hasRR && stages.length === 0
+  const hasRR = (rrDetail && rrStandings.length > 0) || bgmiLeague
+  const isBGMI = !!bgmiLeague
+  const hasNoData = !hasRR && stages.length === 0 && !bgmiLeague
 
   if (loading) {
     return (
