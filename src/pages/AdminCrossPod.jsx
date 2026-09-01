@@ -363,14 +363,14 @@ function AdminCrossPod() {
 
   const generateRR = async () => {
     if (!selected) return
+    if (!confirm("Generate 9 cross-group matches (3 per pair)? This requires groups. For all-teams matches, use 'Create Full Lobby' instead.")) return
     setBusy(true)
     try {
-      // Auto-find the first stage with pods
       const stagesRes = await API.get(`/stages/tournament/${selected}`)
       const stages = stagesRes.data || []
-      if (stages.length === 0) { alert("Create groups first from Manage Stages"); setBusy(false); return }
+      if (stages.length === 0) { alert("Create groups first from Manage Stages, or use 'Create Full Lobby' for all-team matches"); setBusy(false); return }
 
-      const stage = stages[0] // use the first/only stage
+      const stage = stages[0]
       await API.post(`/cross-pod/${selected}/create`, {
         stage_id: stage.id,
         name: "Round Robin",
@@ -386,17 +386,21 @@ function AdminCrossPod() {
 
   const createFullLobby = async () => {
     if (!selected) return
-    if (!confirm("Create 3 Full Lobby matches (all 12 teams in each match)? Day 1 & Day 2 data will be preserved.")) return
+    if (!confirm("Create 3 Full Lobby matches (all teams in each match)?")) return
     setBusy(true)
     try {
-      const stagesRes = await API.get(`/stages/tournament/${selected}`)
-      const stages = stagesRes.data || []
-      if (stages.length === 0) { alert("Create groups first from Manage Stages"); setBusy(false); return }
+      // Try to find a stage, but don't require it
+      let stageId = null
+      try {
+        const stagesRes = await API.get(`/stages/tournament/${selected}`)
+        const stages = stagesRes.data || []
+        if (stages.length > 0) stageId = stages[0].id
+      } catch {}
 
-      const stage = stages[0]
       await API.post(`/cross-pod/${selected}/create-full-lobby`, {
-        stage_id: stage.id,
-        name: "Final Day - Full Lobby"
+        stage_id: stageId,
+        name: "Full Lobby - All Teams",
+        match_count: 3
       })
       loadRR(selected)
     } catch (err) {
@@ -492,7 +496,7 @@ function AdminCrossPod() {
               <FiTarget /> Cross-Pod Round Robin
             </h1>
             <p style={{ color: 'var(--text-secondary)', fontSize: 13, marginBottom: 24 }}>
-              3 Groups · 9 Matches · Combined 10-player lobbies · Overall Leaderboard
+              Full Lobby matches — all teams play together in every match. No groups needed.
             </p>
 
             <div className="field-group" style={{ marginBottom: 20 }}>
@@ -507,22 +511,30 @@ function AdminCrossPod() {
               <div style={{ background: 'var(--bg-card)', border: '1px dashed var(--border)', borderRadius: 16, padding: 24, textAlign: 'center' }}>
                 <FiTarget style={{ fontSize: 36, color: 'var(--gold)', marginBottom: 12 }} />
                 <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 18, marginBottom: 8 }}>
-                  Generate Round Robin Matches
+                  Create Full Lobby Matches
                 </h3>
                 <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 16, maxWidth: 460, margin: '0 auto 16px' }}>
-                  This will auto-create <strong>9 matches</strong> across 3 group pairings:
-                  <br />A vs B (3 matches) · B vs C (3 matches) · A vs C (3 matches)
-                  <br />Each team plays <strong>6 matches</strong> total.
+                  All registered teams play together in every match. No groups needed.
+                  <br />Click multiple times to add more matches (3 per click).
                 </p>
                 <p style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 16 }}>
-                  Make sure you've already created a stage with 3 groups from <strong>Manage Stages</strong>.
+                  After creating matches, release room IDs and enter results from this page.
                 </p>
                 <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-                  <button className="btn-primary" disabled={busy} onClick={generateRR} style={{ fontSize: 14, padding: '10px 28px' }}>
-                    <FiSend /> Generate 9 Matches
+                  <button className="btn-primary" disabled={busy} onClick={() => {
+                    if (!confirm("Create 3 Full Lobby matches?")) return
+                    setBusy(true)
+                    API.post(`/cross-pod/${selected}/create-full-lobby`, {
+                      name: "Full Lobby - All Teams",
+                      match_count: 3
+                    }).then(() => loadRR(selected))
+                      .catch(err => alert(err.response?.data?.error || "Failed"))
+                      .finally(() => setBusy(false))
+                  }} style={{ fontSize: 14, padding: '10px 28px' }}>
+                    <FiZap /> Create 3 Full Lobby Matches
                   </button>
-                  <button className="btn-secondary" disabled={busy} onClick={createFullLobby} style={{ fontSize: 14, padding: '10px 28px' }}>
-                    <FiZap /> Create Full Lobby (12 Teams)
+                  <button className="btn-secondary" disabled={busy} onClick={generateRR} style={{ fontSize: 14, padding: '10px 28px' }}>
+                    <FiTarget /> Generate Group Round Robin
                   </button>
                 </div>
               </div>
@@ -548,7 +560,7 @@ function AdminCrossPod() {
                   )}
                   {detail?.status === 'active' && (
                     <button className="btn-secondary" disabled={busy} onClick={createFullLobby} style={{ fontSize: 12 }}>
-                      <FiZap /> Add Full Lobby Matches
+                      <FiZap /> Add More Full Lobby Matches
                     </button>
                   )}
                   <span style={{ fontSize: 12, color: 'var(--text-muted)', alignSelf: 'center', marginLeft: 8 }}>

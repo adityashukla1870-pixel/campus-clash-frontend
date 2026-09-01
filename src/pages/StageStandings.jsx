@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { motion } from "framer-motion"
-import { FiCheckCircle, FiCircle, FiStar, FiKey, FiAward, FiTarget, FiMonitor, FiArrowLeft, FiLock, FiZap, FiChevronDown, FiChevronUp, FiArrowRight, FiGrid, FiCalendar, FiClock, FiUsers, FiUser } from "react-icons/fi"
+import { FiCheckCircle, FiCircle, FiStar, FiKey, FiAward, FiTarget, FiMonitor, FiArrowLeft, FiLock, FiZap, FiChevronDown, FiChevronUp, FiArrowRight, FiGrid, FiCalendar, FiClock, FiUsers, FiUser, FiMap } from "react-icons/fi"
 import Navbar from "../components/Navbar"
 import API from "../api/axios"
 import { SkeletonTable, SkeletonText, SkeletonBlock, SkeletonButton } from "../components/Skeleton"
@@ -576,6 +576,75 @@ function StageStandings() {
             )}
 
             <div style={{
+              background: 'var(--bg-card)', border: '1px solid var(--border)',
+              borderRadius: 14, padding: '20px', marginBottom: 16,
+            }}>
+              <div style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: 0.5, color: 'var(--text-muted)', marginBottom: 14, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <FiCalendar size={13} style={{ color: 'var(--gold)' }} /> Tournament Schedule
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {/* Day 1 */}
+                <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 10, padding: '14px 16px', borderLeft: '3px solid var(--cyan)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--cyan)', background: 'rgba(6,182,212,0.15)', padding: '3px 8px', borderRadius: 6 }}>DAY 1</span>
+                    <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>Full Lobby — All 11 Teams</span>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    {["Match 1", "Match 2", "Match 3"].map((m, i) => (
+                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12 }}>
+                        <span style={{ color: 'var(--text-muted)', minWidth: 55 }}>{m}</span>
+                        <FiUsers size={11} style={{ color: 'var(--cyan)' }} />
+                        <span style={{ color: 'var(--text-secondary)' }}>All 11 Teams</span>
+                        <span style={{ fontSize: 10, padding: '2px 6px', borderRadius: 4, background: 'rgba(6,182,212,0.1)', color: 'var(--cyan)', marginLeft: 'auto' }}>TBD</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Day 2 */}
+                <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 10, padding: '14px 16px', borderLeft: '3px solid var(--purple-light)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--purple-light)', background: 'rgba(124,58,237,0.15)', padding: '3px 8px', borderRadius: 6 }}>DAY 2</span>
+                    <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>Full Lobby — All 11 Teams</span>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    {["Match 4", "Match 5", "Match 6"].map((m, i) => (
+                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12 }}>
+                        <span style={{ color: 'var(--text-muted)', minWidth: 55 }}>{m}</span>
+                        <FiUsers size={11} style={{ color: 'var(--purple-light)' }} />
+                        <span style={{ color: 'var(--text-secondary)' }}>All 11 Teams</span>
+                        <span style={{ fontSize: 10, padding: '2px 6px', borderRadius: 4, background: 'rgba(124,58,237,0.1)', color: 'var(--purple-light)', marginLeft: 'auto' }}>TBD</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Day 3 */}
+                <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 10, padding: '14px 16px', borderLeft: '3px solid var(--gold)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--gold)', background: 'rgba(234,179,8,0.15)', padding: '3px 8px', borderRadius: 6 }}>DAY 3</span>
+                    <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>Finals — To Be Decided</span>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    {["Match 7", "Match 8", "Match 9"].map((m, i) => (
+                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12 }}>
+                        <span style={{ color: 'var(--text-muted)', minWidth: 55 }}>{m}</span>
+                        <FiUsers size={11} style={{ color: 'var(--gold)' }} />
+                        <span style={{ color: 'var(--text-secondary)' }}>All 11 Teams</span>
+                        <span style={{ fontSize: 10, padding: '2px 6px', borderRadius: 4, background: 'rgba(234,179,8,0.1)', color: 'var(--gold)', marginLeft: 'auto' }}>TBD</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ marginTop: 14, fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.6, textAlign: 'center' }}>
+                All matches are Full Lobby — every team plays together. Match timings & maps announced by admin before each day.
+              </div>
+            </div>
+
+            <div style={{
               background: 'linear-gradient(135deg, rgba(124,58,237,0.1), rgba(6,182,212,0.06))',
               border: '1px solid rgba(124,58,237,0.25)', borderRadius: 14, padding: '20px', textAlign: 'center',
             }}>
@@ -590,7 +659,7 @@ function StageStandings() {
                 Matches Will Appear Here
               </p>
               <p style={{ color: 'var(--text-muted)', fontSize: 12, lineHeight: 1.6, maxWidth: 320, margin: '0 auto' }}>
-                Group matchups, standings, and match schedules will appear once the admin starts the tournament.
+                Live standings, room details, and results will appear once the admin starts the tournament.
               </p>
             </div>
           </div>

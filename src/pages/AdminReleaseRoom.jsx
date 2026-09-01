@@ -18,6 +18,7 @@ function AdminReleaseRoom() {
   const [teamsLoading, setTeamsLoading] = useState(false)
   const [slotAssignments, setSlotAssignments] = useState({})
   const [showSlots, setShowSlots] = useState(false)
+  const [slotLimit, setSlotLimit] = useState(10)
 
   useEffect(() => {
     API.get("/tournament/all").then(res => setTournaments(res.data)).catch(console.error).finally(() => setInitialLoading(false))
@@ -29,7 +30,8 @@ function AdminReleaseRoom() {
       const res = await API.get(`/tournament/admin/${tournamentId}/approved-teams`)
       setTeams(res.data.teams || [])
       setShowSlots(true)
-      // Load existing slot assignments
+      const teamCount = res.data.teams?.length || 10
+      setSlotLimit(Math.max(teamCount, 10))
       const roomRes = await API.get(`/tournament/room/${tournamentId}`)
       setSlotAssignments(roomRes.data.slot_assignments || {})
     } catch {
@@ -96,7 +98,7 @@ function AdminReleaseRoom() {
   const pageStyle = { minHeight:'100vh', background:'var(--bg-dark)', padding:'40px 24px' }
   const innerStyle = { maxWidth:720, margin:'0 auto' }
 
-  const slots = Array.from({ length: 10 }, (_, i) => i + 1)
+  const slots = Array.from({ length: slotLimit }, (_, i) => i + 1)
 
   return (
     <div style={pageStyle}>
@@ -112,7 +114,7 @@ function AdminReleaseRoom() {
         ) : (
           <>
             <h1 style={{fontFamily:'var(--font-display)',fontSize:28,fontWeight:700,marginBottom:6}}><FiMonitor /> Release Room</h1>
-            <p style={{color:'var(--text-secondary)',fontSize:14,marginBottom:32}}>Share room credentials with registered players. Assign teams to lobby slots (1-10).</p>
+            <p style={{color:'var(--text-secondary)',fontSize:14,marginBottom:32}}>Share room credentials with registered players. Assign teams to lobby slots (1-{slotLimit}).</p>
 
             <div style={{background:'var(--bg-card)',border:'1px solid var(--border)',borderRadius:20,padding:32,position:'relative',overflow:'hidden'}}>
               <div style={{position:'absolute',top:0,left:0,right:0,height:2,background:'linear-gradient(135deg,#06b6d4,#22d3ee)'}}/>
@@ -145,7 +147,7 @@ function AdminReleaseRoom() {
                   <div style={{borderTop:'1px solid var(--border)',paddingTop:20,marginTop:10}}>
                     <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:16}}>
                       <h3 style={{fontFamily:'var(--font-display)',fontSize:18,fontWeight:600,margin:0}}><FiUsers /> Lobby Slot Assignment</h3>
-                      <span style={{fontSize:12,color:'var(--text-muted)'}}>{Object.keys(slotAssignments).length}/10 slots filled</span>
+                      <span style={{fontSize:12,color:'var(--text-muted)'}}>{Object.keys(slotAssignments).length}/{slotLimit} slots filled</span>
                     </div>
                     {teamsLoading ? (
                       <div style={{textAlign:'center',padding:20,color:'var(--text-muted)'}}>Loading teams...</div>
