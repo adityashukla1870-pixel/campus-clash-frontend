@@ -12,6 +12,7 @@ import {
 } from "react-icons/fa"
 import Navbar from "../components/Navbar"
 import SpotlightGlow from "../components/SpotlightGlow"
+import FeedbackLauncher from "../components/FeedbackLauncher"
 import API from "../api/axios"
 import { SkeletonCardGrid, SkeletonProfile, SkeletonLeaderboard, SkeletonCard, SkeletonButton } from "../components/Skeleton"
 import "./Dashboard.css"
@@ -130,6 +131,7 @@ function Dashboard() {
   return (
     <>
       <Navbar />
+      <FeedbackLauncher />
       <div className="dashboard-page">
         <SpotlightGlow fullpage color="gold" />
         <div className="dashboard-inner">

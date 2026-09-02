@@ -5,6 +5,8 @@ import { initAvatarLibrary } from "./data/avatarRepository";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminRoute from "./components/AdminRoute";
 import ThemeProvider from "./theme/ThemeProvider";
+import { NotificationProvider } from "./context/NotificationContext";
+import NotificationPopup from "./components/NotificationPopup";
 
 const LandingPage = lazy(() => import("./pages/LandingPage"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
@@ -34,6 +36,7 @@ const AdminCrossPod = lazy(() => import("./pages/AdminCrossPod"));
 const AdminAvatarLibrary = lazy(() => import("./pages/AdminAvatarLibrary"));
 const AdminUsers = lazy(() => import("./pages/AdminUsers"));
 const AdminFeedback = lazy(() => import("./pages/AdminFeedback"));
+const AdminNotifications = lazy(() => import("./pages/AdminNotifications"));
 
 function LoadingFallback() {
   return (
@@ -71,7 +74,9 @@ function App() {
   return (
 
     <ThemeProvider>
+    <NotificationProvider>
     <Analytics />
+    <NotificationPopup />
     <Suspense fallback={<LoadingFallback />}>
     <Routes>
 
@@ -191,10 +196,12 @@ function App() {
       <Route path="/admin/avatars" element={<AdminRoute><AdminAvatarLibrary /></AdminRoute>} />
       <Route path="/admin/users" element={<AdminRoute><AdminUsers /></AdminRoute>} />
       <Route path="/admin/feedback" element={<AdminRoute><AdminFeedback /></AdminRoute>} />
+      <Route path="/admin/notifications" element={<AdminRoute><AdminNotifications /></AdminRoute>} />
 
 
     </Routes>
     </Suspense>
+    </NotificationProvider>
     </ThemeProvider>
 
   );

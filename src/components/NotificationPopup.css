@@ -1,0 +1,201 @@
+.np-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  padding: 16px;
+}
+
+.np-card {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  max-height: 85vh;
+  overflow-y: auto;
+  background: var(--grad-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6), 0 0 40px var(--purple-glow);
+}
+
+.np-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0, 0, 0, 0.4);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.np-close:hover {
+  background: rgba(0, 0, 0, 0.6);
+  color: var(--text-primary);
+}
+
+.np-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 28px 24px 0;
+  text-align: center;
+}
+
+.np-brand {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 13px;
+  letter-spacing: 3px;
+  color: var(--purple);
+  text-transform: uppercase;
+}
+
+.np-type-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  font-family: var(--font-label);
+  font-weight: 600;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--cyan);
+  background: var(--cyan-glow);
+  border: 1px solid rgba(var(--accent2-rgb), 0.2);
+  border-radius: 6px;
+}
+
+.np-image-wrap {
+  padding: 16px 24px 0;
+}
+
+.np-image {
+  width: 100%;
+  max-height: 220px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+}
+
+.np-content {
+  padding: 20px 24px 0;
+  text-align: center;
+}
+
+.np-title {
+  margin: 0 0 10px;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 20px;
+  line-height: 1.3;
+  color: var(--text-primary);
+}
+
+.np-message {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.np-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 24px;
+}
+
+.np-action-btn {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--purple), var(--cyan));
+  color: var(--on-accent-text);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.np-action-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(var(--accent-rgb), 0.3);
+}
+
+.np-dismiss-btn {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.np-dismiss-btn:hover {
+  border-color: var(--text-muted);
+  color: var(--text-secondary);
+}
+
+@media (max-width: 480px) {
+  .np-overlay {
+    padding: 12px;
+    padding: calc(12px + env(safe-area-inset-bottom, 0px)) 12px 12px;
+  }
+
+  .np-card {
+    max-height: 85vh;
+    border-radius: 14px;
+  }
+
+  .np-header {
+    padding: 24px 20px 0;
+  }
+
+  .np-image-wrap {
+    padding: 12px 20px 0;
+  }
+
+  .np-content {
+    padding: 16px 20px 0;
+  }
+
+  .np-title {
+    font-size: 18px;
+  }
+
+  .np-message {
+    font-size: 13px;
+  }
+
+  .np-actions {
+    padding: 20px;
+  }
+
+  .np-action-btn,
+  .np-dismiss-btn {
+    min-height: 48px;
+    font-size: 15px;
+  }
+}

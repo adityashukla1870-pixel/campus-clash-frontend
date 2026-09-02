@@ -1,22 +1,22 @@
 import { useNavigate, useLocation } from "react-router-dom"
 import { motion } from "framer-motion"
 import {
-  LayoutDashboard,
-  CreditCard,
-  Radio,
-  Trophy,
-  Medal,
-  ArrowLeft,
-  Swords,
-} from "lucide-react"
+  FiLayout,
+  FiCreditCard,
+  FiRadio,
+  FiAward,
+  FiArrowLeft,
+  FiBell,
+} from "react-icons/fi"
 import "./AdminLayout.css"
 
 const navItems = [
-  { icon: LayoutDashboard, label: "Dashboard", path: "/admin" },
-  { icon: CreditCard, label: "Payments", path: "/admin/payments" },
-  { icon: Radio, label: "Release Room", path: "/admin/release-room" },
-  { icon: Trophy, label: "Create Tournament", path: "/admin/create-tournament" },
-  { icon: Medal, label: "Declare Winner", path: "/admin/winner" },
+  { icon: FiLayout, label: "Dashboard", path: "/admin" },
+  { icon: FiCreditCard, label: "Payments", path: "/admin/payments" },
+  { icon: FiRadio, label: "Release Room", path: "/admin/release-room" },
+  { icon: FiAward, label: "Create Tournament", path: "/admin/create-tournament" },
+  { icon: FiAward, label: "Declare Winner", path: "/admin/winner" },
+  { icon: FiBell, label: "Notifications", path: "/admin/notifications" },
 ]
 
 function AdminLayout({ children, title, subtitle }) {
@@ -28,7 +28,7 @@ function AdminLayout({ children, title, subtitle }) {
       <aside className="admin-sidebar">
         <div className="admin-sidebar-header" onClick={() => navigate("/admin")}>
           <div className="admin-logo-icon">
-            <Swords size={20} />
+            <FiAward size={20} />
           </div>
           <div>
             <div className="admin-logo-text">Campus Clash</div>
@@ -61,7 +61,7 @@ function AdminLayout({ children, title, subtitle }) {
         </nav>
 
         <button className="admin-back-btn" onClick={() => navigate("/tournaments")}>
-          <ArrowLeft size={16} />
+          <FiArrowLeft size={16} />
           Back to Arena
         </button>
       </aside>
