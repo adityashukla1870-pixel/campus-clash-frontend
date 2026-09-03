@@ -361,6 +361,8 @@ function StageStandings() {
   const [bgmiLeague, setBgmiLeague] = useState(null)
   const [bgmiStandings, setBgmiStandings] = useState([])
   const [bgmiStats, setBgmiStats] = useState(null)
+  const [bgmiPenalties, setBgmiPenalties] = useState([])
+  const [bgmiBonuses, setBgmiBonuses] = useState([])
 
   useEffect(() => {
     if (!tournament?.scheduled_time) return
@@ -398,9 +400,13 @@ function StageStandings() {
           Promise.all([
             API.get(`/bgmi-league/tournament/${id}/standings`),
             API.get(`/bgmi-league/tournament/${id}/stats`),
-          ]).then(([stRes, statsRes]) => {
+            API.get(`/bgmi-league/${bgmiRes.data.id}/penalties`),
+            API.get(`/bgmi-league/${bgmiRes.data.id}/bonuses`),
+          ]).then(([stRes, statsRes, penRes, bonRes]) => {
             setBgmiStandings(stRes.data || [])
             setBgmiStats(statsRes.data || {})
+            setBgmiPenalties(penRes.data || [])
+            setBgmiBonuses(bonRes.data || [])
           })
         }
       })
@@ -434,6 +440,8 @@ function StageStandings() {
       API.get(`/bgmi-league/tournament/${id}`).then(r => setBgmiLeague(r.data))
       API.get(`/bgmi-league/tournament/${id}/standings`).then(r => setBgmiStandings(r.data))
       API.get(`/bgmi-league/tournament/${id}/stats`).then(r => setBgmiStats(r.data))
+      API.get(`/bgmi-league/${bgmiLeague.id}/penalties`).then(r => setBgmiPenalties(r.data))
+      API.get(`/bgmi-league/${bgmiLeague.id}/bonuses`).then(r => setBgmiBonuses(r.data))
     }, 15000)
     return () => clearInterval(iv)
   }, [bgmiLeague?.id, id])
@@ -791,12 +799,46 @@ function StageStandings() {
                         <td>{s.matches_played}</td>
                         <td>{s.chicken_dinners}</td>
                         <td>{s.total_kills}</td>
-                        <td className="points-cell">{s.total_points}</td>
+                        <td className="points-cell">
+                          {s.total_points}
+                          {s.penalties > 0 && <span style={{ fontSize: 10, color: '#ef4444', marginLeft: 4 }}>(-{s.penalties})</span>}
+                          {s.bonuses > 0 && <span style={{ fontSize: 10, color: 'var(--green)', marginLeft: 4 }}>(+{s.bonuses})</span>}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
+
+              {/* Penalties & Bonuses Log */}
+              {isBGMI && (bgmiPenalties.length > 0 || bgmiBonuses.length > 0) && (
+                <div style={{ marginTop: 14, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  {bgmiPenalties.length > 0 && (
+                    <div>
+                      <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.5, color: '#ef4444', fontWeight: 700, marginBottom: 4 }}>Penalties</div>
+                      {bgmiPenalties.map(p => (
+                        <div key={p.id} style={{ fontSize: 11, padding: '4px 8px', background: 'rgba(239,68,68,0.06)', borderRadius: 4, marginBottom: 2, borderLeft: '2px solid #ef4444' }}>
+                          <span style={{ fontWeight: 600 }}>{p.team_name}</span>
+                          <span style={{ color: '#ef4444', fontWeight: 700, marginLeft: 6 }}>-{p.points} pts</span>
+                          <span style={{ color: 'var(--text-muted)', marginLeft: 4 }}>{p.reason}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {bgmiBonuses.length > 0 && (
+                    <div>
+                      <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.5, color: 'var(--green)', fontWeight: 700, marginBottom: 4 }}>Bonuses</div>
+                      {bgmiBonuses.map(b => (
+                        <div key={b.id} style={{ fontSize: 11, padding: '4px 8px', background: 'rgba(0,200,120,0.06)', borderRadius: 4, marginBottom: 2, borderLeft: '2px solid var(--green)' }}>
+                          <span style={{ fontWeight: 600 }}>{b.team_name}</span>
+                          <span style={{ color: 'var(--green)', fontWeight: 700, marginLeft: 6 }}>+{b.points} pts</span>
+                          <span style={{ color: 'var(--text-muted)', marginLeft: 4 }}>{b.reason}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </motion.div>
 
             {/* Group-wise */}
