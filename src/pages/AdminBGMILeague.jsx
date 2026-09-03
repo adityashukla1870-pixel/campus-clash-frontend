@@ -251,6 +251,11 @@ function AdminBGMILeague() {
   const [showMapEditor, setShowMapEditor] = useState(false)
   const [customMaps, setCustomMaps] = useState(Array(9).fill(""))
   const [useCustomMaps, setUseCustomMaps] = useState(false)
+  const [penalties, setPenalties] = useState([])
+  const [showPenaltyForm, setShowPenaltyForm] = useState(false)
+  const [penaltyTeam, setPenaltyTeam] = useState("")
+  const [penaltyPoints, setPenaltyPoints] = useState("")
+  const [penaltyReason, setPenaltyReason] = useState("")
 
   useEffect(() => {
     API.get("/tournament/all").then(res => setTournaments(res.data || [])).catch(console.error).finally(() => setInitialLoading(false))
@@ -260,7 +265,13 @@ function AdminBGMILeague() {
     API.get(`/bgmi-league/tournament/${id}`).then(res => {
       setLeague(res.data)
       if (res.data) {
-        API.get(`/bgmi-league/tournament/${id}/standings`).then(r => setStandings(r.data || []))
+        Promise.all([
+          API.get(`/bgmi-league/tournament/${id}/standings`),
+          API.get(`/bgmi-league/${res.data.id}/penalties`),
+        ]).then(([stRes, penRes]) => {
+          setStandings(stRes.data || [])
+          setPenalties(penRes.data || [])
+        })
       }
     })
   }
@@ -356,6 +367,38 @@ function AdminBGMILeague() {
   }
 
   const BGMI_MAPS = ["Erangel", "Miramar", "Sanhok", "Vikendi", "Livik", "Rondo"]
+
+  const applyPenalty = async () => {
+    if (!penaltyTeam || !penaltyPoints || !penaltyReason) { alert("Fill all fields"); return }
+    if (!confirm(`Deduct ${penaltyPoints} points? Reason: ${penaltyReason}`)) return
+    setBusy(true)
+    try {
+      await API.post(`/bgmi-league/${league.id}/penalty`, {
+        registration_id: penaltyTeam,
+        points: Number(penaltyPoints),
+        reason: penaltyReason,
+      })
+      setPenaltyTeam("")
+      setPenaltyPoints("")
+      setPenaltyReason("")
+      setShowPenaltyForm(false)
+      loadLeague(selected)
+    } catch (err) {
+      alert(err.response?.data?.error || "Failed")
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const removePenalty = async (penaltyId) => {
+    if (!confirm("Remove this penalty? Points will be refunded.")) return
+    try {
+      await API.delete(`/bgmi-league/${league.id}/penalties/${penaltyId}`)
+      loadLeague(selected)
+    } catch (err) {
+      alert(err.response?.data?.error || "Failed")
+    }
+  }
 
   const isSquad = tournament?.mode === "squad"
   const matches = league?.matches || []
@@ -558,6 +601,62 @@ function AdminBGMILeague() {
                         </tbody>
                       </table>
                     </div>
+                  </div>
+                )}
+
+                {/* Penalty Section */}
+                {league.status === 'active' && standings.length > 0 && (
+                  <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 12, padding: 14, marginBottom: 16 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: showPenaltyForm ? 12 : 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <FiTarget style={{ color: '#ef4444', fontSize: 14 }} />
+                        <span style={{ fontWeight: 700, fontSize: 13 }}>Penalty / Point Deduction</span>
+                      </div>
+                      <button onClick={() => setShowPenaltyForm(!showPenaltyForm)}
+                        style={{ background: 'none', border: 'none', color: showPenaltyForm ? 'var(--text-muted)' : '#ef4444', cursor: 'pointer', fontSize: 11, fontWeight: 600 }}>
+                        {showPenaltyForm ? 'Cancel' : '+ Deduct Points'}
+                      </button>
+                    </div>
+
+                    {showPenaltyForm && (
+                      <div style={{ background: 'var(--bg-surface)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 8, padding: 12, marginBottom: 8 }}>
+                        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 8 }}>
+                          <select value={penaltyTeam} onChange={e => setPenaltyTeam(e.target.value)}
+                            style={{ flex: 1, minWidth: 150, padding: '8px 10px', borderRadius: 6, background: 'var(--bg-dark)', border: '1px solid var(--border)', color: 'var(--text-primary)', fontSize: 12 }}>
+                            <option value="">Select Team</option>
+                            {standings.map(s => <option key={s.registration_id} value={s.registration_id}>{s.name} ({s.total_points} pts)</option>)}
+                          </select>
+                          <input type="number" placeholder="Points" min="1" value={penaltyPoints}
+                            onChange={e => setPenaltyPoints(e.target.value)}
+                            style={{ width: 80, padding: '8px 10px', borderRadius: 6, background: 'var(--bg-dark)', border: '1px solid var(--border)', color: 'var(--text-primary)', fontSize: 12 }} />
+                        </div>
+                        <input placeholder="Reason (e.g. unfair play, team swap)" value={penaltyReason}
+                          onChange={e => setPenaltyReason(e.target.value)}
+                          style={{ width: '100%', padding: '8px 10px', borderRadius: 6, background: 'var(--bg-dark)', border: '1px solid var(--border)', color: 'var(--text-primary)', fontSize: 12, marginBottom: 8 }} />
+                        <button onClick={applyPenalty} disabled={busy}
+                          style={{ padding: '8px 16px', borderRadius: 6, background: '#ef4444', color: 'white', border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+                          {busy ? "Applying..." : "Apply Penalty"}
+                        </button>
+                      </div>
+                    )}
+
+                    {penalties.length > 0 && (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                        {penalties.map(p => (
+                          <div key={p.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 10px', background: 'rgba(239,68,68,0.06)', borderRadius: 6, border: '1px solid rgba(239,68,68,0.15)' }}>
+                            <div style={{ fontSize: 11 }}>
+                              <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{p.team_name}</span>
+                              <span style={{ color: '#ef4444', fontWeight: 700, marginLeft: 6 }}>-{p.points} pts</span>
+                              <span style={{ color: 'var(--text-muted)', marginLeft: 6 }}>({p.reason})</span>
+                            </div>
+                            <button onClick={() => removePenalty(p.id)}
+                              style={{ background: 'none', border: 'none', color: 'var(--green)', cursor: 'pointer', fontSize: 10, fontWeight: 600 }}>
+                              Undo
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
 
