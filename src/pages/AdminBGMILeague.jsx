@@ -256,6 +256,11 @@ function AdminBGMILeague() {
   const [penaltyTeam, setPenaltyTeam] = useState("")
   const [penaltyPoints, setPenaltyPoints] = useState("")
   const [penaltyReason, setPenaltyReason] = useState("")
+  const [bonuses, setBonuses] = useState([])
+  const [showBonusForm, setShowBonusForm] = useState(false)
+  const [bonusTeam, setBonusTeam] = useState("")
+  const [bonusPoints, setBonusPoints] = useState("")
+  const [bonusReason, setBonusReason] = useState("")
 
   useEffect(() => {
     API.get("/tournament/all").then(res => setTournaments(res.data || [])).catch(console.error).finally(() => setInitialLoading(false))
@@ -268,9 +273,11 @@ function AdminBGMILeague() {
         Promise.all([
           API.get(`/bgmi-league/tournament/${id}/standings`),
           API.get(`/bgmi-league/${res.data.id}/penalties`),
-        ]).then(([stRes, penRes]) => {
+          API.get(`/bgmi-league/${res.data.id}/bonuses`),
+        ]).then(([stRes, penRes, bonRes]) => {
           setStandings(stRes.data || [])
           setPenalties(penRes.data || [])
+          setBonuses(bonRes.data || [])
         })
       }
     })
@@ -394,6 +401,38 @@ function AdminBGMILeague() {
     if (!confirm("Remove this penalty? Points will be refunded.")) return
     try {
       await API.delete(`/bgmi-league/${league.id}/penalties/${penaltyId}`)
+      loadLeague(selected)
+    } catch (err) {
+      alert(err.response?.data?.error || "Failed")
+    }
+  }
+
+  const applyBonus = async () => {
+    if (!bonusTeam || !bonusPoints || !bonusReason) { alert("Fill all fields"); return }
+    if (!confirm(`Add ${bonusPoints} bonus points? Reason: ${bonusReason}`)) return
+    setBusy(true)
+    try {
+      await API.post(`/bgmi-league/${league.id}/bonus`, {
+        registration_id: bonusTeam,
+        points: Number(bonusPoints),
+        reason: bonusReason,
+      })
+      setBonusTeam("")
+      setBonusPoints("")
+      setBonusReason("")
+      setShowBonusForm(false)
+      loadLeague(selected)
+    } catch (err) {
+      alert(err.response?.data?.error || "Failed")
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const removeBonus = async (bonusId) => {
+    if (!confirm("Remove this bonus? Points will be deducted back.")) return
+    try {
+      await API.delete(`/bgmi-league/${league.id}/bonuses/${bonusId}`)
       loadLeague(selected)
     } catch (err) {
       alert(err.response?.data?.error || "Failed")
@@ -652,6 +691,62 @@ function AdminBGMILeague() {
                             <button onClick={() => removePenalty(p.id)}
                               style={{ background: 'none', border: 'none', color: 'var(--green)', cursor: 'pointer', fontSize: 10, fontWeight: 600 }}>
                               Undo
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Bonus Section */}
+                {league.status === 'active' && standings.length > 0 && (
+                  <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 12, padding: 14, marginBottom: 16 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: showBonusForm ? 12 : 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <FiAward style={{ color: 'var(--green)', fontSize: 14 }} />
+                        <span style={{ fontWeight: 700, fontSize: 13 }}>Bonus Points</span>
+                      </div>
+                      <button onClick={() => setShowBonusForm(!showBonusForm)}
+                        style={{ background: 'none', border: 'none', color: showBonusForm ? 'var(--text-muted)' : 'var(--green)', cursor: 'pointer', fontSize: 11, fontWeight: 600 }}>
+                        {showBonusForm ? 'Cancel' : '+ Add Bonus'}
+                      </button>
+                    </div>
+
+                    {showBonusForm && (
+                      <div style={{ background: 'var(--bg-surface)', border: '1px solid rgba(0,200,120,0.2)', borderRadius: 8, padding: 12, marginBottom: 8 }}>
+                        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 8 }}>
+                          <select value={bonusTeam} onChange={e => setBonusTeam(e.target.value)}
+                            style={{ flex: 1, minWidth: 150, padding: '8px 10px', borderRadius: 6, background: 'var(--bg-dark)', border: '1px solid var(--border)', color: 'var(--text-primary)', fontSize: 12 }}>
+                            <option value="">Select Team</option>
+                            {standings.map(s => <option key={s.registration_id} value={s.registration_id}>{s.name} ({s.total_points} pts)</option>)}
+                          </select>
+                          <input type="number" placeholder="Points" min="1" value={bonusPoints}
+                            onChange={e => setBonusPoints(e.target.value)}
+                            style={{ width: 80, padding: '8px 10px', borderRadius: 6, background: 'var(--bg-dark)', border: '1px solid var(--border)', color: 'var(--text-primary)', fontSize: 12 }} />
+                        </div>
+                        <input placeholder="Reason (e.g. fair play, sportsmanship)" value={bonusReason}
+                          onChange={e => setBonusReason(e.target.value)}
+                          style={{ width: '100%', padding: '8px 10px', borderRadius: 6, background: 'var(--bg-dark)', border: '1px solid var(--border)', color: 'var(--text-primary)', fontSize: 12, marginBottom: 8 }} />
+                        <button onClick={applyBonus} disabled={busy}
+                          style={{ padding: '8px 16px', borderRadius: 6, background: 'var(--green)', color: 'white', border: 'none', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+                          {busy ? "Adding..." : "Add Bonus"}
+                        </button>
+                      </div>
+                    )}
+
+                    {bonuses.length > 0 && (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                        {bonuses.map(b => (
+                          <div key={b.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 10px', background: 'rgba(0,200,120,0.06)', borderRadius: 6, border: '1px solid rgba(0,200,120,0.15)' }}>
+                            <div style={{ fontSize: 11 }}>
+                              <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{b.team_name}</span>
+                              <span style={{ color: 'var(--green)', fontWeight: 700, marginLeft: 6 }}>+{b.points} pts</span>
+                              <span style={{ color: 'var(--text-muted)', marginLeft: 6 }}>({b.reason})</span>
+                            </div>
+                            <button onClick={() => removeBonus(b.id)}
+                              style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: 10, fontWeight: 600 }}>
+                              Remove
                             </button>
                           </div>
                         ))}
