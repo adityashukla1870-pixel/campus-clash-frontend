@@ -147,14 +147,19 @@ function AdminCreateTournament() {
               <label>Banner Image <span style={{color:'var(--text-muted)', fontWeight:400}}>(optional)</span></label>
               <input type="file" accept="image/*" onChange={handleBannerChange} />
               <p style={{fontSize:12, color:'var(--text-muted)', marginTop:6}}>
-                Shown on the tournament card and details page. Landscape images work best.
+                Shown on the tournament card and details page. Any image size works — it will auto-fit.
               </p>
               {bannerPreview && (
-                <img
-                  src={bannerPreview}
-                  alt="Banner preview"
-                  style={{width:'100%', height:160, objectFit:'cover', borderRadius:10, marginTop:10, border:'1px solid var(--border)'}}
-                />
+                <div style={{
+                  width:'100%', borderRadius:10, marginTop:10, border:'1px solid var(--border)',
+                  overflow:'hidden', maxHeight:220, position:'relative', background:'var(--bg-surface)',
+                }}>
+                  <img
+                    src={bannerPreview}
+                    alt="Banner preview"
+                    style={{width:'100%', height:'100%', objectFit:'cover', display:'block'}}
+                  />
+                </div>
               )}
             </div>
 
