@@ -1,11 +1,9 @@
 import { useState } from "react"
-import { useNavigate } from "react-router-dom"
 import { FiAward, FiUser, FiUsers, FiZap, FiSend } from "react-icons/fi"
 import API from "../api/axios"
 import AdminTopBar from "../components/AdminTopBar"
 
 function AdminCreateTournament() {
-  const navigate = useNavigate()
   const [name, setName] = useState("")
   const [entryFee, setEntryFee] = useState("")
   const [registrationEndTime, setRegistrationEndTime] = useState("")

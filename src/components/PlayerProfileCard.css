@@ -1,0 +1,257 @@
+.ppc-overlay {
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.ppc-card {
+  width: 600px;
+  max-width: 95vw;
+  height: 300px;
+  max-height: 90vh;
+  border: 1px solid;
+  border-radius: 16px;
+  padding: 0;
+  animation: ppc-in 0.2s ease-out;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+@keyframes ppc-in {
+  from { opacity: 0; transform: scale(0.95) translateY(8px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.ppc-close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  background: rgba(255,255,255,0.1);
+  border: none;
+  color: rgba(255,255,255,0.5);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 8px;
+  line-height: 0;
+  z-index: 2;
+  transition: all 0.15s;
+}
+.ppc-close:hover { color: #fff; background: rgba(255,255,255,0.2); }
+
+.ppc-loading {
+  padding: 40px 0;
+  text-align: center;
+  font-size: 13px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.ppc-spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid rgba(255,255,255,0.1);
+  border-top-color: #d4af37;
+  border-radius: 50%;
+  animation: ppc-spin 0.7s linear infinite;
+}
+
+@keyframes ppc-spin {
+  to { transform: rotate(360deg); }
+}
+
+.ppc-top {
+  display: flex;
+  align-items: center;
+  padding: 20px 24px 14px;
+  gap: 20px;
+  border-bottom: 1px solid;
+}
+
+.ppc-avatar-section {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+}
+
+.ppc-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: 3px solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.ppc-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.ppc-avatar span {
+  font-family: var(--font-display, 'Poppins', sans-serif);
+  font-weight: 800;
+  font-size: 26px;
+  color: #fff;
+}
+
+.ppc-identity {
+  min-width: 0;
+}
+
+.ppc-name {
+  margin: 0;
+  font-family: var(--font-display, 'Poppins', sans-serif);
+  font-weight: 800;
+  font-size: 20px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.ppc-username {
+  font-size: 13px;
+  margin-top: 2px;
+}
+
+.ppc-tagline {
+  font-size: 11px;
+  margin-top: 2px;
+  font-style: italic;
+}
+
+.ppc-badge-tag {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 2px 10px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-radius: 6px;
+  border: 1px solid;
+}
+
+.ppc-stat-boxes {
+  display: flex;
+  gap: 8px;
+  flex: 1;
+}
+
+.ppc-stat-box {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 10px 6px;
+  border-radius: 12px;
+  border: 1px solid;
+  text-align: center;
+}
+
+.ppc-stat-val {
+  font-family: var(--font-display, 'Poppins', sans-serif);
+  font-weight: 800;
+  font-size: 18px;
+}
+
+.ppc-stat-label {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.ppc-stat-sub {
+  font-size: 10px;
+}
+
+.ppc-bottom {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.ppc-col {
+  flex: 1;
+  padding: 12px 16px;
+  border-right: 1px solid;
+}
+.ppc-col:last-child {
+  border-right: none;
+}
+
+.ppc-col h4 {
+  margin: 0 0 10px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ppc-info-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 0;
+  font-size: 12px;
+}
+
+.ppc-info-row svg {
+  flex-shrink: 0;
+}
+
+.ppc-info-label {
+  flex: 1;
+}
+
+.ppc-info-val {
+  font-weight: 600;
+  text-align: right;
+}
+
+.ppc-no-badges {
+  font-size: 12px;
+  text-align: center;
+  padding: 16px 0;
+}
+
+.ppc-badge-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+}
+
+.ppc-badge-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 6px 4px;
+  border-radius: 8px;
+  border: 1px solid;
+}
+
+.ppc-badge-icon {
+  font-size: 18px;
+  margin-bottom: 2px;
+}
+
+.ppc-badge-label {
+  font-size: 8px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.ppc-badge-desc {
+  font-size: 9px;
+}

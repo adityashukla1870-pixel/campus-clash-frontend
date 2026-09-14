@@ -271,3 +271,15 @@
   font-size: 14px;
   margin: 0 0 20px;
 }
+
+/* Clickable player names that open the profile card */
+.stat-player-clickable {
+  cursor: pointer;
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+  transition: filter 0.15s ease;
+}
+
+.stat-player-clickable:hover {
+  filter: brightness(1.4);
+}

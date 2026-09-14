@@ -28,8 +28,10 @@ import {
   FiStar,
 } from "react-icons/fi"
 import Navbar from "../components/Navbar"
+import PlayerProfileCard from "../components/PlayerProfileCard"
 import API from "../api/axios"
 import { getRole } from "../utils/auth"
+import { resolveImageUrl } from "../utils/media"
 import { SkeletonText, SkeletonBlock, SkeletonChat, SkeletonCard } from "../components/Skeleton"
 import "./Community.css"
 
@@ -113,6 +115,7 @@ function Community() {
 
   const [reportTarget, setReportTarget] = useState(null)
   const [reportReason, setReportReason] = useState("")
+  const [selectedPlayer, setSelectedPlayer] = useState(null)
 
   const [muteTarget, setMuteTarget] = useState(null)
   const [muteMinutes, setMuteMinutes] = useState(10)
@@ -539,12 +542,24 @@ function Community() {
 
               {grouped.map((group, gi) => (
                 <div className="msg-group" key={gi}>
-                  <div className="msg-avatar" style={{ background: colorForUser(group.user_id) }}>
+                  <div
+                    className="msg-avatar msg-clickable"
+                    style={{ background: colorForUser(group.user_id) }}
+                    title={`View ${group.name}'s profile`}
+                    onClick={(e) => setSelectedPlayer({ userId: group.user_id, rect: e.currentTarget.getBoundingClientRect() })}
+                  >
                     {initials(group.name)}
                   </div>
                   <div className="msg-group-body">
                     <div className="msg-group-header">
-                      <span className="msg-name" style={{ color: colorForUser(group.user_id) }}>{group.name}</span>
+                      <span
+                        className="msg-name msg-clickable"
+                        style={{ color: colorForUser(group.user_id) }}
+                        title={`View ${group.name}'s profile`}
+                        onClick={(e) => setSelectedPlayer({ userId: group.user_id, rect: e.currentTarget.getBoundingClientRect() })}
+                      >
+                        {group.name}
+                      </span>
                       {group.role === "admin" && <span className="msg-badge">ADMIN</span>}
                       {group.items[0].is_champion && <span className="msg-badge champion"><FiAward /> CHAMPION</span>}
                       <span className="msg-time">{formatTime(group.items[0].created_at)}</span>
@@ -598,7 +613,7 @@ function Community() {
                             {m.image_url && (
                               <img
                                 className="msg-image"
-                                src={`${import.meta.env.VITE_API_URL}${m.image_url}`}
+                                src={resolveImageUrl(m.image_url)}
                                 alt="attachment"
                               />
                             )}
@@ -767,7 +782,12 @@ function Community() {
               {onlineMembers.length > 0 && (
                 <div className="community-member-list">
                   {onlineMembers.slice(0, 5).map(member => (
-                    <div className="community-member" key={member.user_id}>
+                    <div
+                      className="community-member msg-clickable"
+                      key={member.user_id}
+                      title={`View ${member.name}'s profile`}
+                      onClick={(e) => setSelectedPlayer({ userId: member.user_id, rect: e.currentTarget.getBoundingClientRect() })}
+                    >
                       <span className="community-member-avatar" style={{ background: colorForUser(member.user_id) }}>
                         {initials(member.name)}
                       </span>
@@ -882,6 +902,14 @@ function Community() {
             <button className="modal-close-btn" onClick={() => setShowReports(false)}>Close</button>
           </div>
         </div>
+      )}
+
+      {selectedPlayer && (
+        <PlayerProfileCard
+          userId={selectedPlayer.userId}
+          anchorRect={selectedPlayer.rect}
+          onClose={() => setSelectedPlayer(null)}
+        />
       )}
     </>
   )

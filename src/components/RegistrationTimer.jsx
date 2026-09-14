@@ -29,11 +29,13 @@ function formatDuration(ms) {
 function RegistrationTimer({ deadline, onExpire, style = {}, closedText = "Registration Closed" }) {
   const [msLeft, setMsLeft] = useState(() => msLeftOf(deadline))
   const [firedExpire, setFiredExpire] = useState(false)
+  const [prevDeadline, setPrevDeadline] = useState(deadline)
 
-  useEffect(() => {
+  if (prevDeadline !== deadline) {
+    setPrevDeadline(deadline)
     setMsLeft(msLeftOf(deadline))
     setFiredExpire(false)
-  }, [deadline])
+  }
 
   useEffect(() => {
     if (!deadline) return undefined

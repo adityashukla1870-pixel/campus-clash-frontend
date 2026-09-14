@@ -1,12 +1,10 @@
 import { useEffect, useState } from "react"
-import { useNavigate } from "react-router-dom"
 import { FiAward, FiZap, FiRefreshCw, FiFlag } from "react-icons/fi"
 import API from "../api/axios"
 import AdminTopBar from "../components/AdminTopBar"
 import { SkeletonText, SkeletonBracket, SkeletonBlock } from "../components/Skeleton"
 
 function AdminBracket() {
-  const navigate = useNavigate()
   const [tournaments, setTournaments] = useState([])
   const [selectedId, setSelectedId] = useState("")
   const [rounds, setRounds] = useState(null)

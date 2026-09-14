@@ -14,7 +14,14 @@ const GAME_ICONS = { BGMI: FiMonitor, "Free Fire": FiZap, Valorant: FiTarget, "C
 function Tournament() {
   const navigate = useNavigate()
   const [tournaments, setTournaments] = useState([])
-  const [userId, setUserId] = useState("")
+  const [userId] = useState(() => {
+    try {
+      const token = localStorage.getItem("token")
+      return token ? jwtDecode(token).sub : ""
+    } catch {
+      return ""
+    }
+  })
   const [search, setSearch] = useState("")
   const [gameFilter, setGameFilter] = useState("all")
   const [statusFilter, setStatusFilter] = useState("all")
@@ -23,20 +30,14 @@ function Tournament() {
 
   useEffect(() => {
     const token = localStorage.getItem("token")
-    if (!token) { navigate("/"); return }
-    try {
-      const decoded = jwtDecode(token)
-      setUserId(decoded.sub)
-    } catch {
-      navigate("/"); return
-    }
+    if (!token || !userId) { navigate("/"); return }
     API.get("/tournament/all")
       .then(res => {
         const data = res.data
         setTournaments(Array.isArray(data) ? data : [])
       })
       .finally(() => setLoading(false))
-  }, [location.pathname])
+  }, [location.pathname, navigate, userId])
 
   const gameOptions = [...new Set(tournaments.map(t => t.game).filter(Boolean))]
 

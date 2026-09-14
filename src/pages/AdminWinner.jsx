@@ -1,12 +1,10 @@
 import { useEffect, useState } from "react"
-import { useNavigate } from "react-router-dom"
 import { FiAward } from "react-icons/fi"
 import API from "../api/axios"
 import AdminTopBar from "../components/AdminTopBar"
 import { SkeletonText, SkeletonBlock, SkeletonCard } from "../components/Skeleton"
 
 function AdminWinner() {
-  const navigate = useNavigate()
   const [tournaments, setTournaments] = useState([])
   const [selectedTournament, setSelectedTournament] = useState("")
   const [participants, setParticipants] = useState([])

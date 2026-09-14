@@ -8,6 +8,7 @@ import {
   Medal,
   ArrowLeft,
   Swords,
+  Bell,
 } from "lucide-react"
 import "./AdminLayout.css"
 
@@ -17,6 +18,7 @@ const navItems = [
   { icon: Radio, label: "Release Room", path: "/admin/release-room" },
   { icon: Trophy, label: "Create Tournament", path: "/admin/create-tournament" },
   { icon: Medal, label: "Declare Winner", path: "/admin/winner" },
+  { icon: Bell, label: "Notifications", path: "/admin/notifications" },
 ]
 
 function AdminLayout({ children, title, subtitle }) {

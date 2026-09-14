@@ -3,12 +3,13 @@ import { useParams, useNavigate } from "react-router-dom"
 import { motion } from "framer-motion"
 import { FiCheckCircle, FiCircle, FiStar, FiKey, FiAward, FiTarget, FiMonitor, FiArrowLeft, FiLock, FiZap, FiChevronDown, FiChevronUp, FiArrowRight, FiGrid, FiCalendar, FiClock, FiUsers, FiUser, FiMap } from "react-icons/fi"
 import Navbar from "../components/Navbar"
+import PlayerProfileCard from "../components/PlayerProfileCard"
 import API from "../api/axios"
 import { SkeletonTable, SkeletonText, SkeletonBlock, SkeletonButton } from "../components/Skeleton"
 import "./StageStandings.css"
 
 /* ─── Pod View (per group) ─── */
-function PodView({ podSummary, advanceCount }) {
+function PodView({ podSummary, advanceCount, onPlayerClick }) {
   const [detail, setDetail] = useState(null)
   const [standings, setStandings] = useState([])
 
@@ -45,7 +46,15 @@ function PodView({ podSummary, advanceCount }) {
               <div className="match-row">
                 <span className="match-label">Match {m.match_number}{m.map && ` · ${m.map}`}</span>
                 {m.status === "completed" ? (
-                  <span className="match-tag done">Results in{m.mvp && <><FiStar /> {m.mvp.name} ({m.mvp.kills} kills)</>}</span>
+                  <span className="match-tag done">Results in{m.mvp && <>{" "}<FiStar /> {m.mvp.user_id && onPlayerClick ? (
+                    <span
+                      className="stat-player-clickable"
+                      title={`View ${m.mvp.name}'s profile`}
+                      onClick={(e) => { e.stopPropagation(); onPlayerClick({ userId: m.mvp.user_id, rect: e.currentTarget.getBoundingClientRect() }) }}
+                    >
+                      {m.mvp.name}
+                    </span>
+                  ) : m.mvp.name} ({m.mvp.kills} kills)</>}</span>
                 ) : m.room_id ? (
                   <span className="match-tag live"><FiKey /> Room live</span>
                 ) : (
@@ -68,7 +77,7 @@ function PodView({ podSummary, advanceCount }) {
 }
 
 /* ─── Stage View ─── */
-function StageView({ stageSummary }) {
+function StageView({ stageSummary, onPlayerClick }) {
   const [detail, setDetail] = useState(null)
   useEffect(() => { API.get(`/stages/${stageSummary.id}`).then(res => setDetail(res.data)) }, [stageSummary.id])
   return (
@@ -79,20 +88,34 @@ function StageView({ stageSummary }) {
           {stageSummary.status === "completed" ? <><FiCheckCircle /> Completed</> : <><FiCircle style={{color:'var(--green)'}} /> Live</>}
         </span>
       </div>
-      {detail?.pods?.map(p => <PodView key={p.id} podSummary={p} advanceCount={stageSummary.advance_count} />)}
+      {detail?.pods?.map(p => <PodView key={p.id} podSummary={p} advanceCount={stageSummary.advance_count} onPlayerClick={onPlayerClick} />)}
     </div>
   )
 }
 
 /* ─── Stat Table ─── */
-function StatTable({ columns, rows }) {
+function StatTable({ columns, rows, onPlayerClick }) {
   return (
     <div className="standings-table-wrap">
       <table className="standings-table">
         <thead><tr>{columns.map(c => <th key={c.key}>{c.label}</th>)}</tr></thead>
         <tbody>
           {rows.map((r, i) => (
-            <tr key={i}>{columns.map(c => <td key={c.key} className={c.key === 'total_points' ? 'points-cell' : ''}>{r[c.key]}</td>)}</tr>
+            <tr key={i}>{columns.map(c => (
+              <td key={c.key} className={c.key === 'total_points' ? 'points-cell' : ''}>
+                {c.key === 'name' && r.user_id && onPlayerClick ? (
+                  <span
+                    className="stat-player-clickable"
+                    title={`View ${r.name}'s profile`}
+                    onClick={(e) => onPlayerClick({ userId: r.user_id, rect: e.currentTarget.getBoundingClientRect() })}
+                  >
+                    {r[c.key]}
+                  </span>
+                ) : (
+                  r[c.key]
+                )}
+              </td>
+            ))}</tr>
           ))}
           {rows.length === 0 && <tr><td colSpan={columns.length} className="standings-empty">No data yet</td></tr>}
         </tbody>
@@ -222,7 +245,7 @@ function PodiumCard({ team, rank, delay = 0 }) {
 }
 
 /* ─── Cross-Pod Match Card ─── */
-function CrossPodMatchCard({ match }) {
+function CrossPodMatchCard({ match, onPlayerClick }) {
   const isLive = !!match.room_id && match.status !== 'completed'
   const isDone = match.status === 'completed'
   const isFullLobby = match.full_lobby
@@ -326,7 +349,21 @@ function CrossPodMatchCard({ match }) {
 
       {isDone && (
         <div>
-          {match.mvp && <div style={{ fontSize: 10, color: 'var(--gold)', marginBottom: 2, fontWeight: 600 }}><FiStar /> MVP: {match.mvp.name} ({match.mvp.kills}k)</div>}
+          {match.mvp && (
+            <div style={{ fontSize: 10, color: 'var(--gold)', marginBottom: 2, fontWeight: 600 }}>
+              <FiStar /> MVP:{' '}
+              {match.mvp.user_id && onPlayerClick ? (
+                <span
+                  className="stat-player-clickable"
+                  title={`View ${match.mvp.name}'s profile`}
+                  onClick={(e) => onPlayerClick({ userId: match.mvp.user_id, rect: e.currentTarget.getBoundingClientRect() })}
+                >
+                  {match.mvp.name}
+                </span>
+              ) : match.mvp.name}
+              {' '}({match.mvp.kills}k)
+            </div>
+          )}
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
             {[...match.results].sort((a, b) => a.placement - b.placement).map(r => (
               <span key={r.registration_id} style={{ fontSize: 10, background: 'var(--bg-surface)', borderRadius: 4, padding: '2px 6px', color: 'var(--text-secondary)' }}>
@@ -351,6 +388,7 @@ function StageStandings() {
   const [statTab, setStatTab] = useState("team_frags")
   const [loading, setLoading] = useState(true)
   const [countdown, setCountdown] = useState({ days: 0, hrs: 0, min: 0, sec: 0 })
+  const [selectedPlayer, setSelectedPlayer] = useState(null)
 
   // Cross-pod state
   const [rrDetail, setRrDetail] = useState(null)
@@ -491,8 +529,8 @@ function StageStandings() {
     if (!s) return null
     switch (statTab) {
       case "team_frags": return <StatTable rows={s.team_frags} columns={[{ key: "rank", label: "#" }, { key: "name", label: "Team" }, { key: "total_kills", label: "Total Kills" }]} />
-      case "individual_frags": return <StatTable rows={s.individual_frags} columns={[{ key: "rank", label: "#" }, { key: "name", label: "Player" }, { key: "team_name", label: "Team" }, { key: "total_kills", label: "Kills" }]} />
-      case "mvp_leaderboard": return <StatTable rows={s.mvp_leaderboard} columns={[{ key: "rank", label: "#" }, { key: "name", label: "Player" }, { key: "team_name", label: "Team" }, { key: "count", label: "MVP Awards" }]} />
+      case "individual_frags": return <StatTable rows={s.individual_frags} columns={[{ key: "rank", label: "#" }, { key: "name", label: "Player" }, { key: "team_name", label: "Team" }, { key: "total_kills", label: "Kills" }]} onPlayerClick={setSelectedPlayer} />
+      case "mvp_leaderboard": return <StatTable rows={s.mvp_leaderboard} columns={[{ key: "rank", label: "#" }, { key: "name", label: "Player" }, { key: "team_name", label: "Team" }, { key: "count", label: "MVP Awards" }]} onPlayerClick={setSelectedPlayer} />
       default: return null
     }
   }
@@ -1055,7 +1093,7 @@ function StageStandings() {
                           <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 2 }}>
                             Match {m.match_number} — {getGroupPairName(m.pod_a_name, m.pod_b_name)}{m.map && ` on ${m.map}`}
                           </div>
-                          <CrossPodMatchCard match={m} />
+                          <CrossPodMatchCard match={m} onPlayerClick={setSelectedPlayer} />
                         </div>
                       ))}
                     </div>
@@ -1092,7 +1130,7 @@ function StageStandings() {
                 ))}
               </div>
             </div>
-          ) : [...stages].reverse().map(s => <StageView key={s.id} stageSummary={s} />)
+          ) : [...stages].reverse().map(s => <StageView key={s.id} stageSummary={s} onPlayerClick={setSelectedPlayer} />)
         )}
 
         {/* ═══════ TAB: STATS ═══════ */}
@@ -1109,6 +1147,14 @@ function StageStandings() {
       </div>
 
       <style>{`@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }`}</style>
+
+      {selectedPlayer && (
+        <PlayerProfileCard
+          userId={selectedPlayer.userId}
+          anchorRect={selectedPlayer.rect}
+          onClose={() => setSelectedPlayer(null)}
+        />
+      )}
     </>
   )
 }

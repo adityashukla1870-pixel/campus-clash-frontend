@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react"
+import { useEffect, useState } from "react"
 import { FiCheckCircle, FiKey, FiClock, FiStar, FiAward, FiTrash2, FiSend, FiTarget, FiZap, FiGrid, FiUsers, FiCalendar, FiMap } from "react-icons/fi"
 import API from "../api/axios"
 import AdminTopBar from "../components/AdminTopBar"
@@ -14,7 +14,7 @@ function MatchCard({ match, isSquad, onChanged }) {
     try { return JSON.parse(localStorage.getItem(draftKey)) || {} } catch { return {} }
   })
   const [busy, setBusy] = useState(false)
-  const [participants, setParticipants] = useState(match.participants || [])
+  const [participants] = useState(match.participants || [])
   const [slotAssignments, setSlotAssignments] = useState(match.slot_assignments || {})
   const [showSlots, setShowSlots] = useState(false)
 
@@ -311,24 +311,6 @@ function AdminBGMILeague() {
       loadLeague(selected)
     } catch (err) {
       alert(err.response?.data?.error || "Failed to create league")
-    } finally {
-      setBusy(false)
-    }
-  }
-
-  const addMatches = async (count) => {
-    if (!league) return
-    if (!confirm(`Add ${count} more matches?`)) return
-    setBusy(true)
-    try {
-      // Create a new league with additional matches
-      await API.post(`/bgmi-league/${selected}/create`, {
-        name: league.name,
-        matches_per_day: [count]
-      })
-      loadLeague(selected)
-    } catch (err) {
-      alert(err.response?.data?.error || "Failed to add matches")
     } finally {
       setBusy(false)
     }

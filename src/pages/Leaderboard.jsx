@@ -5,7 +5,7 @@ import Navbar from "../components/Navbar"
 import API from "../api/axios"
 import { SkeletonLeaderboard, SkeletonText, SkeletonBlock } from "../components/Skeleton"
 import { getSelectedAvatarId, resolveAvatarUrl, getCurrentUserId } from "../data/avatarRepository"
-import PlayerMiniCard from "../components/PlayerMiniCard"
+import PlayerProfileCard from "../components/PlayerProfileCard"
 import "./Leaderboard.css"
 
 const TABS = [
@@ -42,24 +42,21 @@ function playerAvatarUrl(player) {
 function Leaderboard() {
   const [activeTab, setActiveTab] = useState("global")
   const [tabData, setTabData] = useState({ global: null, BGMI: null, FREE_FIRE: null })
-  const [loadingTabs, setLoadingTabs] = useState({ global: true, BGMI: false, FREE_FIRE: false })
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedPlayer, setSelectedPlayer] = useState(null)
 
   useEffect(() => {
     const endpoint = TAB_ENDPOINTS[activeTab]
-    setLoadingTabs(prev => ({ ...prev, [activeTab]: true }))
     API.get(endpoint)
       .then(res => {
         const data = res.data?.leaderboard || (Array.isArray(res.data) ? res.data : [])
         setTabData(prev => ({ ...prev, [activeTab]: data }))
       })
       .catch(() => setTabData(prev => ({ ...prev, [activeTab]: [] })))
-      .finally(() => setLoadingTabs(prev => ({ ...prev, [activeTab]: false })))
   }, [activeTab])
 
   const rows = tabData[activeTab] || []
-  const loading = loadingTabs[activeTab]
+  const loading = tabData[activeTab] == null
 
   const hasPodium = rows.length >= 3
   const podium = hasPodium ? rows.slice(0, 3) : []
@@ -150,9 +147,9 @@ function Leaderboard() {
                     transition={{ duration: 0.6, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
                   >
                     <div className="lb-podium">
-                      <PodiumBlock player={podium[1]} rank={2} delay={0.6} activeTab={activeTab} />
-                      <PodiumBlock player={podium[0]} rank={1} delay={0.3} activeTab={activeTab} />
-                      <PodiumBlock player={podium[2]} rank={3} delay={0.8} activeTab={activeTab} />
+                      <PodiumBlock player={podium[1]} rank={2} delay={0.6} activeTab={activeTab} onSelectPlayer={setSelectedPlayer} />
+                      <PodiumBlock player={podium[0]} rank={1} delay={0.3} activeTab={activeTab} onSelectPlayer={setSelectedPlayer} />
+                      <PodiumBlock player={podium[2]} rank={3} delay={0.8} activeTab={activeTab} onSelectPlayer={setSelectedPlayer} />
                     </div>
                   </motion.div>
                 </section>
@@ -229,7 +226,7 @@ function Leaderboard() {
       </main>
 
       {selectedPlayer && (
-        <PlayerMiniCard
+        <PlayerProfileCard
           userId={selectedPlayer.userId}
           anchorRect={selectedPlayer.rect}
           onClose={() => setSelectedPlayer(null)}
@@ -239,7 +236,7 @@ function Leaderboard() {
   )
 }
 
-function PodiumBlock({ player, rank, delay = 0, activeTab }) {
+function PodiumBlock({ player, rank, delay = 0, activeTab, onSelectPlayer }) {
   if (!player) return null
 
   const tierClass = rank === 1 ? "gold" : rank === 2 ? "silver" : "bronze"
@@ -286,7 +283,7 @@ function PodiumBlock({ player, rank, delay = 0, activeTab }) {
         </motion.div>
         <span
           className="lb-podium-name lb-player-clickable"
-          onClick={(e) => e.stopPropagation() || setSelectedPlayer({ userId: player.user_id, rect: e.currentTarget.getBoundingClientRect() })}
+          onClick={(e) => e.stopPropagation() || onSelectPlayer?.({ userId: player.user_id, rect: e.currentTarget.getBoundingClientRect() })}
         >
           {player.name}
         </span>

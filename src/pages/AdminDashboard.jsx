@@ -19,6 +19,7 @@ const adminActions = [
   { Icon: FiAperture, label: "Avatar Library", desc: "Manage avatars available to players", path: "/admin/avatars", color: "#d4af37" },
   { Icon: FiUserCheck, label: "User Management", desc: "Search users & reset passwords", path: "/admin/users", color: "#06b6d4" },
   { Icon: FiStar, label: "Player Feedback", desc: "Review & approve player feedback", path: "/admin/feedback", color: "#f59e0b" },
+  { Icon: FiStar, label: "Notification Launcher", desc: "Send announcements & alerts to players", path: "/admin/notifications", color: "#818cf8" },
 ]
 
 function AdminDashboard() {
