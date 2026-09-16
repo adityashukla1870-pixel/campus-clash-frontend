@@ -1,12 +1,10 @@
 import { useEffect, useState } from "react"
-import { useNavigate } from "react-router-dom"
 import { FiMonitor, FiRadio, FiUsers, FiGrid, FiChevronDown } from "react-icons/fi"
 import API from "../api/axios"
 import AdminTopBar from "../components/AdminTopBar"
 import { SkeletonText, SkeletonBlock, SkeletonCard } from "../components/Skeleton"
 
 function AdminReleaseRoom() {
-  const navigate = useNavigate()
   const [tournaments, setTournaments] = useState([])
   const [selectedId, setSelectedId] = useState("")
   const [roomId, setRoomId] = useState("")
@@ -29,7 +27,6 @@ function AdminReleaseRoom() {
       const res = await API.get(`/tournament/admin/${tournamentId}/approved-teams`)
       setTeams(res.data.teams || [])
       setShowSlots(true)
-      // Load existing slot assignments
       const roomRes = await API.get(`/tournament/room/${tournamentId}`)
       setSlotAssignments(roomRes.data.slot_assignments || {})
     } catch {

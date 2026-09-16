@@ -216,3 +216,25 @@
   font-size: 15px;
   font-weight: 700;
 }
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* Clickable player names that open the profile card */
+.stat-player-clickable {
+  cursor: pointer;
+  text-decoration: underline dotted;
+  text-underline-offset: 3px;
+  transition: filter 0.15s ease;
+}
+
+.stat-player-clickable:hover {
+  filter: brightness(1.4);
+}

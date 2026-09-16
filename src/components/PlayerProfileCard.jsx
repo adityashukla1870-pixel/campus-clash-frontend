@@ -42,19 +42,21 @@ function getPalette(themeId) {
 function PlayerProfileCard({ userId, anchorRect, onClose }) {
   const [profile, setProfile] = useState(null)
   const [stats, setStats] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const [loadedFor, setLoadedFor] = useState(null)
   const cardRef = useRef(null)
+
+  const loading = loadedFor !== userId
 
   useEffect(() => {
     if (!userId) return
-    setLoading(true)
     Promise.all([
       API.get(`/auth/profile/${userId}`).catch(() => ({ data: null })),
       API.get(`/stats/player/${userId}/stats`).catch(() => ({ data: null })),
     ]).then(([pRes, sRes]) => {
       setProfile(pRes.data)
       setStats(sRes.data)
-    }).finally(() => setLoading(false))
+      setLoadedFor(userId)
+    })
   }, [userId])
 
   useEffect(() => {

@@ -1,3 +1,49 @@
+.admin-notif-page {
+  min-height: 100vh;
+  background: var(--bg-dark, #0a0a0f);
+  padding: 24px;
+}
+
+.admin-notif-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.admin-notif-header-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(129, 140, 248, 0.2), rgba(129, 140, 248, 0.05));
+  border: 1px solid rgba(129, 140, 248, 0.3);
+  color: #818cf8;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.admin-notif-header h1 {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--text-primary, #fff);
+  margin: 0;
+}
+
+.admin-notif-header p {
+  color: var(--text-secondary, #999);
+  font-size: 13px;
+  margin: 4px 0 0;
+}
+
+.an-create-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 16px;
+}
+
 .an-stats {
   display: grid;
   grid-template-columns: repeat(4, 1fr);

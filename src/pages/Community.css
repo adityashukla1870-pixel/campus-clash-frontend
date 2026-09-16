@@ -242,6 +242,17 @@
   font-size: 14.5px;
 }
 
+/* Clickable profile-card triggers (chat avatars, names, online members) */
+.msg-clickable {
+  cursor: pointer;
+  transition: transform 0.15s ease, filter 0.15s ease;
+}
+
+.msg-clickable:hover {
+  filter: brightness(1.25);
+  transform: translateY(-1px);
+}
+
 .msg-badge {
   font-size: 10px;
   font-weight: 700;

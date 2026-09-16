@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react"
+﻿import { useEffect, useState, useCallback } from "react"
 import { createPortal } from "react-dom"
 import { useNavigate, useLocation } from "react-router-dom"
 import { motion, AnimatePresence } from "framer-motion"
 import { FiX } from "react-icons/fi"
-import { useNotifications } from "../context/NotificationContext"
+import { useNotifications } from "../context/useNotifications"
 import { playNotificationSound } from "../utils/notificationSound"
 import "./NotificationPopup.css"
 
@@ -13,8 +13,15 @@ function NotificationPopup() {
   const navigate = useNavigate()
   const location = useLocation()
   const { popupQueue, dismissPopup } = useNotifications()
-  const [current, setCurrent] = useState(null)
+  const [dismissedLocal, setDismissedLocal] = useState(() => {
+    try { return new Set(JSON.parse(localStorage.getItem("cc_popup_dismissed") || "[]")) } catch { return new Set() }
+  })
   const [hasToken, setHasToken] = useState(() => !!localStorage.getItem("token"))
+
+  // The current popup is the first queue item this device hasn't dismissed.
+  // Dismiss state comes from the server (per-user), plus a local set so a
+  // dismissed popup disappears instantly without waiting for the refetch.
+  const current = popupQueue.find(p => !dismissedLocal.has(p.id)) || null
 
   useEffect(() => {
     const check = () => setHasToken(!!localStorage.getItem("token"))
@@ -22,25 +29,39 @@ function NotificationPopup() {
     return () => window.removeEventListener("storage", check)
   }, [])
 
+  // Play the chime once per announcement when it first becomes visible
   useEffect(() => {
-    if (popupQueue.length > 0 && !current) {
-      const next = popupQueue[0]
-      setCurrent(next)
-      playNotificationSound()
-    }
-  }, [popupQueue, current])
-
-  const handleClose = async () => {
     if (!current) return
-    await dismissPopup(current.id)
-    setCurrent(null)
+    const key = "cc_popup_sounded_" + current.id
+    if (!localStorage.getItem(key)) {
+      playNotificationSound()
+      localStorage.setItem(key, "1")
+    }
+  }, [current])
+
+  const close = useCallback(async (id) => {
+    setDismissedLocal(prev => {
+      const next = new Set(prev)
+      next.add(id)
+      // keep the local set small â€” server tracks the durable state
+      localStorage.setItem("cc_popup_dismissed", JSON.stringify(Array.from(next).slice(-100)))
+      return next
+    })
+    try {
+      await dismissPopup(id)
+    } catch {
+      // silent â€” server state will catch up on next poll
+    }
+  }, [dismissPopup])
+
+  const handleClose = () => {
+    if (current) close(current.id)
   }
 
-  const handleAction = async () => {
+  const handleAction = () => {
     if (!current) return
     const url = current.actionUrl
-    await dismissPopup(current.id)
-    setCurrent(null)
+    close(current.id)
     if (url) {
       if (url.startsWith("http")) {
         window.open(url, "_blank")

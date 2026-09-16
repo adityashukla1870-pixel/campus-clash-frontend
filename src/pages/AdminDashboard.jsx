@@ -15,10 +15,11 @@ const adminActions = [
   { Icon: FiAward, label: "Bracket Manager", desc: "Generate brackets & report match results", path: "/admin/bracket", color: "#f2ca50" },
   { Icon: FiTarget, label: "Manage Stages", desc: "Groups, playoffs & finals for Full Tournaments", path: "/admin/stages", color: "#ffb957" },
   { Icon: FiTarget, label: "Cross-Pod Round Robin", desc: "Pair groups head-to-head in combined lobbies", path: "/admin/cross-pod", color: "#06b6d4" },
+  { Icon: FiZap, label: "BGMI League", desc: "Full lobby matches, room, results & leaderboard", path: "/admin/bgmi-league", color: "#ffb957" },
   { Icon: FiAperture, label: "Avatar Library", desc: "Manage avatars available to players", path: "/admin/avatars", color: "#d4af37" },
   { Icon: FiUserCheck, label: "User Management", desc: "Search users & reset passwords", path: "/admin/users", color: "#06b6d4" },
   { Icon: FiStar, label: "Player Feedback", desc: "Review & approve player feedback", path: "/admin/feedback", color: "#f59e0b" },
-  { Icon: FiBell, label: "Notifications", desc: "Send announcements & alerts to players", path: "/admin/notifications", color: "#d4af37" },
+  { Icon: FiStar, label: "Notification Launcher", desc: "Send announcements & alerts to players", path: "/admin/notifications", color: "#818cf8" },
 ]
 
 function AdminDashboard() {

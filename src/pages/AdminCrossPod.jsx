@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { FiCheckCircle, FiPlus, FiKey, FiClock, FiStar, FiTrash2, FiSend, FiTarget, FiArrowRight, FiChevronDown, FiChevronUp, FiAward, FiGrid } from "react-icons/fi"
+import { FiCheckCircle, FiPlus, FiKey, FiClock, FiStar, FiTrash2, FiSend, FiTarget, FiArrowRight, FiChevronDown, FiChevronUp, FiAward, FiGrid, FiZap } from "react-icons/fi"
 import API from "../api/axios"
 import AdminTopBar from "../components/AdminTopBar"
 import { SkeletonText, SkeletonTable, SkeletonBlock } from "../components/Skeleton"
@@ -12,12 +12,19 @@ function MatchCard({ match, isSquad, onChanged }) {
   const [slotAssignments, setSlotAssignments] = useState({})
   const [showSlots, setShowSlots] = useState(false)
 
+  const isFullLobby = match.full_lobby
+  const slotLimit = match.slot_limit || (isFullLobby ? 12 : 10)
+
   useEffect(() => {
     API.get(`/cross-pod/matches/${match.id}`).then(res => {
       const m = res.data
-      setParticipants([...(m.pod_a_participants || []), ...(m.pod_b_participants || [])])
+      if (isFullLobby && m.participants) {
+        setParticipants(m.participants)
+      } else {
+        setParticipants([...(m.pod_a_participants || []), ...(m.pod_b_participants || [])])
+      }
     }).catch(() => {})
-  }, [match.id])
+  }, [match.id, isFullLobby])
 
   const releaseRoom = async () => {
     if (!roomDraft.room_id || !roomDraft.password) { alert("Room ID and password required"); return }
@@ -102,15 +109,27 @@ function MatchCard({ match, isSquad, onChanged }) {
     <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 12, padding: 14, marginBottom: 10 }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8, flexWrap: 'wrap', gap: 6 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <span style={{ fontWeight: 700, fontSize: 13 }}>
-            {match.pod_a_name} <FiArrowRight style={{ fontSize: 11 }} /> {match.pod_b_name}
-          </span>
+          {isFullLobby ? (
+            <>
+              <FiZap style={{ color: 'var(--gold)', fontSize: 14 }} />
+              <span style={{ fontWeight: 700, fontSize: 13, color: 'var(--gold)' }}>FULL LOBBY — All Teams</span>
+            </>
+          ) : (
+            <span style={{ fontWeight: 700, fontSize: 13 }}>
+              {match.pod_a_name} <FiArrowRight style={{ fontSize: 11 }} /> {match.pod_b_name}
+            </span>
+          )}
           <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>Match {match.match_number}</span>
         </div>
         <span style={{ fontSize: 11, color: statusColor, fontWeight: 600 }}>{statusText}</span>
       </div>
 
-      {match.map && <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 6 }}>Map: {match.map}</div>}
+      {match.map && (
+        <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
+          {isFullLobby && <span style={{ padding: '2px 8px', borderRadius: 99, background: 'rgba(255,185,87,0.15)', color: '#ffb957', fontWeight: 600, fontSize: 10 }}>MAP</span>}
+          {match.map}
+        </div>
+      )}
 
       {!match.room_id && match.status !== 'completed' && (
         <div style={{ marginBottom: 8 }}>
@@ -136,13 +155,13 @@ function MatchCard({ match, isSquad, onChanged }) {
             style={{ background: 'none', border: 'none', color: 'var(--cyan)', cursor: 'pointer',
               display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, fontWeight: 600, padding: '4px 0' }}>
             <FiGrid size={12} />
-            {showSlots ? 'Hide' : 'Assign'} Lobby Slots ({Object.keys(slotAssignments).length}/10 filled)
+            {showSlots ? 'Hide' : 'Assign'} Lobby Slots ({Object.keys(slotAssignments).length}/{slotLimit} filled)
           </button>
 
           {showSlots && (
             <div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(220px,1fr))', gap: 6, marginTop: 6 }}>
-                {Array.from({ length: 10 }, (_, i) => i + 1).map(slot => (
+              <div style={{ display: 'grid', gridTemplateColumns: isFullLobby ? 'repeat(3, 1fr)' : 'repeat(auto-fill,minmax(220px,1fr))', gap: 6, marginTop: 6 }}>
+                {Array.from({ length: slotLimit }, (_, i) => i + 1).map(slot => (
                   <div key={slot} style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 8, padding: '8px 10px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
                       <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--cyan)', textTransform: 'uppercase', letterSpacing: 0.5 }}>Slot {slot}</span>
@@ -344,14 +363,14 @@ function AdminCrossPod() {
 
   const generateRR = async () => {
     if (!selected) return
+    if (!confirm("Generate round robin matches?")) return
     setBusy(true)
     try {
-      // Auto-find the first stage with pods
       const stagesRes = await API.get(`/stages/tournament/${selected}`)
       const stages = stagesRes.data || []
       if (stages.length === 0) { alert("Create groups first from Manage Stages"); setBusy(false); return }
 
-      const stage = stages[0] // use the first/only stage
+      const stage = stages[0]
       await API.post(`/cross-pod/${selected}/create`, {
         stage_id: stage.id,
         name: "Round Robin",
@@ -360,6 +379,29 @@ function AdminCrossPod() {
       loadRR(selected)
     } catch (err) {
       alert(err.response?.data?.error || "Failed to generate round robin")
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const createFullLobby = async () => {
+    if (!selected) return
+    if (!confirm("Create full lobby matches?")) return
+    setBusy(true)
+    try {
+      const stagesRes = await API.get(`/stages/tournament/${selected}`)
+      const stages = stagesRes.data || []
+      if (stages.length === 0) { alert("Create groups first from Manage Stages"); setBusy(false); return }
+
+      const stage = stages[0]
+      await API.post(`/cross-pod/${selected}/create-full-lobby`, {
+        stage_id: stage.id,
+        name: "Full Lobby - All Teams",
+        match_count: 3
+      })
+      loadRR(selected)
+    } catch (err) {
+      alert(err.response?.data?.error || "Failed to create full lobby")
     } finally {
       setBusy(false)
     }
@@ -409,11 +451,20 @@ function AdminCrossPod() {
     }
   }
 
-  // Group matches by pairing
+  // Group matches by pairing (or Full Lobby)
   const matchGroups = {}
+  const hasFullLobby = detail?.matches?.some(m => m.full_lobby)
   if (detail?.matches) {
     detail.matches.forEach(m => {
-      const key = [m.pod_a_name, m.pod_b_name].sort().join(" vs ")
+      // Skip old Day 3 group matches when full-lobby matches exist
+      if (hasFullLobby && !m.full_lobby && m.match_number > 6) return
+
+      let key
+      if (m.full_lobby) {
+        key = "Full Lobby (All Teams)"
+      } else {
+        key = [m.pod_a_name, m.pod_b_name].sort().join(" vs ")
+      }
       if (!matchGroups[key]) matchGroups[key] = []
       matchGroups[key].push(m)
     })
@@ -442,7 +493,7 @@ function AdminCrossPod() {
               <FiTarget /> Cross-Pod Round Robin
             </h1>
             <p style={{ color: 'var(--text-secondary)', fontSize: 13, marginBottom: 24 }}>
-              3 Groups · 9 Matches · Combined 10-player lobbies · Overall Leaderboard
+              3 Groups · 9 Matches per Round Robin
             </p>
 
             <div className="field-group" style={{ marginBottom: 20 }}>
@@ -457,18 +508,13 @@ function AdminCrossPod() {
               <div style={{ background: 'var(--bg-card)', border: '1px dashed var(--border)', borderRadius: 16, padding: 24, textAlign: 'center' }}>
                 <FiTarget style={{ fontSize: 36, color: 'var(--gold)', marginBottom: 12 }} />
                 <h3 style={{ fontFamily: 'var(--font-display)', fontSize: 18, marginBottom: 8 }}>
-                  Generate Round Robin Matches
+                  Generate Round Robin
                 </h3>
                 <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 16, maxWidth: 460, margin: '0 auto 16px' }}>
-                  This will auto-create <strong>9 matches</strong> across 3 group pairings:
-                  <br />A vs B (3 matches) · B vs C (3 matches) · A vs C (3 matches)
-                  <br />Each team plays <strong>6 matches</strong> total.
-                </p>
-                <p style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 16 }}>
-                  Make sure you've already created a stage with 3 groups from <strong>Manage Stages</strong>.
+                  Creates 3 groups of 4 teams each, then generates 9 cross-group matches (3 per pair of groups).
                 </p>
                 <button className="btn-primary" disabled={busy} onClick={generateRR} style={{ fontSize: 14, padding: '10px 28px' }}>
-                  <FiSend /> Generate 9 Matches
+                  <FiTarget /> Generate Round Robin
                 </button>
               </div>
             )}
@@ -479,7 +525,7 @@ function AdminCrossPod() {
                 <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
                   {detail?.status === 'active' && (
                     <button className="btn-success" disabled={!allDone || busy} onClick={finalizeRR}
-                      title={!allDone ? "Complete all 9 matches first" : ""}>
+                      title={!allDone ? "Complete all matches first" : ""}>
                       <FiCheckCircle /> Finalize & Declare Winners
                     </button>
                   )}
@@ -489,6 +535,11 @@ function AdminCrossPod() {
                   {detail?.status === 'active' && (
                     <button className="btn-secondary" disabled={busy} onClick={fixPairings} style={{ fontSize: 12 }}>
                       Fix Match Pairings
+                    </button>
+                  )}
+                  {detail?.status === 'active' && (
+                    <button className="btn-secondary" disabled={busy} onClick={createFullLobby} style={{ fontSize: 12 }}>
+                      <FiZap /> Add Full Lobby Matches
                     </button>
                   )}
                   <span style={{ fontSize: 12, color: 'var(--text-muted)', alignSelf: 'center', marginLeft: 8 }}>

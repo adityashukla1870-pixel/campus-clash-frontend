@@ -1,14 +1,9 @@
-import { createContext, useContext, useState, useEffect, useCallback, useRef } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useLocation } from "react-router-dom"
 import API from "../api/axios"
-
-const NotificationContext = createContext(null)
+import { NotificationContext } from "./notificationContextRef"
 
 const PUBLIC_PATHS = ["/", "/login", "/register", "/forgot-password", "/reset-password"]
-
-export function useNotifications() {
-  return useContext(NotificationContext)
-}
 
 export function NotificationProvider({ children }) {
   const location = useLocation()

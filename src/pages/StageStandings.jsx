@@ -1,14 +1,15 @@
 import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { motion } from "framer-motion"
-import { FiCheckCircle, FiCircle, FiStar, FiKey, FiAward, FiTarget, FiMonitor, FiArrowLeft, FiLock, FiZap, FiChevronDown, FiChevronUp, FiArrowRight, FiGrid } from "react-icons/fi"
+import { FiCheckCircle, FiCircle, FiStar, FiKey, FiAward, FiTarget, FiMonitor, FiArrowLeft, FiLock, FiZap, FiChevronDown, FiChevronUp, FiArrowRight, FiGrid, FiCalendar, FiClock, FiUsers, FiUser, FiMap } from "react-icons/fi"
 import Navbar from "../components/Navbar"
+import PlayerProfileCard from "../components/PlayerProfileCard"
 import API from "../api/axios"
 import { SkeletonTable, SkeletonText, SkeletonBlock, SkeletonButton } from "../components/Skeleton"
 import "./StageStandings.css"
 
 /* ─── Pod View (per group) ─── */
-function PodView({ podSummary, advanceCount }) {
+function PodView({ podSummary, advanceCount, onPlayerClick }) {
   const [detail, setDetail] = useState(null)
   const [standings, setStandings] = useState([])
 
@@ -45,7 +46,15 @@ function PodView({ podSummary, advanceCount }) {
               <div className="match-row">
                 <span className="match-label">Match {m.match_number}{m.map && ` · ${m.map}`}</span>
                 {m.status === "completed" ? (
-                  <span className="match-tag done">Results in{m.mvp && <><FiStar /> {m.mvp.name} ({m.mvp.kills} kills)</>}</span>
+                  <span className="match-tag done">Results in{m.mvp && <>{" "}<FiStar /> {m.mvp.user_id && onPlayerClick ? (
+                    <span
+                      className="stat-player-clickable"
+                      title={`View ${m.mvp.name}'s profile`}
+                      onClick={(e) => { e.stopPropagation(); onPlayerClick({ userId: m.mvp.user_id, rect: e.currentTarget.getBoundingClientRect() }) }}
+                    >
+                      {m.mvp.name}
+                    </span>
+                  ) : m.mvp.name} ({m.mvp.kills} kills)</>}</span>
                 ) : m.room_id ? (
                   <span className="match-tag live"><FiKey /> Room live</span>
                 ) : (
@@ -68,7 +77,7 @@ function PodView({ podSummary, advanceCount }) {
 }
 
 /* ─── Stage View ─── */
-function StageView({ stageSummary }) {
+function StageView({ stageSummary, onPlayerClick }) {
   const [detail, setDetail] = useState(null)
   useEffect(() => { API.get(`/stages/${stageSummary.id}`).then(res => setDetail(res.data)) }, [stageSummary.id])
   return (
@@ -79,20 +88,34 @@ function StageView({ stageSummary }) {
           {stageSummary.status === "completed" ? <><FiCheckCircle /> Completed</> : <><FiCircle style={{color:'var(--green)'}} /> Live</>}
         </span>
       </div>
-      {detail?.pods?.map(p => <PodView key={p.id} podSummary={p} advanceCount={stageSummary.advance_count} />)}
+      {detail?.pods?.map(p => <PodView key={p.id} podSummary={p} advanceCount={stageSummary.advance_count} onPlayerClick={onPlayerClick} />)}
     </div>
   )
 }
 
 /* ─── Stat Table ─── */
-function StatTable({ columns, rows }) {
+function StatTable({ columns, rows, onPlayerClick }) {
   return (
     <div className="standings-table-wrap">
       <table className="standings-table">
         <thead><tr>{columns.map(c => <th key={c.key}>{c.label}</th>)}</tr></thead>
         <tbody>
           {rows.map((r, i) => (
-            <tr key={i}>{columns.map(c => <td key={c.key} className={c.key === 'total_points' ? 'points-cell' : ''}>{r[c.key]}</td>)}</tr>
+            <tr key={i}>{columns.map(c => (
+              <td key={c.key} className={c.key === 'total_points' ? 'points-cell' : ''}>
+                {c.key === 'name' && r.user_id && onPlayerClick ? (
+                  <span
+                    className="stat-player-clickable"
+                    title={`View ${r.name}'s profile`}
+                    onClick={(e) => onPlayerClick({ userId: r.user_id, rect: e.currentTarget.getBoundingClientRect() })}
+                  >
+                    {r[c.key]}
+                  </span>
+                ) : (
+                  r[c.key]
+                )}
+              </td>
+            ))}</tr>
           ))}
           {rows.length === 0 && <tr><td colSpan={columns.length} className="standings-empty">No data yet</td></tr>}
         </tbody>
@@ -102,8 +125,16 @@ function StatTable({ columns, rows }) {
 }
 
 /* ─── How It Works (cross-pod) ─── */
-function HowItWorks() {
-  const steps = [
+function HowItWorks({ hasFullLobby, isBGMI }) {
+  const steps = isBGMI ? [
+    { icon: <FiTarget />, title: "11 Teams", desc: "All teams compete together in full lobby matches" },
+    { icon: <FiZap />, title: "9 Matches", desc: "Day 1: 3 matches · Day 2: 3 matches · Day 3: 3 matches" },
+    { icon: <FiAward />, title: "Overall Winner", desc: "All teams ranked together. Top 3 win!" },
+  ] : hasFullLobby ? [
+    { icon: <FiTarget />, title: "12 Teams", desc: "All qualified teams compete together" },
+    { icon: <FiZap />, title: "9 Matches", desc: "Day 1-2: Group matches · Day 3: Full Lobby" },
+    { icon: <FiAward />, title: "Overall Winner", desc: "All teams ranked together. Top 3 win!" },
+  ] : [
     { icon: <FiTarget />, title: "3 Groups", desc: "15 teams split into Group A, B, C (5 each)" },
     { icon: <FiZap />, title: "9 Matches", desc: "3 days, 3 matches each — Round Robin format" },
     { icon: <FiAward />, title: "Overall Winner", desc: "All teams ranked together. Top 3 win!" },
@@ -214,9 +245,10 @@ function PodiumCard({ team, rank, delay = 0 }) {
 }
 
 /* ─── Cross-Pod Match Card ─── */
-function CrossPodMatchCard({ match }) {
+function CrossPodMatchCard({ match, onPlayerClick }) {
   const isLive = !!match.room_id && match.status !== 'completed'
   const isDone = match.status === 'completed'
+  const isFullLobby = match.full_lobby
   const st = isDone ? { bg: 'rgba(0,200,120,0.1)', color: 'var(--green)', label: 'Done' }
     : isLive ? { bg: 'rgba(0,180,255,0.1)', color: 'var(--cyan)', label: 'Live' }
     : { bg: 'var(--bg-surface)', color: 'var(--text-muted)', label: 'Upcoming' }
@@ -231,23 +263,42 @@ function CrossPodMatchCard({ match }) {
     7: { idRelease: '8:20 PM', matchStart: '8:30 PM' },
     8: { idRelease: '9:00 PM', matchStart: '9:10 PM' },
     9: { idRelease: '9:40 PM', matchStart: '9:50 PM' },
+    10: { idRelease: '8:20 PM', matchStart: '8:30 PM' },
+    11: { idRelease: '9:00 PM', matchStart: '9:10 PM' },
+    12: { idRelease: '9:40 PM', matchStart: '9:50 PM' },
   }
   const timing = defaultTimings[match.match_number]
 
   return (
     <div style={{
       background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 10, padding: 12, marginBottom: 8,
-      borderColor: isLive ? 'var(--cyan)' : isDone ? 'rgba(0,200,120,0.3)' : 'var(--border)'
+      borderColor: isLive ? 'var(--cyan)' : isDone ? 'rgba(0,200,120,0.3)' : isFullLobby ? 'rgba(255,185,87,0.3)' : 'var(--border)'
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          <span style={{ fontWeight: 700, fontSize: 13 }}>{match.pod_a_name}</span>
-          <span style={{ background: 'var(--bg-surface)', borderRadius: 4, padding: '1px 6px', fontSize: 10, color: 'var(--text-muted)', fontWeight: 600 }}>&</span>
-          <span style={{ fontWeight: 700, fontSize: 13 }}>{match.pod_b_name}</span>
+          {isFullLobby ? (
+            <>
+              <span style={{ padding: '2px 8px', borderRadius: 99, background: 'rgba(255,185,87,0.15)', color: '#ffb957', fontWeight: 700, fontSize: 11 }}>FULL LOBBY</span>
+              <span style={{ fontWeight: 700, fontSize: 13, color: 'var(--gold)' }}>All 12 Teams</span>
+            </>
+          ) : (
+            <>
+              <span style={{ fontWeight: 700, fontSize: 13 }}>{match.pod_a_name}</span>
+              <span style={{ background: 'var(--bg-surface)', borderRadius: 4, padding: '1px 6px', fontSize: 10, color: 'var(--text-muted)', fontWeight: 600 }}>&</span>
+              <span style={{ fontWeight: 700, fontSize: 13 }}>{match.pod_b_name}</span>
+            </>
+          )}
         </div>
         <span style={{ fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 99, background: st.bg, color: st.color }}>{st.label}</span>
       </div>
-      <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 6 }}>Match {match.match_number}{match.map && ` · ${match.map}`}</div>
+      <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
+        Match {match.match_number}
+        {match.map && (
+          <>
+            <span style={{ padding: '1px 6px', borderRadius: 4, background: isFullLobby ? 'rgba(255,185,87,0.1)' : 'var(--bg-surface)', fontSize: 10, fontWeight: 600 }}>{match.map}</span>
+          </>
+        )}
+      </div>
 
       {!isDone && !isLive && timing && (
         <div style={{ display: 'flex', gap: 10, marginBottom: 4 }}>
@@ -298,7 +349,21 @@ function CrossPodMatchCard({ match }) {
 
       {isDone && (
         <div>
-          {match.mvp && <div style={{ fontSize: 10, color: 'var(--gold)', marginBottom: 2, fontWeight: 600 }}><FiStar /> MVP: {match.mvp.name} ({match.mvp.kills}k)</div>}
+          {match.mvp && (
+            <div style={{ fontSize: 10, color: 'var(--gold)', marginBottom: 2, fontWeight: 600 }}>
+              <FiStar /> MVP:{' '}
+              {match.mvp.user_id && onPlayerClick ? (
+                <span
+                  className="stat-player-clickable"
+                  title={`View ${match.mvp.name}'s profile`}
+                  onClick={(e) => onPlayerClick({ userId: match.mvp.user_id, rect: e.currentTarget.getBoundingClientRect() })}
+                >
+                  {match.mvp.name}
+                </span>
+              ) : match.mvp.name}
+              {' '}({match.mvp.kills}k)
+            </div>
+          )}
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
             {[...match.results].sort((a, b) => a.placement - b.placement).map(r => (
               <span key={r.registration_id} style={{ fontSize: 10, background: 'var(--bg-surface)', borderRadius: 4, padding: '2px 6px', color: 'var(--text-secondary)' }}>
@@ -323,11 +388,19 @@ function StageStandings() {
   const [statTab, setStatTab] = useState("team_frags")
   const [loading, setLoading] = useState(true)
   const [countdown, setCountdown] = useState({ days: 0, hrs: 0, min: 0, sec: 0 })
+  const [selectedPlayer, setSelectedPlayer] = useState(null)
 
   // Cross-pod state
   const [rrDetail, setRrDetail] = useState(null)
   const [rrStandings, setRrStandings] = useState([])
   const [showGroups, setShowGroups] = useState(false)
+
+  // BGMI League state
+  const [bgmiLeague, setBgmiLeague] = useState(null)
+  const [bgmiStandings, setBgmiStandings] = useState([])
+  const [bgmiStats, setBgmiStats] = useState(null)
+  const [bgmiPenalties, setBgmiPenalties] = useState([])
+  const [bgmiBonuses, setBgmiBonuses] = useState([])
 
   useEffect(() => {
     if (!tournament?.scheduled_time) return
@@ -347,8 +420,9 @@ function StageStandings() {
       API.get(`/stages/tournament/${id}`),
       API.get(`/stages/tournament/${id}/stats`),
       API.get(`/cross-pod/tournament/${id}`),
+      API.get(`/bgmi-league/tournament/${id}`),
     ])
-      .then(([tRes, sRes, stRes, rrRes]) => {
+      .then(([tRes, sRes, stRes, rrRes, bgmiRes]) => {
         setTournament(tRes.data)
         setStages(Array.isArray(sRes.data) ? sRes.data : [])
         setStats(stRes.data)
@@ -359,6 +433,20 @@ function StageStandings() {
             API.get(`/cross-pod/${latest.id}/standings`)
           ]).then(([dRes, sRes]) => { setRrDetail(dRes.data); setRrStandings(sRes.data) })
         }
+        if (bgmiRes.data) {
+          setBgmiLeague(bgmiRes.data)
+          Promise.all([
+            API.get(`/bgmi-league/tournament/${id}/standings`),
+            API.get(`/bgmi-league/tournament/${id}/stats`),
+            API.get(`/bgmi-league/${bgmiRes.data.id}/penalties`),
+            API.get(`/bgmi-league/${bgmiRes.data.id}/bonuses`),
+          ]).then(([stRes, statsRes, penRes, bonRes]) => {
+            setBgmiStandings(stRes.data || [])
+            setBgmiStats(statsRes.data || {})
+            setBgmiPenalties(penRes.data || [])
+            setBgmiBonuses(bonRes.data || [])
+          })
+        }
       })
       .catch(console.error)
       .finally(() => setLoading(false))
@@ -366,16 +454,39 @@ function StageStandings() {
 
   // Auto-refresh for live matches
   useEffect(() => {
-    if (!rrDetail?.id || !rrDetail?.matches?.some(m => m.room_id && m.status !== 'completed')) return
+    const hasLiveCrossPod = rrDetail?.id && rrDetail?.matches?.some(m => m.room_id && m.status !== 'completed')
+    const hasLiveBgmi = bgmiLeague?.id && bgmiLeague?.matches?.some(m => m.room_id && m.status !== 'completed')
+    if (!hasLiveCrossPod && !hasLiveBgmi) return
     const iv = setInterval(() => {
-      API.get(`/cross-pod/${rrDetail.id}`).then(r => setRrDetail(r.data))
-      API.get(`/cross-pod/${rrDetail.id}/standings`).then(r => setRrStandings(r.data))
+      if (hasLiveCrossPod) {
+        API.get(`/cross-pod/${rrDetail.id}`).then(r => setRrDetail(r.data))
+        API.get(`/cross-pod/${rrDetail.id}/standings`).then(r => setRrStandings(r.data))
+      }
+      if (hasLiveBgmi) {
+        API.get(`/bgmi-league/tournament/${id}`).then(r => setBgmiLeague(r.data))
+        API.get(`/bgmi-league/tournament/${id}/standings`).then(r => setBgmiStandings(r.data))
+        API.get(`/bgmi-league/tournament/${id}/stats`).then(r => setBgmiStats(r.data))
+      }
     }, 30000)
     return () => clearInterval(iv)
-  }, [rrDetail?.id])
+  }, [bgmiLeague?.id, id])
+
+  // Refresh BGMI league data when it exists (even without live matches)
+  useEffect(() => {
+    if (!bgmiLeague?.id) return
+    const iv = setInterval(() => {
+      API.get(`/bgmi-league/tournament/${id}`).then(r => setBgmiLeague(r.data))
+      API.get(`/bgmi-league/tournament/${id}/standings`).then(r => setBgmiStandings(r.data))
+      API.get(`/bgmi-league/tournament/${id}/stats`).then(r => setBgmiStats(r.data))
+      API.get(`/bgmi-league/${bgmiLeague.id}/penalties`).then(r => setBgmiPenalties(r.data))
+      API.get(`/bgmi-league/${bgmiLeague.id}/bonuses`).then(r => setBgmiBonuses(r.data))
+    }, 15000)
+    return () => clearInterval(iv)
+  }, [bgmiLeague?.id, id])
 
   // Group matches by Day (Day 1, Day 2, Day 3)
   const getGroupPairName = (nameA, nameB) => {
+    if (!nameA || !nameB || nameA === "All Teams") return "Full Lobby"
     const extractLetter = (name) => {
       const match = name.match(/Group\s*([A-C])/i)
       return match ? match[1].toUpperCase() : name
@@ -387,7 +498,11 @@ function StageStandings() {
   }
 
   const matchGroups = {}
+  const hasFullLobby = rrDetail?.matches?.some(m => m.full_lobby)
   rrDetail?.matches?.forEach(m => {
+    // Skip old Day 3 group matches when full-lobby matches exist
+    if (hasFullLobby && !m.full_lobby && m.match_number > 6) return
+
     const dayNum = Math.ceil(m.match_number / 3)
     const key = `Day ${dayNum}`
     if (!matchGroups[key]) matchGroups[key] = []
@@ -410,16 +525,19 @@ function StageStandings() {
   ]
 
   const renderStatTable = () => {
-    if (!stats) return null
+    const s = isBGMI ? bgmiStats : stats
+    if (!s) return null
     switch (statTab) {
-      case "team_frags": return <StatTable rows={stats.team_frags} columns={[{ key: "rank", label: "#" }, { key: "name", label: "Team" }, { key: "total_kills", label: "Total Kills" }]} />
-      case "individual_frags": return <StatTable rows={stats.individual_frags} columns={[{ key: "rank", label: "#" }, { key: "name", label: "Player" }, { key: "team_name", label: "Team" }, { key: "total_kills", label: "Kills" }]} />
-      case "mvp_leaderboard": return <StatTable rows={stats.mvp_leaderboard} columns={[{ key: "rank", label: "#" }, { key: "name", label: "Player" }, { key: "team_name", label: "Team" }, { key: "count", label: "MVP Awards" }]} />
+      case "team_frags": return <StatTable rows={s.team_frags} columns={[{ key: "rank", label: "#" }, { key: "name", label: "Team" }, { key: "total_kills", label: "Total Kills" }]} />
+      case "individual_frags": return <StatTable rows={s.individual_frags} columns={[{ key: "rank", label: "#" }, { key: "name", label: "Player" }, { key: "team_name", label: "Team" }, { key: "total_kills", label: "Kills" }]} onPlayerClick={setSelectedPlayer} />
+      case "mvp_leaderboard": return <StatTable rows={s.mvp_leaderboard} columns={[{ key: "rank", label: "#" }, { key: "name", label: "Player" }, { key: "team_name", label: "Team" }, { key: "count", label: "MVP Awards" }]} onPlayerClick={setSelectedPlayer} />
       default: return null
     }
   }
 
-  const hasRR = rrDetail && rrStandings.length > 0
+  const hasRR = (rrDetail && rrStandings.length > 0) || bgmiLeague
+  const isBGMI = !!bgmiLeague
+  const hasNoData = !hasRR && stages.length === 0 && !bgmiLeague
 
   if (loading) {
     return (
@@ -439,26 +557,221 @@ function StageStandings() {
     <>
       <Navbar />
       <div className="standings-page">
-        <div className="standings-back" onClick={() => navigate(`/tournament/${id}`)}><FiArrowLeft /> Back to Tournament</div>
+        <div className="standings-back" onClick={() => navigate("/my-tournaments")}><FiArrowLeft /> Back to My Matches</div>
 
         {tournament && (
           <>
             <h1 className="standings-title">{tournament.name}</h1>
             <p className="standings-subtitle"><FiMonitor /> {tournament.game} — Tournament Standings</p>
+
+            <div style={{ display: 'flex', gap: 6, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 20 }}>
+              <span style={{ fontSize: 11, padding: '4px 10px', borderRadius: 6, fontWeight: 600, background: 'rgba(6,182,212,0.15)', color: 'var(--cyan)', border: '1px solid rgba(6,182,212,0.25)', display: 'flex', alignItems: 'center', gap: 4 }}>
+                <FiMonitor size={10} /> {tournament.game}
+              </span>
+              <span style={{ fontSize: 11, padding: '4px 10px', borderRadius: 6, fontWeight: 600, background: tournament.mode === 'squad' ? 'rgba(124,58,237,0.15)' : 'rgba(168,85,247,0.15)', color: tournament.mode === 'squad' ? 'var(--cyan)' : 'var(--purple-light)', border: `1px solid ${tournament.mode === 'squad' ? 'rgba(6,182,212,0.25)' : 'rgba(168,85,247,0.25)'}`, display: 'flex', alignItems: 'center', gap: 4 }}>
+                <FiUsers size={10} /> {tournament.mode === 'squad' ? `Squad (${tournament.team_size})` : 'Solo'}
+              </span>
+              {bgmiLeague ? (
+                <span style={{ fontSize: 11, padding: '4px 10px', borderRadius: 6, fontWeight: 600, background: 'rgba(234,179,8,0.15)', color: 'var(--gold)', border: '1px solid rgba(234,179,8,0.25)', display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <FiZap size={10} /> BGMI League
+                </span>
+              ) : (
+                <span style={{ fontSize: 11, padding: '4px 10px', borderRadius: 6, fontWeight: 600, background: 'rgba(234,179,8,0.15)', color: 'var(--gold)', border: '1px solid rgba(234,179,8,0.25)', display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <FiAward size={10} /> Multi-Stage
+                </span>
+              )}
+            </div>
           </>
         )}
 
+        {hasNoData && tournament && (
+          <div style={{ maxWidth: 540, width: '100%', margin: '0 auto' }}>
+
+            {tournament.scheduled_time && (
+              <div style={{
+                background: 'var(--bg-card)', border: '1px solid var(--border)',
+                borderRadius: 16, padding: '20px', marginBottom: 16, textAlign: 'center',
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 12 }}>
+                  <FiCalendar size={16} style={{ color: 'var(--cyan)' }} />
+                  <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.5, color: 'var(--text-muted)', fontWeight: 600 }}>
+                    Match Starts In
+                  </div>
+                </div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 14 }}>
+                  {new Date(tournament.scheduled_time).toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })} at{' '}
+                  {new Date(tournament.scheduled_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'center', gap: 10 }}>
+                  {[{ val: countdown.days, label: 'DAYS' }, { val: countdown.hrs, label: 'HRS' }, { val: countdown.min, label: 'MIN' }, { val: countdown.sec, label: 'SEC' }].map((item, i) => (
+                    <div key={i} style={{ textAlign: 'center' }}>
+                      <div style={{ fontFamily: 'var(--font-mono)', fontSize: 28, fontWeight: 800, color: 'var(--cyan)', minWidth: 56, padding: '10px 6px', background: 'rgba(6,182,212,0.08)', border: '1px solid rgba(6,182,212,0.2)', borderRadius: 10 }}>
+                        {String(item.val).padStart(2, '0')}
+                      </div>
+                      <div style={{ fontSize: 9, color: 'var(--text-muted)', marginTop: 4, fontWeight: 600 }}>{item.label}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
+              <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 12, padding: '16px', textAlign: 'center' }}>
+                <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.5, color: 'var(--text-muted)', marginBottom: 4, fontWeight: 600 }}>Entry Fee</div>
+                <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--gold)' }}>₹{tournament.entry_fee}</div>
+              </div>
+              <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 12, padding: '16px', textAlign: 'center' }}>
+                <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.5, color: 'var(--text-muted)', marginBottom: 4, fontWeight: 600 }}>Prize Pool</div>
+                <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--gold)' }}>₹{tournament.prize_pool}</div>
+              </div>
+            </div>
+
+            {tournament.prize_breakdown?.length > 0 && (
+              <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 14, padding: '16px', marginBottom: 16 }}>
+                <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.5, color: 'var(--text-muted)', marginBottom: 10, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <FiAward size={12} style={{ color: 'var(--gold)' }} /> Prize Breakdown
+                </div>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                  {tournament.prize_breakdown.map((row) => (
+                    <div key={row.rank} style={{
+                      background: 'var(--bg-surface)', border: '1px solid var(--border)',
+                      borderRadius: 10, padding: '12px 16px', flex: '1 1 auto', minWidth: 90, textAlign: 'center',
+                    }}>
+                      <div style={{ fontSize: 16, marginBottom: 2 }}>{row.rank === '1' ? '🥇' : row.rank === '2' ? '🥈' : row.rank === '3' ? '🥉' : `#${row.rank}`}</div>
+                      <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--text-primary)' }}>₹{row.amount.toLocaleString()}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {tournament.points_table && (
+              <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 14, padding: '16px', marginBottom: 16 }}>
+                <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.5, color: 'var(--text-muted)', marginBottom: 10, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <FiTarget size={12} style={{ color: 'var(--cyan)' }} /> Scoring System
+                </div>
+                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 8 }}>
+                  {Object.entries(tournament.points_table)
+                    .sort((a, b) => Number(a[0]) - Number(b[0]))
+                    .map(([rank, pts]) => (
+                      <div key={rank} style={{
+                        background: 'var(--bg-surface)', border: '1px solid var(--border)',
+                        borderRadius: 8, padding: '8px 12px', textAlign: 'center',
+                      }}>
+                        <div style={{ fontSize: 10, color: 'var(--text-muted)', fontWeight: 600 }}>#{rank}</div>
+                        <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--cyan)' }}>{pts} pts</div>
+                      </div>
+                    ))}
+                </div>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <FiTarget size={11} /> Per Kill: <strong style={{ color: 'var(--cyan)' }}>{tournament.kill_point_value} {tournament.kill_point_value === 1 ? 'point' : 'points'}</strong>
+                </div>
+              </div>
+            )}
+
+            <div style={{
+              background: 'var(--bg-card)', border: '1px solid var(--border)',
+              borderRadius: 14, padding: '20px', marginBottom: 16,
+            }}>
+              <div style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: 0.5, color: 'var(--text-muted)', marginBottom: 14, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <FiCalendar size={13} style={{ color: 'var(--gold)' }} /> Tournament Schedule
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {/* Day 1 */}
+                <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 10, padding: '14px 16px', borderLeft: '3px solid var(--cyan)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--cyan)', background: 'rgba(6,182,212,0.15)', padding: '3px 8px', borderRadius: 6 }}>DAY 1</span>
+                    <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>Full Lobby — All 11 Teams</span>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    {["Match 1", "Match 2", "Match 3"].map((m, i) => (
+                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12 }}>
+                        <span style={{ color: 'var(--text-muted)', minWidth: 55 }}>{m}</span>
+                        <FiUsers size={11} style={{ color: 'var(--cyan)' }} />
+                        <span style={{ color: 'var(--text-secondary)' }}>All 11 Teams</span>
+                        <span style={{ fontSize: 10, padding: '2px 6px', borderRadius: 4, background: 'rgba(6,182,212,0.1)', color: 'var(--cyan)', marginLeft: 'auto' }}>TBD</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Day 2 */}
+                <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 10, padding: '14px 16px', borderLeft: '3px solid var(--purple-light)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--purple-light)', background: 'rgba(124,58,237,0.15)', padding: '3px 8px', borderRadius: 6 }}>DAY 2</span>
+                    <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>Full Lobby — All 11 Teams</span>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    {["Match 4", "Match 5", "Match 6"].map((m, i) => (
+                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12 }}>
+                        <span style={{ color: 'var(--text-muted)', minWidth: 55 }}>{m}</span>
+                        <FiUsers size={11} style={{ color: 'var(--purple-light)' }} />
+                        <span style={{ color: 'var(--text-secondary)' }}>All 11 Teams</span>
+                        <span style={{ fontSize: 10, padding: '2px 6px', borderRadius: 4, background: 'rgba(124,58,237,0.1)', color: 'var(--purple-light)', marginLeft: 'auto' }}>TBD</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Day 3 */}
+                <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 10, padding: '14px 16px', borderLeft: '3px solid var(--gold)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--gold)', background: 'rgba(234,179,8,0.15)', padding: '3px 8px', borderRadius: 6 }}>DAY 3</span>
+                    <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>Finals — To Be Decided</span>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                    {["Match 7", "Match 8", "Match 9"].map((m, i) => (
+                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12 }}>
+                        <span style={{ color: 'var(--text-muted)', minWidth: 55 }}>{m}</span>
+                        <FiUsers size={11} style={{ color: 'var(--gold)' }} />
+                        <span style={{ color: 'var(--text-secondary)' }}>All 11 Teams</span>
+                        <span style={{ fontSize: 10, padding: '2px 6px', borderRadius: 4, background: 'rgba(234,179,8,0.1)', color: 'var(--gold)', marginLeft: 'auto' }}>TBD</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ marginTop: 14, fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.6, textAlign: 'center' }}>
+                All matches are Full Lobby — every team plays together. Match timings & maps announced by admin before each day.
+              </div>
+            </div>
+
+            <div style={{
+              background: 'linear-gradient(135deg, rgba(124,58,237,0.1), rgba(6,182,212,0.06))',
+              border: '1px solid rgba(124,58,237,0.25)', borderRadius: 14, padding: '20px', textAlign: 'center',
+            }}>
+              <div style={{
+                width: 52, height: 52, borderRadius: 14, margin: '0 auto 12px',
+                background: 'rgba(124,58,237,0.15)', border: '1px solid rgba(124,58,237,0.25)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <FiClock size={24} style={{ color: 'var(--purple-light)' }} />
+              </div>
+              <p style={{ color: 'var(--purple-light)', fontWeight: 700, fontSize: 15, marginBottom: 4 }}>
+                Matches Will Appear Here
+              </p>
+              <p style={{ color: 'var(--text-muted)', fontSize: 12, lineHeight: 1.6, maxWidth: 320, margin: '0 auto' }}>
+                Live standings, room details, and results will appear once the admin starts the tournament.
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* ─── TABS ─── */}
-        <div className="page-tabs" style={{ justifyContent: 'center' }}>
-          {hasRR && <span className={tab === "rr" ? "page-tab active" : "page-tab"} onClick={() => setTab("rr")}>🏆 Round Robin</span>}
-          <span className={tab === "stats" ? "page-tab active" : "page-tab"} onClick={() => setTab("stats")}>Tournament Stats</span>
-        </div>
+        {!hasNoData && (
+          <div className="page-tabs" style={{ justifyContent: 'center' }}>
+            {hasRR && <span className={tab === "rr" ? "page-tab active" : "page-tab"} onClick={() => setTab("rr")}>🏆 {isBGMI ? 'BGMI League' : 'Round Robin'}</span>}
+            <span className={tab === "stats" ? "page-tab active" : "page-tab"} onClick={() => setTab("stats")}>Tournament Stats</span>
+          </div>
+        )}
 
         {/* ═══════ TAB: ROUND ROBIN ═══════ */}
         {tab === "rr" && hasRR && (
           <>
             {/* How it works */}
-            <HowItWorks />
+            <HowItWorks hasFullLobby={hasFullLobby} isBGMI={isBGMI} />
 
             {/* Progress */}
             <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 12, padding: '10px 14px', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -483,7 +796,7 @@ function StageStandings() {
             )}
 
             {/* Podium */}
-            {rrStandings.length >= 3 && (
+            {(isBGMI ? bgmiStandings : rrStandings).length >= 3 && (
               <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -494,9 +807,9 @@ function StageStandings() {
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'center', gap: 8 }}>
-                  <PodiumCard team={rrStandings[1]} rank={1} delay={0.5} />
-                  <PodiumCard team={rrStandings[0]} rank={0} delay={0.2} />
-                  <PodiumCard team={rrStandings[2]} rank={2} delay={0.7} />
+                  <PodiumCard team={(isBGMI ? bgmiStandings : rrStandings)[1]} rank={1} delay={0.5} />
+                  <PodiumCard team={(isBGMI ? bgmiStandings : rrStandings)[0]} rank={0} delay={0.2} />
+                  <PodiumCard team={(isBGMI ? bgmiStandings : rrStandings)[2]} rank={2} delay={0.7} />
                 </div>
               </motion.div>
             )}
@@ -510,26 +823,60 @@ function StageStandings() {
             >
               <div className="stage-block-header">
                 <h2><FiAward style={{ color: 'var(--gold)' }} /> Overall Rankings</h2>
-                <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>All Groups Combined</span>
+                <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>{isBGMI ? 'BGMI League' : 'All Groups Combined'}</span>
               </div>
               <div className="standings-table-wrap">
                 <table className="standings-table">
-                  <thead><tr><th>#</th><th>Team</th><th>Group</th><th>M</th><th>Wins</th><th>Kills</th><th>Pts</th></tr></thead>
+                  <thead><tr><th>#</th><th>Team</th>{!isBGMI && <th>Group</th>}<th>M</th><th>Wins</th><th>Kills</th><th>Pts</th></tr></thead>
                   <tbody>
-                    {rrStandings.map((s, i) => (
+                    {(isBGMI ? bgmiStandings : rrStandings).map((s, i) => (
                       <tr key={s.registration_id} style={i < 3 ? { background: 'rgba(212,175,55,0.06)' } : {}}>
                         <td style={{ fontWeight: i < 3 ? 700 : 400 }}>{i < 3 ? ['🥇','🥈','🥉'][i] : s.rank}</td>
                         <td style={{ fontWeight: i < 3 ? 700 : 400 }}>{s.name}</td>
-                        <td style={{ fontSize: 11, color: 'var(--text-muted)' }}>{s.pod_name}</td>
+                        {!isBGMI && <td style={{ fontSize: 11, color: 'var(--text-muted)' }}>{s.pod_name}</td>}
                         <td>{s.matches_played}</td>
                         <td>{s.chicken_dinners}</td>
                         <td>{s.total_kills}</td>
-                        <td className="points-cell">{s.total_points}</td>
+                        <td className="points-cell">
+                          {s.total_points}
+                          {s.penalties > 0 && <span style={{ fontSize: 10, color: '#ef4444', marginLeft: 4 }}>(-{s.penalties})</span>}
+                          {s.bonuses > 0 && <span style={{ fontSize: 10, color: 'var(--green)', marginLeft: 4 }}>(+{s.bonuses})</span>}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
+
+              {/* Penalties & Bonuses Log */}
+              {isBGMI && (bgmiPenalties.length > 0 || bgmiBonuses.length > 0) && (
+                <div style={{ marginTop: 14, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  {bgmiPenalties.length > 0 && (
+                    <div>
+                      <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.5, color: '#ef4444', fontWeight: 700, marginBottom: 4 }}>Penalties</div>
+                      {bgmiPenalties.map(p => (
+                        <div key={p.id} style={{ fontSize: 11, padding: '4px 8px', background: 'rgba(239,68,68,0.06)', borderRadius: 4, marginBottom: 2, borderLeft: '2px solid #ef4444' }}>
+                          <span style={{ fontWeight: 600 }}>{p.team_name}</span>
+                          <span style={{ color: '#ef4444', fontWeight: 700, marginLeft: 6 }}>-{p.points} pts</span>
+                          <span style={{ color: 'var(--text-muted)', marginLeft: 4 }}>{p.reason}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {bgmiBonuses.length > 0 && (
+                    <div>
+                      <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.5, color: 'var(--green)', fontWeight: 700, marginBottom: 4 }}>Bonuses</div>
+                      {bgmiBonuses.map(b => (
+                        <div key={b.id} style={{ fontSize: 11, padding: '4px 8px', background: 'rgba(0,200,120,0.06)', borderRadius: 4, marginBottom: 2, borderLeft: '2px solid var(--green)' }}>
+                          <span style={{ fontWeight: 600 }}>{b.team_name}</span>
+                          <span style={{ color: 'var(--green)', fontWeight: 700, marginLeft: 6 }}>+{b.points} pts</span>
+                          <span style={{ color: 'var(--text-muted)', marginLeft: 4 }}>{b.reason}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </motion.div>
 
             {/* Group-wise */}
@@ -563,36 +910,199 @@ function StageStandings() {
               transition={{ duration: 0.6, delay: 1.0 }}
             >
               <div className="stage-block-header"><h2>Matches</h2></div>
-              {Object.entries(matchGroups).map(([dayName, matches]) => {
-                const dayDone = matches.filter(m => m.status === 'completed').length
-                return (
-                  <div key={dayName} style={{ marginBottom: 18 }}>
-                    <div style={{
-                      display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                      marginBottom: 8, padding: '8px 12px', borderRadius: 8,
-                      background: dayDone === matches.length ? 'rgba(0,200,120,0.08)' : 'rgba(255,185,87,0.08)',
-                      border: `1px solid ${dayDone === matches.length ? 'rgba(0,200,120,0.2)' : 'rgba(255,185,87,0.2)'}`
-                    }}>
-                      <div>
-                        <span style={{ fontSize: 14, fontWeight: 800, color: dayDone === matches.length ? 'var(--green)' : '#ffb957' }}>{dayName}</span>
-                        <span style={{ fontSize: 10, color: 'var(--text-muted)', marginLeft: 8 }}>Let the battle begin!</span>
-                      </div>
-                      <span style={{ fontSize: 10, padding: '2px 7px', borderRadius: 99, background: dayDone === matches.length ? 'rgba(0,200,120,0.12)' : 'var(--bg-surface)', color: dayDone === matches.length ? 'var(--green)' : 'var(--text-muted)', fontWeight: 600 }}>{dayDone}/{matches.length}</span>
-                    </div>
-                    {matches.map(m => (
-                      <div key={m.id} style={{ marginBottom: 6, paddingLeft: 12, borderLeft: '2px solid var(--border)', marginLeft: 8 }}>
-                        <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 2 }}>
-                          Match {m.match_number} — {getGroupPairName(m.pod_a_name, m.pod_b_name)}{m.map && ` on ${m.map}`}
+              {isBGMI ? (
+                // BGMI League matches - grouped by day
+                (() => {
+                  const bgmiMatchesByDay = {}
+                  bgmiLeague?.matches?.forEach(m => {
+                    if (!bgmiMatchesByDay[m.day]) bgmiMatchesByDay[m.day] = []
+                    bgmiMatchesByDay[m.day].push(m)
+                  })
+                  return Object.entries(bgmiMatchesByDay).sort(([a], [b]) => a - b).map(([dayNum, dayMatches]) => {
+                    const dayDone = dayMatches.filter(m => m.status === 'completed').length
+                    return (
+                      <div key={dayNum} style={{ marginBottom: 22 }}>
+                        <div style={{
+                          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                          marginBottom: 10, padding: '10px 14px', borderRadius: 10,
+                          background: dayDone === dayMatches.length ? 'rgba(0,200,120,0.08)' : 'rgba(255,185,87,0.08)',
+                          border: `1px solid ${dayDone === dayMatches.length ? 'rgba(0,200,120,0.25)' : 'rgba(255,185,87,0.25)'}`,
+                          borderLeft: `3px solid ${dayDone === dayMatches.length ? 'var(--green)' : '#ffb957'}`
+                        }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <FiCalendar size={14} style={{ color: dayDone === dayMatches.length ? 'var(--green)' : '#ffb957' }} />
+                            <span style={{ fontSize: 15, fontWeight: 800, color: dayDone === dayMatches.length ? 'var(--green)' : '#ffb957' }}>Day {dayNum}</span>
+                            <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>All 11 Teams — Full Lobby</span>
+                          </div>
+                          <span style={{ fontSize: 10, padding: '3px 10px', borderRadius: 99, background: dayDone === dayMatches.length ? 'rgba(0,200,120,0.15)' : 'var(--bg-surface)', color: dayDone === dayMatches.length ? 'var(--green)' : 'var(--text-muted)', fontWeight: 700 }}>
+                            {dayDone}/{dayMatches.length}
+                          </span>
                         </div>
-                        <CrossPodMatchCard match={m} />
+                        {dayMatches.map((m, idx) => {
+                          const isLive = !!m.room_id && m.status !== 'completed'
+                          const isDone = m.status === 'completed'
+                          return (
+                            <motion.div
+                              key={m.id}
+                              initial={{ opacity: 0, x: -20 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              transition={{ duration: 0.4, delay: idx * 0.1 }}
+                              style={{
+                                marginBottom: 10, marginLeft: 10,
+                                borderLeft: `2px solid ${isDone ? 'var(--green)' : isLive ? 'var(--cyan)' : 'var(--border)'}`,
+                                paddingLeft: 14,
+                              }}
+                            >
+                              {/* Match Header */}
+                              <div style={{
+                                background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 12, overflow: 'hidden',
+                                borderColor: isDone ? 'rgba(0,200,120,0.3)' : isLive ? 'var(--cyan)' : 'var(--border)',
+                                boxShadow: isLive ? '0 0 20px rgba(6,182,212,0.1)' : 'none',
+                              }}>
+                                {/* Match Title Bar */}
+                                <div style={{
+                                  display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                                  padding: '10px 14px',
+                                  background: isDone ? 'rgba(0,200,120,0.06)' : isLive ? 'rgba(0,180,255,0.06)' : 'rgba(255,185,87,0.04)',
+                                  borderBottom: '1px solid var(--border)',
+                                }}>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                    <span style={{ fontSize: 14, fontWeight: 800, color: 'var(--gold)' }}>Match {m.match_number}</span>
+                                    <span style={{ padding: '2px 8px', borderRadius: 6, background: 'rgba(255,185,87,0.15)', color: '#ffb957', fontWeight: 700, fontSize: 10 }}>FULL LOBBY</span>
+                                    {m.map && (
+                                      <span style={{ fontSize: 11, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 4 }}>
+                                        <FiMap size={10} /> {m.map}
+                                      </span>
+                                    )}
+                                  </div>
+                                  <span style={{
+                                    fontSize: 10, fontWeight: 700, padding: '3px 10px', borderRadius: 99,
+                                    background: isDone ? 'rgba(0,200,120,0.15)' : isLive ? 'rgba(0,180,255,0.15)' : 'var(--bg-surface)',
+                                    color: isDone ? 'var(--green)' : isLive ? 'var(--cyan)' : 'var(--text-muted)',
+                                    display: 'flex', alignItems: 'center', gap: 4,
+                                  }}>
+                                    {isDone && <FiCheckCircle size={10} />}
+                                    {isLive && <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--cyan)', animation: 'pulse 1.5s infinite' }} />}
+                                    {isDone ? 'Done' : isLive ? 'LIVE' : 'Upcoming'}
+                                  </span>
+                                </div>
+
+                                {/* Room Details (when live) */}
+                                {isLive && (
+                                  <div style={{ padding: '10px 14px', background: 'rgba(0,180,255,0.04)', borderBottom: '1px solid var(--border)' }}>
+                                    <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'center' }}>
+                                      <div>
+                                        <div style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: 0.5, color: 'var(--text-muted)', marginBottom: 2 }}>ROOM ID</div>
+                                        <div style={{ fontFamily: 'var(--font-mono)', fontSize: 14, fontWeight: 700, color: 'var(--cyan)' }}>{m.room_id}</div>
+                                      </div>
+                                      <div>
+                                        <div style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: 0.5, color: 'var(--text-muted)', marginBottom: 2 }}>PASSWORD</div>
+                                        <div style={{ fontFamily: 'var(--font-mono)', fontSize: 14, fontWeight: 700, color: 'var(--cyan)' }}>{m.room_password}</div>
+                                      </div>
+                                      {m.match_start_time && (
+                                        <div>
+                                          <div style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: 0.5, color: 'var(--text-muted)', marginBottom: 2 }}>STARTS</div>
+                                          <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-primary)' }}>{new Date(m.match_start_time).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</div>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </div>
+                                )}
+
+                                {/* Slot Assignments */}
+                                {m.slot_assignments && Object.keys(m.slot_assignments).length > 0 && (
+                                  <div style={{ padding: '10px 14px', borderBottom: isDone ? 'none' : '1px solid var(--border)' }}>
+                                    <div style={{ fontSize: 9, textTransform: 'uppercase', letterSpacing: 0.5, color: 'var(--purple)', marginBottom: 6, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
+                                      <FiGrid size={10} /> Lobby Slots
+                                    </div>
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 4 }}>
+                                      {Object.entries(m.slot_assignments)
+                                        .sort(([a], [b]) => parseInt(a) - parseInt(b))
+                                        .map(([slot, data]) => (
+                                          <div key={slot} style={{ background: 'var(--bg-surface)', borderRadius: 6, padding: '5px 8px', display: 'flex', alignItems: 'center', gap: 6, border: '1px solid var(--border)' }}>
+                                            <div style={{ width: 20, height: 20, borderRadius: 5, background: 'linear-gradient(135deg, #7c3aed, #06b6d4)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 800, color: 'white', flexShrink: 0 }}>
+                                              {slot}
+                                            </div>
+                                            <div style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                              {data.team_name}
+                                            </div>
+                                          </div>
+                                        ))}
+                                    </div>
+                                  </div>
+                                )}
+
+                                {/* Results (when completed) */}
+                                {isDone && (
+                                  <div style={{ padding: '12px 14px' }}>
+                                    {/* MVP */}
+                                    {m.mvp && (
+                                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8, padding: '6px 10px', background: 'rgba(234,179,8,0.08)', borderRadius: 8, border: '1px solid rgba(234,179,8,0.2)' }}>
+                                        <FiStar size={12} style={{ color: 'var(--gold)' }} />
+                                        <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--gold)' }}>MVP: {m.mvp.name}</span>
+                                        <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>({m.mvp.kills} kills)</span>
+                                      </div>
+                                    )}
+                                    {/* Results Grid */}
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                                      {[...m.results].sort((a, b) => a.placement - b.placement).map((r, ri) => (
+                                        <div key={r.registration_id} style={{
+                                          display: 'flex', alignItems: 'center', gap: 8, padding: '6px 10px', borderRadius: 8,
+                                          background: ri < 3 ? 'rgba(234,179,8,0.06)' : 'var(--bg-surface)',
+                                          border: ri === 0 ? '1px solid rgba(234,179,8,0.3)' : ri === 1 ? '1px solid rgba(192,192,192,0.2)' : ri === 2 ? '1px solid rgba(205,127,50,0.2)' : '1px solid var(--border)',
+                                        }}>
+                                          <span style={{ fontSize: 13, width: 24, textAlign: 'center' }}>
+                                            {ri === 0 ? '🥇' : ri === 1 ? '🥈' : ri === 2 ? '🥉' : `#${r.placement}`}
+                                          </span>
+                                          <span style={{ flex: 1, fontSize: 12, fontWeight: ri < 3 ? 700 : 500 }}>{r.name}</span>
+                                          {r.kills > 0 && <span style={{ fontSize: 10, color: 'var(--text-secondary)' }}>{r.kills} kills</span>}
+                                          <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--gold)' }}>{r.points} pts</span>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            </motion.div>
+                          )
+                        })}
                       </div>
-                    ))}
-                  </div>
-                )
-              })}
+                    )
+                  })
+                })()
+              ) : (
+                // Cross-pod matches
+                Object.entries(matchGroups).map(([dayName, matches]) => {
+                  const dayDone = matches.filter(m => m.status === 'completed').length
+                  return (
+                    <div key={dayName} style={{ marginBottom: 18 }}>
+                      <div style={{
+                        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                        marginBottom: 8, padding: '8px 12px', borderRadius: 8,
+                        background: dayDone === matches.length ? 'rgba(0,200,120,0.08)' : 'rgba(255,185,87,0.08)',
+                        border: `1px solid ${dayDone === matches.length ? 'rgba(0,200,120,0.2)' : 'rgba(255,185,87,0.2)'}`
+                      }}>
+                        <div>
+                          <span style={{ fontSize: 14, fontWeight: 800, color: dayDone === matches.length ? 'var(--green)' : '#ffb957' }}>{dayName}</span>
+                          <span style={{ fontSize: 10, color: 'var(--text-muted)', marginLeft: 8 }}>Let the battle begin!</span>
+                        </div>
+                        <span style={{ fontSize: 10, padding: '2px 7px', borderRadius: 99, background: dayDone === matches.length ? 'rgba(0,200,120,0.12)' : 'var(--bg-surface)', color: dayDone === matches.length ? 'var(--green)' : 'var(--text-muted)', fontWeight: 600 }}>{dayDone}/{matches.length}</span>
+                      </div>
+                      {matches.map(m => (
+                        <div key={m.id} style={{ marginBottom: 6, paddingLeft: 12, borderLeft: '2px solid var(--border)', marginLeft: 8 }}>
+                          <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 2 }}>
+                            Match {m.match_number} — {getGroupPairName(m.pod_a_name, m.pod_b_name)}{m.map && ` on ${m.map}`}
+                          </div>
+                          <CrossPodMatchCard match={m} onPlayerClick={setSelectedPlayer} />
+                        </div>
+                      ))}
+                    </div>
+                  )
+                })
+              )}
             </motion.div>
 
-            {rrDetail.status === 'completed' && (
+            {(rrDetail?.status === 'completed' || bgmiLeague?.status === 'completed') && (
               <div style={{ background: 'rgba(0,200,120,0.08)', border: '1px solid rgba(0,200,120,0.25)', borderRadius: 10, padding: 14, textAlign: 'center', marginTop: 14 }}>
                 <FiAward style={{ fontSize: 20, color: 'var(--green)', marginBottom: 4 }} />
                 <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--green)' }}>Round Robin Finalized!</div>
@@ -620,7 +1130,7 @@ function StageStandings() {
                 ))}
               </div>
             </div>
-          ) : [...stages].reverse().map(s => <StageView key={s.id} stageSummary={s} />)
+          ) : [...stages].reverse().map(s => <StageView key={s.id} stageSummary={s} onPlayerClick={setSelectedPlayer} />)
         )}
 
         {/* ═══════ TAB: STATS ═══════ */}
@@ -637,6 +1147,14 @@ function StageStandings() {
       </div>
 
       <style>{`@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }`}</style>
+
+      {selectedPlayer && (
+        <PlayerProfileCard
+          userId={selectedPlayer.userId}
+          anchorRect={selectedPlayer.rect}
+          onClose={() => setSelectedPlayer(null)}
+        />
+      )}
     </>
   )
 }

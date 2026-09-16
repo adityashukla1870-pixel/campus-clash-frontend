@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react"
-import { useNavigate } from "react-router-dom"
 import { FiDollarSign, FiCheckCircle, FiXCircle, FiAward, FiInstagram, FiImage } from "react-icons/fi"
 import API from "../api/axios"
 import { resolveImageUrl } from "../utils/media"
@@ -139,7 +138,6 @@ function PaymentCard({ p, actions }) {
 }
 
 function AdminPayments() {
-  const navigate = useNavigate()
   const [pending, setPending] = useState([])
   const [approved, setApproved] = useState([])
   const [allRegs, setAllRegs] = useState([])

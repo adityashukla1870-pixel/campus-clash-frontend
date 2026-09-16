@@ -1,8 +1,8 @@
-import { useEffect, useRef } from "react"
+﻿import { useEffect, useRef } from "react"
 import { createPortal } from "react-dom"
 import { useNavigate } from "react-router-dom"
 import { FiBell, FiCreditCard, FiKey, FiAward, FiInfo, FiCheckCircle, FiImage } from "react-icons/fi"
-import { useNotifications } from "../context/NotificationContext"
+import { useNotifications } from "../context/useNotifications"
 import "./NotificationCenter.css"
 
 const ICONS = {

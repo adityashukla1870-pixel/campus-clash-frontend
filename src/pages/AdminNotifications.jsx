@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef, useCallback } from "react"
-import { FiBell, FiPlus, FiEdit2, FiTrash2, FiEye, FiEyeOff, FiImage, FiX, FiSend, FiFilter, FiClock, FiGlobe, FiUser, FiAward } from "react-icons/fi"
-import AdminLayout from "../components/AdminLayout"
+import { FiBell, FiPlus, FiEdit2, FiTrash2, FiEye, FiEyeOff, FiImage, FiX, FiSend, FiFilter, FiClock, FiGlobe, FiUser, FiAward, FiCrosshair } from "react-icons/fi"
+import AdminTopBar from "../components/AdminTopBar"
 import API from "../api/axios"
 import "./AdminNotifications.css"
 
@@ -213,8 +213,18 @@ function AdminNotifications() {
   ]
 
   return (
-    <AdminLayout title="Notifications" subtitle="Create and manage announcements, alerts, and notifications">
-      <div style={{ marginBottom: 24, display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 16 }}>
+    <div className="admin-notif-page">
+      <AdminTopBar />
+
+      <div className="admin-notif-header">
+        <div className="admin-notif-header-icon"><FiCrosshair /></div>
+        <div>
+          <h1>Notification Launcher</h1>
+          <p>Create and manage announcements, alerts, and notifications for players</p>
+        </div>
+      </div>
+
+      <div className="an-create-row">
         <button className="an-btn-primary" onClick={openCreate}>
           <FiPlus size={16} /> New Notification
         </button>
@@ -502,7 +512,7 @@ function AdminNotifications() {
           </div>
         </div>
       )}
-    </AdminLayout>
+    </div>
   )
 }
 

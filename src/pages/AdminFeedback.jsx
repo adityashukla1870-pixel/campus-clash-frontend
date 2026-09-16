@@ -6,8 +6,10 @@ import { SkeletonTable } from "../components/Skeleton"
 
 function AdminFeedback() {
   const [feedbacks, setFeedbacks] = useState([])
-  const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState("all")
+  const [loadedFilter, setLoadedFilter] = useState(null)
+
+  const loading = loadedFilter !== filter
 
   const [tournaments, setTournaments] = useState([])
   const [tournamentsLoading, setTournamentsLoading] = useState(true)
@@ -52,12 +54,11 @@ function AdminFeedback() {
   }
 
   const loadFeedbacks = (status) => {
-    setLoading(true)
     const url = status && status !== "all" ? `/feedbacks/admin/all?status=${status}` : "/feedbacks/admin/all"
     API.get(url)
-      .then(res => setFeedbacks(Array.isArray(res.data) ? res.data : []))
+      .then(res => { setFeedbacks(Array.isArray(res.data) ? res.data : []); setLoadedFilter(status) })
       .catch(console.error)
-      .finally(() => setLoading(false))
+      .finally(() => setLoadedFilter(status))
   }
 
   useEffect(() => { loadFeedbacks(filter) }, [filter])

@@ -6,16 +6,16 @@ import "./PlayerMiniCard.css"
 
 function PlayerMiniCard({ userId, anchorRect, onClose }) {
   const [data, setData] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const [loadedFor, setLoadedFor] = useState(null)
   const cardRef = useRef(null)
+
+  const loading = loadedFor !== userId
 
   useEffect(() => {
     if (!userId) return
-    setLoading(true)
     API.get(`/stats/player/${userId}`)
-      .then(res => setData(res.data))
-      .catch(() => setData(null))
-      .finally(() => setLoading(false))
+      .then(res => { setData(res.data); setLoadedFor(userId) })
+      .catch(() => { setData(null); setLoadedFor(userId) })
   }, [userId])
 
   useEffect(() => {

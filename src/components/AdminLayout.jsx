@@ -1,22 +1,24 @@
 import { useNavigate, useLocation } from "react-router-dom"
 import { motion } from "framer-motion"
 import {
-  FiLayout,
-  FiCreditCard,
-  FiRadio,
-  FiAward,
-  FiArrowLeft,
-  FiBell,
-} from "react-icons/fi"
+  LayoutDashboard,
+  CreditCard,
+  Radio,
+  Trophy,
+  Medal,
+  ArrowLeft,
+  Swords,
+  Bell,
+} from "lucide-react"
 import "./AdminLayout.css"
 
 const navItems = [
-  { icon: FiLayout, label: "Dashboard", path: "/admin" },
-  { icon: FiCreditCard, label: "Payments", path: "/admin/payments" },
-  { icon: FiRadio, label: "Release Room", path: "/admin/release-room" },
-  { icon: FiAward, label: "Create Tournament", path: "/admin/create-tournament" },
-  { icon: FiAward, label: "Declare Winner", path: "/admin/winner" },
-  { icon: FiBell, label: "Notifications", path: "/admin/notifications" },
+  { icon: LayoutDashboard, label: "Dashboard", path: "/admin" },
+  { icon: CreditCard, label: "Payments", path: "/admin/payments" },
+  { icon: Radio, label: "Release Room", path: "/admin/release-room" },
+  { icon: Trophy, label: "Create Tournament", path: "/admin/create-tournament" },
+  { icon: Medal, label: "Declare Winner", path: "/admin/winner" },
+  { icon: Bell, label: "Notifications", path: "/admin/notifications" },
 ]
 
 function AdminLayout({ children, title, subtitle }) {
