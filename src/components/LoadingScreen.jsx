@@ -1,5 +1,5 @@
 import { motion } from "framer-motion"
-import { Swords } from "lucide-react"
+import { FiAward } from "react-icons/fi"
 import "./LoadingScreen.css"
 
 function LoadingScreen({ message = "Loading..." }) {
@@ -17,7 +17,7 @@ function LoadingScreen({ message = "Loading..." }) {
             animate={{ rotate: 360 }}
             transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
           />
-          <Swords className="loading-icon" size={28} />
+          <FiAward className="loading-icon" size={28} />
         </div>
         <motion.p
           className="loading-text"

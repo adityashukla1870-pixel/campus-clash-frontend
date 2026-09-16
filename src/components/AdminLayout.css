@@ -130,7 +130,6 @@
   flex: 1;
   margin-left: 260px;
   padding: var(--space-2xl) var(--space-xl);
-  max-width: 900px;
 }
 
 .admin-page-header {

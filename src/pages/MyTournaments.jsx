@@ -4,6 +4,8 @@ import { FiFlag, FiCheckCircle, FiClock, FiTarget, FiUsers, FiMonitor, FiAward, 
 import Navbar from "../components/Navbar"
 import PlayerProfileCard from "../components/PlayerProfileCard"
 import API from "../api/axios"
+import PlayerProfileCard from "../components/PlayerProfileCard"
+import FeedbackLauncher from "../components/FeedbackLauncher"
 import { SkeletonCard, SkeletonText } from "../components/Skeleton"
 import "./MyTournament.css"
 
@@ -116,6 +118,7 @@ function MyTournaments() {
   return (
     <>
       <Navbar />
+      <FeedbackLauncher />
       <div className="mytournaments-page">
         <div className="mytournaments-inner">
           <span className="uppercase-label">Elite Match History</span>

@@ -30,7 +30,7 @@ function AdminLayout({ children, title, subtitle }) {
       <aside className="admin-sidebar">
         <div className="admin-sidebar-header" onClick={() => navigate("/admin")}>
           <div className="admin-logo-icon">
-            <Swords size={20} />
+            <FiAward size={20} />
           </div>
           <div>
             <div className="admin-logo-text">Campus Clash</div>
@@ -63,7 +63,7 @@ function AdminLayout({ children, title, subtitle }) {
         </nav>
 
         <button className="admin-back-btn" onClick={() => navigate("/tournaments")}>
-          <ArrowLeft size={16} />
+          <FiArrowLeft size={16} />
           Back to Arena
         </button>
       </aside>

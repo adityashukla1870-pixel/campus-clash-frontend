@@ -30,6 +30,7 @@ import {
 import Navbar from "../components/Navbar"
 import PlayerProfileCard from "../components/PlayerProfileCard"
 import API from "../api/axios"
+import PlayerProfileCard from "../components/PlayerProfileCard"
 import { getRole } from "../utils/auth"
 import { resolveImageUrl } from "../utils/media"
 import { SkeletonText, SkeletonBlock, SkeletonChat, SkeletonCard } from "../components/Skeleton"
@@ -130,6 +131,7 @@ function Community() {
   const [lfgSlots, setLfgSlots] = useState(1)
 
   const [reviews, setReviews] = useState([])
+  const [selectedProfile, setSelectedProfile] = useState(null)
 
   const socketRef = useRef(null)
   const bottomRef = useRef(null)
@@ -828,7 +830,9 @@ function Community() {
                 borderRadius: 12, padding: "14px 18px",
               }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }} className="pp-clickable"
+                    onClick={(e) => setSelectedProfile({ userId: r.user_id, rect: e.currentTarget.getBoundingClientRect() })}
+                  >
                     <span style={{
                       width: 28, height: 28, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center",
                       background: ACCENTS[Math.abs(r.user_id?.charCodeAt?.(0) || 0) % ACCENTS.length],
